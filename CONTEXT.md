@@ -1,0 +1,25 @@
+# Vocabulary
+
+- **Sender**: the one business using the app, identified by a fixed `X-Account-Id`. No login.
+- **Recipient**: a seeded supplier in Mexico with a peso bank account. The client only ever sees the masked account (`••••4821`).
+- **Corridor**: USD → MXN. The only one.
+- **DUSD**: the generic dollar stablecoin the money moves as between hop 1 and hop 3. 1 DUSD = 1 USD. Its own currency in the ledger. Never shown to the sender by that name.
+- **Hop**: one of the three steps the money takes. **Hop 1, collect**: USD pulled from the sender's funding account and converted to DUSD. **Hop 2, transfer**: DUSD moves from our treasury wallet to the off-ramp's wallet on a (simulated) chain. **Hop 3, deposit**: DUSD converted to MXN and paid into the recipient's bank.
+- **Leg**: our record of one hop for one payout (`payout_legs`), plus a fourth leg, **refund**. A leg has its own state, attempt number, `provider_ref` and last sequence number.
+- **Mode**: how the amount was entered. **Receive** ("They receive", the default): the peso amount is exact, the dollar side rounds up. **Send** ("You send"): the dollar amount is exact, the peso side rounds down.
+- **Quote**: a priced offer for one recipient and amount, held for 60 seconds by the server clock. `active`, then `consumed` (a payout used it) or `expired`.
+- **The four amounts**: `send` (USD debited), `fee` (ours, inside `send`), `convert` (USD turned into DUSD, `send − fee`) and `receive` (MXN the recipient gets). Frozen on the payout at confirm.
+- **Payout**: one confirmed quote moving through the hops. States: `created`, `collecting`, `transferring`, `paying_out`, `delivered`, `failed`, `refunding`, `refunded`. Final: `delivered`, `failed`, `refunded`.
+- **Idempotency key**: a UUID the client creates once per confirm attempt, sent as `Idempotency-Key`. Same key, same body: the stored response. Same key, different body: 409.
+- **Provider ref**: our stable reference for one leg (`PO-1041-T1`). Sent to the provider on every submit and status query. Reused on resend, so the provider can dedupe.
+- **Checking**: a leg whose provider call ended without an answer. The worker asks the provider for the status by `provider_ref` before doing anything else. Never final.
+- **Confirming (n)**: hop 2 seen on chain with n of 3 confirmations. **Final**: 3 confirmations. **Dropped**: a reorg removed it before final; resubmitted with the same reference.
+- **Outbox**: rows that say "send this request to a provider", written in the same transaction as the state change that needs it. The worker sends them.
+- **Inbox**: every webhook event received (`inbox_events`). Dedupes on event id. An event with a sequence at or below the leg's last one is stored as not applied (stale).
+- **Ledger**: double-entry, append-only `ledger_entries`. A **journal** is the set of entries for one event; it sums to zero per currency. Balances are computed.
+- **FX variance**: the cost (or gain) when the off-ramp converts at a different rate than quoted. The platform absorbs it; the recipient still gets `receive`.
+- **Reconciliation**: comparing our ledger with the simulator's own record of what happened, per payout. Lists mismatches; corrects nothing.
+- **Stuck**: a leg not final for longer than the stuck threshold, or any leg in `checking`.
+- **Simulator**: three fake providers behind one `Provider` interface. Their behaviour comes from in-memory **simulation flags** set on `/ops`.
+- **/ops**: the separate route that shows everything the server did (summary, stuck legs, reconciliation, server log, payout inspector, config) and holds the simulation controls. Not part of the product.
+- **Server log**: the `ops_events` table, shown live on `/ops`. Each row is also a structured log line.

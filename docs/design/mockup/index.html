@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payout Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Layer 1: primitives. Raw values, named for what they are.
+   Components never use these directly.
+   ============================================================ */
+:root {
+  --p-paper-0: #FBF9F6;
+  --p-paper-1: #F7F4EF;
+  --p-paper-2: #F0ECE5;
+  --p-paper-3: #E6E1D9;
+  --p-stone-900: #141414;
+  --p-stone-700: #4B4A46;
+  --p-stone-600: #6F6C66;
+  --p-stone-500: #8D8A83;
+  --p-indigo-700: #0B0C9C;
+  --p-indigo-50: #E9E9F6;
+  --p-ember-700: #A83B18;
+  --p-ember-600: #D9532B;
+  --p-ember-50: #FBEBE3;
+  --p-green-700: #2A6E4C;
+  --p-green-600: #2F7A55;
+  --p-green-50: #E6F1EA;
+  --p-amber-700: #8A5A00;
+  --p-amber-50: #FBF1DC;
+  --p-white: #FFFFFF;
+
+  --p-night-0: #121211;
+  --p-night-1: #1C1B19;
+  --p-night-2: #24231F;
+  --p-night-3: #2E2C29;
+  --p-night-4: #4A4743;
+  --p-sand-100: #F1EEE8;
+  --p-sand-300: #BCB8B0;
+  --p-sand-400: #A3A099;
+  --p-indigo-300: #A6A8F7;
+  --p-indigo-900: #23244D;
+  --p-indigo-950: #0B0C4A;
+  --p-ember-300: #F2875F;
+  --p-ember-950: #3A1E14;
+  --p-green-300: #74C79D;
+  --p-green-950: #142A1F;
+  --p-amber-300: #E9B95C;
+  --p-amber-950: #33270F;
+
+  --p-font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --p-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ============================================================
+   Layer 2: roles. The only names components use.
+   Light is the default; dark swaps values, never names.
+   ============================================================ */
+:root {
+  --bg: var(--p-paper-1);
+  --surface: var(--p-paper-0);
+  --surface-sunken: var(--p-paper-1);
+  --surface-hover: var(--p-paper-2);
+  --border: var(--p-paper-3);
+  --border-strong: var(--p-stone-500);
+  --rule-heavy: var(--p-stone-900);
+  --text: var(--p-stone-900);
+  --text-muted: var(--p-stone-700);
+  --text-subtle: var(--p-stone-600);
+  --accent: var(--p-indigo-700);
+  --accent-soft: var(--p-indigo-50);
+  --on-accent: var(--p-white);
+  --focus-ring: var(--p-indigo-700);
+  --success: var(--p-green-700);
+  --success-line: var(--p-green-600);
+  --success-soft: var(--p-green-50);
+  --on-success: var(--p-white);
+  --caution: var(--p-amber-700);
+  --caution-soft: var(--p-amber-50);
+  --danger: var(--p-ember-700);
+  --danger-line: var(--p-ember-600);
+  --danger-soft: var(--p-ember-50);
+  --on-danger: var(--p-white);
+  --disabled-text: var(--p-stone-700);
+  --disabled-bg: var(--p-paper-3);
+  --glow-warm: rgba(240, 190, 170, 0.35);
+  --glow-cool: rgba(180, 178, 220, 0.35);
+
+  --font-sans: var(--p-font-sans);
+  --font-mono: var(--p-font-mono);
+
+  --fs-label: 12px;   /* uppercase labels, pills */
+  --fs-meta: 14px;    /* meta, hints, table cells in the rail */
+  --fs-body: 16px;
+  --fs-lede: 18px;
+  --fs-title: 21px;   /* card titles */
+  --fs-page: 32px;    /* page title */
+  --fs-hero: 48px;    /* the amount the recipient gets */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --tracking-tight: -0.02em;
+  --tracking-label: 0.06em;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --target: 44px;
+  --target-primary: 56px;
+  --t-fast: 150ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--p-night-0); --surface: var(--p-night-1); --surface-sunken: var(--p-night-0); --surface-hover: var(--p-night-2);
+    --border: var(--p-night-3); --border-strong: var(--p-night-4); --rule-heavy: var(--p-sand-100);
+    --text: var(--p-sand-100); --text-muted: var(--p-sand-300); --text-subtle: var(--p-sand-400);
+    --accent: var(--p-indigo-300); --accent-soft: var(--p-indigo-900); --on-accent: var(--p-indigo-950); --focus-ring: var(--p-indigo-300);
+    --success: var(--p-green-300); --success-line: var(--p-green-300); --success-soft: var(--p-green-950); --on-success: var(--p-night-0);
+    --caution: var(--p-amber-300); --caution-soft: var(--p-amber-950);
+    --danger: var(--p-ember-300); --danger-line: var(--p-ember-300); --danger-soft: var(--p-ember-950); --on-danger: var(--p-night-0);
+    --disabled-text: var(--p-sand-300); --disabled-bg: var(--p-night-3);
+    --glow-warm: rgba(217, 83, 43, 0.12); --glow-cool: rgba(110, 112, 220, 0.14);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: var(--p-night-0); --surface: var(--p-night-1); --surface-sunken: var(--p-night-0); --surface-hover: var(--p-night-2);
+  --border: var(--p-night-3); --border-strong: var(--p-night-4); --rule-heavy: var(--p-sand-100);
+  --text: var(--p-sand-100); --text-muted: var(--p-sand-300); --text-subtle: var(--p-sand-400);
+  --accent: var(--p-indigo-300); --accent-soft: var(--p-indigo-900); --on-accent: var(--p-indigo-950); --focus-ring: var(--p-indigo-300);
+  --success: var(--p-green-300); --success-line: var(--p-green-300); --success-soft: var(--p-green-950); --on-success: var(--p-night-0);
+  --caution: var(--p-amber-300); --caution-soft: var(--p-amber-950);
+  --danger: var(--p-ember-300); --danger-line: var(--p-ember-300); --danger-soft: var(--p-ember-950); --on-danger: var(--p-night-0);
+  --disabled-text: var(--p-sand-300); --disabled-bg: var(--p-night-3);
+  --glow-warm: rgba(217, 83, 43, 0.12); --glow-cool: rgba(110, 112, 220, 0.14);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.num { font-variant-numeric: tabular-nums; }
+.mono, code { font-family: var(--font-mono); font-size: 0.88em; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+h1 { font-size: var(--fs-page); line-height: 1.15; letter-spacing: -0.015em; font-weight: var(--fw-medium); margin: 0 0 var(--s2); }
+h2 { font-size: var(--fs-title); line-height: 1.3; letter-spacing: -0.005em; font-weight: var(--fw-medium); margin: 0 0 var(--s3); }
+.label { font-size: var(--fs-label); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--tracking-label); color: var(--text-subtle); }
+.eyebrow { font-size: 13px; font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); margin-bottom: var(--s2); }
+.lede { font-size: var(--fs-lede); color: var(--text-muted); margin: 0; max-width: 62ch; }
+.muted { color: var(--text-muted); }
+.meta { color: var(--text-muted); font-size: var(--fs-meta); }
+
+/* ============================================================
+   Layout: side nav, content, simulation rail
+   ============================================================ */
+.layout { display: grid; grid-template-columns: 232px minmax(0, 1fr) 360px; min-height: 100vh; }
+@media (max-width: 1240px) { .layout { grid-template-columns: 232px minmax(0, 1fr); } .rail { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .layout { display: block; } }
+
+.side { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: var(--s6) var(--s4) var(--s6) var(--s5); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+@media (max-width: 900px) { .side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: var(--s4); } }
+.side .brand { font-weight: var(--fw-bold); font-size: 15px; letter-spacing: -0.01em; display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s5); }
+.side .brand-mark { width: 22px; height: 22px; border-radius: var(--radius-sm); background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-size: 13px; }
+.side .grp { margin: var(--s5) 0 var(--s2); }
+.side .grp:first-of-type { margin-top: 0; }
+.side a { display: block; font-size: var(--fs-meta); color: var(--text-muted); padding: 6px 10px; border-radius: var(--radius-sm); border-left: 2px solid transparent; text-decoration: none; line-height: 1.35; cursor: pointer; }
+.side a:hover { background: var(--surface); }
+.side a.active { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); font-weight: var(--fw-medium); }
+.side a .num { font-family: var(--font-mono); font-size: var(--fs-label); color: var(--text-subtle); margin-right: 6px; }
+.side a.active .num { color: var(--accent); }
+.side .account { margin-top: auto; padding-top: var(--s5); font-size: var(--fs-meta); color: var(--text-muted); }
+.side .account b { display: block; color: var(--text); font-weight: var(--fw-semibold); }
+@media (max-width: 900px) { .side .account { margin-top: var(--s4); padding-top: 0; } .side nav { display: flex; gap: var(--s2); flex-wrap: wrap; } .side .grp { display: none; } }
+.theme-toggle { margin-top: var(--s3); display: inline-flex; gap: 2px; border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 2px; background: var(--surface); }
+.theme-toggle button { border: 0; background: none; padding: 3px 10px; border-radius: var(--radius-pill); font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--text-muted); cursor: pointer; min-height: 28px; }
+.theme-toggle button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+
+.app { padding: var(--s7) var(--s7) var(--s8); max-width: 920px; width: 100%; overflow-x: clip; }
+@media (max-width: 640px) { .app { padding: var(--s5) var(--s4) var(--s7); } }
+
+.page-head { position: relative; isolation: isolate; padding-bottom: var(--s5); margin-bottom: var(--s5); border-bottom: 1px solid var(--border); }
+.page-head::before { content: ""; position: absolute; z-index: -1; inset: -80px -120px -40px -120px; pointer-events: none;
+  background: radial-gradient(40% 70% at 18% 60%, var(--glow-warm), transparent 70%), radial-gradient(40% 70% at 85% 50%, var(--glow-cool), transparent 70%); }
+@media (max-width: 640px) { .page-head::before { inset: -40px -16px -20px -16px; } }
+.page-head .row { align-items: flex-end; }
+.back { display: inline-block; margin-bottom: var(--s3); }
+
+.row { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+.stack > * + * { margin-top: var(--s4); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+.card + .card { margin-top: var(--s4); }
+.section-head { border-bottom: 2px solid var(--rule-heavy); padding-bottom: var(--s3); margin-bottom: var(--s4); }
+
+/* Buttons */
+.btn { min-height: var(--target); padding: 0 var(--s5); border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-weight: var(--fw-semibold); transition: background var(--t-fast); }
+.btn:hover { background: var(--surface-hover); }
+.btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent); filter: brightness(1.15); }
+.btn-lg { min-height: var(--target-primary); font-size: var(--fs-lede); width: 100%; }
+.btn[disabled] { background: var(--disabled-bg); color: var(--disabled-text); border-color: var(--disabled-bg); cursor: not-allowed; filter: none; }
+.link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-weight: var(--fw-medium); font-size: var(--fs-meta); }
+.link:hover { text-decoration: underline; }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; }
+table.list { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.list th { text-align: left; font-size: var(--fs-label); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--tracking-label); color: var(--text-subtle); background: var(--surface-sunken); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.list td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.list tr:last-child td { border-bottom: 0; }
+.list tr.click { cursor: pointer; }
+.list tr.click:hover td { background: var(--surface-hover); }
+.list .r { text-align: right; }
+.list .id { font-family: var(--font-mono); font-size: var(--fs-label); color: var(--accent); }
+@media (max-width: 640px) {
+  .list thead { display: none; }
+  .list tr { display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid var(--border); padding: var(--s2) 0; }
+  .list td { border: 0; padding: 2px var(--s3); }
+  .list .hide-sm { display: none; }
+}
+
+/* Pills */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--radius-pill); font-size: var(--fs-label); font-weight: var(--fw-semibold); white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--success); background: var(--success-soft); }
+.pill.caution { color: var(--caution); background: var(--caution-soft); }
+.pill.danger { color: var(--danger); background: var(--danger-soft); }
+.pill.info { color: var(--accent); background: var(--accent-soft); }
+
+/* New payout */
+.new-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: var(--s5); align-items: start; }
+@media (max-width: 1040px) { .new-grid { grid-template-columns: 1fr; } }
+fieldset { border: 0; margin: 0; padding: 0; }
+legend { padding: 0; margin-bottom: var(--s3); }
+.recipients { display: grid; gap: var(--s2); }
+.recipient { display: flex; gap: var(--s3); align-items: center; padding: var(--s3) var(--s4); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; background: var(--surface-sunken); }
+.recipient:has(input:checked) { border-color: var(--accent); background: var(--surface); box-shadow: inset 0 0 0 1px var(--accent); }
+.recipient input { width: 18px; height: 18px; accent-color: var(--accent); }
+.recipient b { font-weight: var(--fw-semibold); }
+
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 3px; background: var(--surface-sunken); gap: 3px; flex-wrap: wrap; }
+.segmented label { padding: 6px 14px; border-radius: var(--radius-pill); cursor: pointer; font-weight: var(--fw-semibold); font-size: var(--fs-meta); color: var(--text-muted); }
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.segmented label:has(input:checked) { background: var(--accent-soft); color: var(--accent); }
+.segmented label:has(input:focus-visible) { outline: 3px solid var(--focus-ring); outline-offset: 1px; }
+
+.amount-field { display: flex; align-items: center; gap: var(--s2); border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); padding: 0 var(--s4); min-height: 64px; margin-top: var(--s3); }
+.amount-field:focus-within { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.amount-field input { border: 0; outline: 0; background: transparent; font-size: var(--fs-page); font-weight: var(--fw-medium); letter-spacing: var(--tracking-tight); width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+.amount-field .cur { font-family: var(--font-mono); color: var(--text-subtle); font-size: var(--fs-meta); }
+.field-hint { color: var(--text-muted); font-size: var(--fs-meta); margin-top: var(--s2); }
+.field-error { color: var(--danger); font-size: var(--fs-meta); margin-top: var(--s2); font-weight: var(--fw-semibold); }
+
+.quote dl { display: grid; grid-template-columns: 1fr auto; gap: var(--s2) var(--s4); margin: 0; }
+.quote dt { color: var(--text-muted); font-size: var(--fs-meta); align-self: center; }
+.quote dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.quote .big dt { color: var(--text); font-weight: var(--fw-semibold); font-size: var(--fs-body); }
+.quote .big dd { font-size: var(--fs-title); font-weight: var(--fw-medium); letter-spacing: -0.01em; }
+.quote hr { border: 0; border-top: 1px solid var(--border); margin: var(--s2) 0; grid-column: 1 / -1; width: 100%; }
+.hold-bar { height: 6px; border-radius: var(--radius-pill); background: var(--surface-hover); overflow: hidden; }
+.hold-bar span { display: block; height: 100%; background: var(--accent); transition: width 250ms linear; }
+.hold.low .hold-bar span { background: var(--caution); }
+.hold-text { font-family: var(--font-mono); font-size: var(--fs-label); color: var(--text-muted); margin-top: var(--s2); }
+.hold.low .hold-text { color: var(--caution); font-weight: var(--fw-medium); }
+.promise { font-size: var(--fs-meta); color: var(--text-muted); margin: 0; }
+.empty { color: var(--text-muted); text-align: center; padding: var(--s6) var(--s3); }
+
+/* Callouts: the left-border pattern carries every state banner */
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 14px 18px; border-radius: 0 var(--radius) var(--radius) 0; }
+.callout strong { display: block; font-weight: var(--fw-semibold); }
+.callout p { margin: 2px 0 0; color: var(--text-muted); }
+.callout .k { font-size: var(--fs-label); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+.callout.info { border-left-color: var(--accent); background: var(--accent-soft); }
+.callout.info .k { color: var(--accent); }
+.callout.ok { border-left-color: var(--success-line); background: var(--success-soft); }
+.callout.ok .k { color: var(--success); }
+.callout.caution { border-left-color: var(--caution); background: var(--caution-soft); }
+.callout.caution .k { color: var(--caution); }
+.callout.danger { border-left-color: var(--danger-line); background: var(--danger-soft); }
+.callout.danger .k { color: var(--danger); }
+.callout.ok p, .callout.caution p, .callout.danger p, .callout.info p { color: var(--text); }
+
+/* Payout detail */
+.amount-hero { font-size: var(--fs-hero); font-weight: var(--fw-medium); line-height: 1.08; letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; margin: var(--s1) 0 0; }
+.amount-hero .cur { font-size: var(--fs-title); color: var(--text-muted); letter-spacing: 0; margin-left: var(--s2); }
+.kv { display: grid; grid-template-columns: 150px 1fr; gap: 10px 18px; margin: 0; }
+.kv dt { color: var(--text-subtle); font-size: var(--fs-meta); padding-top: 2px; }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dd { margin-bottom: var(--s2); } }
+
+.timeline { list-style: none; padding: 0; margin: var(--s2) 0 0 var(--s2); border-left: 2px solid var(--border); }
+.step { position: relative; padding: 2px 0 var(--s5) 26px; }
+.step:last-child { padding-bottom: var(--s1); }
+.step::before { content: ""; position: absolute; left: -8px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border-strong); }
+.step.active::before { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.step.done::before { border-color: var(--success-line); background: var(--success-line); }
+.step.checking::before { border-color: var(--caution); background: var(--caution-soft); box-shadow: 0 0 0 4px var(--caution-soft); }
+.step.failed::before { border-color: var(--danger-line); background: var(--danger-line); }
+.step.skipped::before { border-style: dashed; }
+.step .when { display: block; font-family: var(--font-mono); font-size: var(--fs-label); color: var(--text-subtle); }
+.step.active .when { color: var(--accent); }
+.step.checking .when, .step.slow .when { color: var(--caution); }
+.step.failed .when { color: var(--danger); }
+.step.done .when { color: var(--success); }
+.step .title { font-weight: var(--fw-semibold); }
+.step .state { color: var(--text-muted); font-size: var(--fs-meta); }
+.step.checking .state, .step.slow .state { color: var(--caution); font-weight: var(--fw-medium); }
+.step.failed .state { color: var(--danger); font-weight: var(--fw-medium); }
+.step.skipped .title { color: var(--text-subtle); font-weight: var(--fw-medium); }
+.spinner { width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; vertical-align: -1px; margin-right: 6px; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+details.support summary { cursor: pointer; font-weight: var(--fw-semibold); color: var(--text-muted); font-size: var(--fs-meta); }
+details.support .kv { margin-top: var(--s3); }
+details.support .kv dd { font-family: var(--font-mono); font-size: var(--fs-label); overflow-wrap: anywhere; padding-top: 3px; }
+.updated { font-family: var(--font-mono); font-size: var(--fs-label); color: var(--text-subtle); }
+
+/* Simulation rail */
+.rail { background: var(--surface-sunken); border-left: 1px solid var(--border); padding: var(--s6) var(--s4); font-size: var(--fs-meta); }
+@media (max-width: 1240px) { .rail { border-left: 0; border-top: 1px solid var(--border); } }
+.rail .section-head h2 { margin: 0; font-size: var(--fs-lede); }
+.rail .label { display: block; margin: var(--s5) 0 var(--s2); }
+.rail .note { color: var(--text-muted); margin: var(--s1) 0 0; }
+.rail label.opt { display: flex; gap: var(--s2); align-items: flex-start; padding: 5px 0; cursor: pointer; }
+.rail label.opt input { margin-top: 4px; accent-color: var(--accent); }
+.rail .opt small { display: block; color: var(--text-muted); font-size: var(--fs-label); }
+.rail .btn { min-height: 36px; padding: 0 var(--s3); font-size: var(--fs-meta); width: 100%; text-align: left; margin-bottom: var(--s2); font-weight: var(--fw-medium); }
+.rail select { width: 100%; min-height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); padding: 0 var(--s2); }
+.log { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow: auto; font-family: var(--font-mono); font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.log li { padding: 5px 9px; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.log li:last-child { border-bottom: 0; }
+.log .k { color: var(--text-subtle); }
+.log .ignored { color: var(--caution); }
+.log .refused { color: var(--danger); }
+.ledger { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.ledger td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.ledger td.r { text-align: right; }
+.check { margin-top: var(--s2); font-weight: var(--fw-semibold); }
+.check.ok { color: var(--success); }
+.check.err { color: var(--danger); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side" id="side" aria-label="Navigation"></aside>
+  <main class="app" id="app" aria-live="off"></main>
+  <aside class="rail" id="rail" aria-label="Simulation controls"></aside>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Fixed data. Money is integer minor units everywhere; the rate is MXN per USD
+// scaled by 10^4 so 17.2500 is 172500.
+// ---------------------------------------------------------------------------
+const RECIPIENTS = [
+  { id: 'r1', label: 'Fabric supplier', city: 'Monterrey, MX', account: '••••4821' },
+  { id: 'r2', label: 'Packaging supplier', city: 'Guadalajara, MX', account: '••••0937' },
+  { id: 'r3', label: 'Freight agent', city: 'Veracruz, MX', account: '••••5510' },
+];
+const FUNDING_ACCOUNT = '••••2290';
+const QUOTE_TTL_MS = 60_000;
+const BASE_RATE = 172500;
+const FEE_BPS = 50;          // 0.5%
+const FEE_MIN = 200;         // $2.00
+const SEND_MIN = 1_000;      // $10.00
+const SEND_MAX = 5_000_000;  // $50,000.00
+const CONFIRMATIONS = 3;
+
+const SCENARIOS = [
+  ['happy', 'Everything works', 'All three hops succeed.'],
+  ['slow', 'Slow providers', 'Every hop takes 4× longer.'],
+  ['decline', 'Hop 1 declines', 'The debit is refused. Nothing moved.'],
+  ['timeout', 'Hop 2 times out', 'No answer. Status is queried before anything else.'],
+  ['reorg', 'Hop 2 reorg (optional)', 'Transfer dropped before final, then resubmitted with the same reference.'],
+  ['bankReject', 'Hop 3 rejects bank details', 'Funds come back. Full refund to the sender.'],
+  ['duplicate', 'Duplicate webhook', 'The same hop-1 event arrives twice.'],
+  ['outOfOrder', 'Out-of-order webhook', '"Deposited" arrives before "processing".'],
+];
+
+// ---------------------------------------------------------------------------
+// Formatting
+// ---------------------------------------------------------------------------
+const fmt = (c) => (c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const usd = (c) => '$' + fmt(c);
+const mxn = (c) => fmt(c) + ' MXN';
+const rateText = (r) => (r / 10000).toFixed(4);
+const time = (t) => new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const shortTime = (t) => new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+const day = (t) => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const rid = (p, n = 6) => p + Math.random().toString(36).slice(2, 2 + n);
+const hex = (n) => Array.from({ length: n }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function parseCents(str) {
+  const s = str.replace(/[,\s]/g, '');
+  if (!/^\d+(\.\d{0,2})?$/.test(s)) return null;
+  const [whole, frac = ''] = s.split('.');
+  if (whole.length > 9) return null;
+  return parseInt(whole, 10) * 100 + parseInt((frac + '00').slice(0, 2), 10);
+}
+
+// Pricing. "Send" mode: the fee comes out of what is sent. "Receive" mode:
+// the recipient amount is exact, and the send amount is rounded up so the
+// recipient never gets a cent less than quoted.
+function priceFromSend(send, rate) {
+  const fee = Math.max(FEE_MIN, Math.round(send * FEE_BPS / 10000));
+  const convert = send - fee;
+  return { send, fee, convert, receive: Math.floor(convert * rate / 10000) };
+}
+function priceFromReceive(receive, rate) {
+  const convert = Math.ceil(receive * 10000 / rate);
+  let send = Math.ceil(convert * 10000 / (10000 - FEE_BPS));
+  if (send - convert < FEE_MIN) send = convert + FEE_MIN;
+  return { send, fee: send - convert, convert, receive };
+}
+
+// ---------------------------------------------------------------------------
+// Fake server. In the real build this is the API + SQLite; here it is an
+// in-memory object so the mockup runs from one file. The client only ever
+// reads it through api.* with latency, never directly.
+// ---------------------------------------------------------------------------
+const server = {
+  quotes: {},
+  payouts: {},
+  idempotency: {},   // key -> { bodyHash, payoutId }
+  inbox: new Set(),  // processed webhook event ids
+  log: [],
+  counter: 1040,
+};
+
+function log(kind, text, cls = '') {
+  server.log.unshift({ at: Date.now(), kind, text, cls });
+  server.log.length = Math.min(server.log.length, 80);
+  renderLog();
+}
+
+const sim = { scenario: 'happy', speed: 1, rateMoved: false, feedDown: false };
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const latency = () => wait(450 / Math.min(sim.speed, 3));
+
+const PAYOUT_TRANSITIONS = {
+  created: ['collecting'],
+  collecting: ['transferring', 'failed'],
+  transferring: ['paying_out', 'refunding'],
+  paying_out: ['delivered', 'refunding'],
+  refunding: ['refunded'],
+  delivered: [], failed: [], refunded: [],
+};
+const FINAL = ['delivered', 'failed', 'refunded'];
+
+function moveTo(p, next) {
+  if (!PAYOUT_TRANSITIONS[p.status].includes(next)) {
+    log('state', `${p.id} ${p.status} → ${next} refused (not an allowed transition)`, 'refused');
+    return false;
+  }
+  log('state', `${p.id} ${p.status} → ${next}`);
+  p.status = next;
+  p.updatedAt = Date.now();
+  if (FINAL.includes(next)) p.finishedAt = Date.now();
+  return true;
+}
+
+function post(p, cur, from, to, amount, memo) {
+  p.ledger.push({ cur, acct: from, amount: -amount, memo }, { cur, acct: to, amount, memo });
+}
+
+function newLegs() {
+  return {
+    collect: { status: 'waiting', seq: 0, at: null },
+    transfer: { status: 'waiting', seq: 0, at: null, confirmations: 0, txHash: null, attempt: 0 },
+    deposit: { status: 'waiting', seq: 0, at: null },
+    refund: { status: 'none', seq: 0, at: null },
+  };
+}
+
+const api = {
+  async createQuote({ recipientId, mode, amount }) {
+    await latency();
+    const rate = BASE_RATE + Math.round((Math.random() - 0.5) * 300);
+    const price = mode === 'send' ? priceFromSend(amount, rate) : priceFromReceive(amount, rate);
+    if (price.send < SEND_MIN) return { status: 422, error: 'below_min' };
+    if (price.send > SEND_MAX) return { status: 422, error: 'above_max' };
+    const now = Date.now();
+    const q = { id: rid('q_'), recipientId, mode, rate, ...price, createdAt: now, expiresAt: now + QUOTE_TTL_MS, status: 'active' };
+    server.quotes[q.id] = q;
+    log('api', `POST /quotes → 201 ${q.id} ${usd(q.send)} → ${mxn(q.receive)}, held until ${time(q.expiresAt)}`);
+    return { status: 201, body: { ...q } };
+  },
+
+  async createPayout({ quoteId, key }) {
+    await wait(220 / Math.min(sim.speed, 3)); // request in flight
+    const arrived = Date.now();               // the server clock decides expiry
+    const bodyHash = 'quote=' + quoteId;
+    const seen = server.idempotency[key];
+    if (seen) {
+      if (seen.bodyHash !== bodyHash) {
+        log('api', `POST /payouts key=${key} → 409 key reused with a different body`, 'refused');
+        await latency();
+        return { status: 409, error: 'idempotency_conflict' };
+      }
+      log('api', `POST /payouts key=${key} → 200 replay of ${seen.payoutId} (no new payout)`, 'ignored');
+      await latency();
+      return { status: 200, body: snapshot(server.payouts[seen.payoutId]) };
+    }
+    const q = server.quotes[quoteId];
+    if (!q) { await latency(); return { status: 404, error: 'quote_not_found' }; }
+    if (q.status === 'consumed') {
+      log('api', `POST /payouts → 409 ${q.id} already used`, 'refused');
+      await latency();
+      return { status: 409, error: 'quote_used' };
+    }
+    if (arrived >= q.expiresAt) {
+      q.status = 'expired';
+      log('api', `POST /payouts → 410 ${q.id} expired at ${time(q.expiresAt)}, request arrived ${time(arrived)}`, 'refused');
+      await latency();
+      return { status: 410, error: 'quote_expired' };
+    }
+    // One transaction: consume the quote, insert the payout, store the key,
+    // write the outbox row. Nothing is sent to a provider here.
+    q.status = 'consumed';
+    const r = RECIPIENTS.find((x) => x.id === q.recipientId);
+    const p = {
+      id: 'PO-' + (++server.counter), quoteId: q.id, key, recipient: r, rate: q.rate,
+      send: q.send, fee: q.fee, convert: q.convert, receive: q.receive,
+      status: 'created', createdAt: arrived, updatedAt: arrived, finishedAt: null,
+      eta: arrived + 15 * 60_000, legs: newLegs(), ledger: [], scenario: sim.scenario,
+      rateMoved: sim.rateMoved, reason: null,
+    };
+    server.payouts[p.id] = p;
+    server.idempotency[key] = { bodyHash, payoutId: p.id };
+    log('db', `tx: consume ${q.id}, insert ${p.id}, key ${key}, outbox collect.request`);
+    log('api', `POST /payouts key=${key} → 201 ${p.id}`);
+    setTimeout(() => runWorker(p), 50);
+    await latency();
+    return { status: 201, body: snapshot(p) };
+  },
+
+  async listPayouts() {
+    if (sim.feedDown) { await latency(); return { status: 0 }; }
+    await wait(120);
+    return { status: 200, body: Object.values(server.payouts).sort((a, b) => b.createdAt - a.createdAt).map(snapshot) };
+  },
+
+  async getPayout(id) {
+    if (sim.feedDown) { await latency(); return { status: 0 }; }
+    await wait(120);
+    const p = server.payouts[id];
+    return p ? { status: 200, body: snapshot(p) } : { status: 404 };
+  },
+};
+
+function snapshot(p) { return JSON.parse(JSON.stringify(p)); }
+
+// ---------------------------------------------------------------------------
+// Provider simulator and webhook intake.
+// ---------------------------------------------------------------------------
+function event(p, leg, status, detail = {}) {
+  const l = p.legs[leg];
+  l.nextSeq = (l.nextSeq || 0) + 1;
+  return { id: rid('evt_', 8), payoutId: p.id, leg, status, seq: l.nextSeq, detail };
+}
+
+function deliver(evt) {
+  const tag = `${evt.id} ${evt.leg}.${evt.status} #${evt.seq}`;
+  if (server.inbox.has(evt.id)) { log('webhook', `${tag} ignored: already processed`, 'ignored'); return; }
+  server.inbox.add(evt.id);
+  const p = server.payouts[evt.payoutId];
+  const leg = p.legs[evt.leg];
+  if (evt.seq <= leg.seq) { log('webhook', `${tag} ignored: older than current #${leg.seq}`, 'ignored'); return; }
+  log('webhook', `${tag} applied`);
+  leg.seq = evt.seq;
+  applyLeg(p, evt.leg, evt.status, evt.detail);
+}
+
+function applyLeg(p, legName, status, detail) {
+  const leg = p.legs[legName];
+  leg.status = status;
+  leg.at = Date.now();
+  Object.assign(leg, detail);
+  p.updatedAt = Date.now();
+
+  if (legName === 'collect' && status === 'succeeded') {
+    post(p, 'USD', 'sender_bank', 'usd_clearing', p.send, 'collected');
+    post(p, 'USD', 'usd_clearing', 'fee_revenue', p.fee, 'fee');
+    post(p, 'USD', 'usd_clearing', 'onramp', p.convert, 'convert to digital dollars');
+    post(p, 'DUSD', 'onramp', 'treasury_wallet', p.convert, 'minted 1:1');
+    if (moveTo(p, 'transferring')) outbox(p, 'transfer.request');
+  }
+  if (legName === 'collect' && status === 'failed') {
+    p.reason = 'Your bank declined the debit.';
+    moveTo(p, 'failed');
+  }
+  if (legName === 'transfer' && status === 'final') {
+    post(p, 'DUSD', 'treasury_wallet', 'offramp_wallet', p.convert, 'on-chain transfer ' + leg.txHash.slice(0, 10));
+    if (moveTo(p, 'paying_out')) outbox(p, 'deposit.request');
+  }
+  if (legName === 'deposit' && status === 'succeeded') {
+    post(p, 'DUSD', 'offramp_wallet', 'offramp', p.convert, 'convert to MXN');
+    if (p.rateMoved) {
+      const fromConversion = Math.floor(p.receive * 0.98);
+      post(p, 'MXN', 'offramp', 'recipient_bank', fromConversion, 'deposit at moved rate');
+      post(p, 'MXN', 'fx_variance', 'recipient_bank', p.receive - fromConversion, 'rate moved 2%, platform absorbs');
+      log('ledger', `${p.id} rate moved 2%: platform absorbed ${mxn(p.receive - fromConversion)}, recipient still gets ${mxn(p.receive)}`);
+    } else {
+      post(p, 'MXN', 'offramp', 'recipient_bank', p.receive, 'deposit');
+    }
+    moveTo(p, 'delivered');
+  }
+  if (legName === 'deposit' && status === 'failed') {
+    p.reason = 'The supplier\'s bank rejected the account details.';
+    if (moveTo(p, 'refunding')) outbox(p, 'refund.request');
+  }
+  if (legName === 'refund' && status === 'succeeded') {
+    post(p, 'DUSD', 'offramp_wallet', 'treasury_wallet', p.convert, 'returned by off-ramp');
+    post(p, 'DUSD', 'treasury_wallet', 'onramp', p.convert, 'redeem 1:1');
+    post(p, 'USD', 'onramp', 'usd_clearing', p.convert, 'redeemed');
+    post(p, 'USD', 'fee_revenue', 'usd_clearing', p.fee, 'fee refunded');
+    post(p, 'USD', 'usd_clearing', 'sender_bank', p.send, 'refund to sender');
+    moveTo(p, 'refunded');
+  }
+  if (currentDetailId === p.id) renderLedger();
+}
+
+const queue = [];
+function outbox(p, kind) {
+  log('db', `tx: ${p.id} state + outbox ${kind}`);
+  queue.push({ p, kind });
+}
+
+// The worker drains the outbox and plays the scenario for each hop.
+async function runWorker(p) {
+  const slow = p.scenario === 'slow' ? 4 : 1;
+  const step = (ms) => wait((ms * slow) / sim.speed);
+  const send = (evt) => deliver(evt);
+
+  moveTo(p, 'collecting');
+  log('worker', `${p.id} sent collect.request to fiat-in provider`);
+  send(event(p, 'collect', 'submitted'));
+  await step(1800);
+
+  if (p.scenario === 'decline') { send(event(p, 'collect', 'failed')); return; }
+  const collected = event(p, 'collect', 'succeeded');
+  send(collected);
+  if (p.scenario === 'duplicate') { await step(400); send(collected); }
+
+  await drain(p, 'transfer.request');
+  log('worker', `${p.id} sent transfer.request (reference ${p.id}-T1)`);
+  const tx = '0x' + hex(64);
+  send(event(p, 'transfer', 'submitted', { txHash: tx, attempt: 1 }));
+  await step(1400);
+
+  if (p.scenario === 'timeout') {
+    applyLeg(p, 'transfer', 'checking');
+    log('worker', `${p.id} chain provider timed out. Not retrying. Asking for status of ${p.id}-T1`, 'ignored');
+    await step(3200);
+    log('worker', `GET chain /transfers/${p.id}-T1 → confirming 1/${CONFIRMATIONS}`);
+    send(event(p, 'transfer', 'confirming', { confirmations: 1 }));
+  } else {
+    send(event(p, 'transfer', 'confirming', { confirmations: 1 }));
+  }
+  await step(1100);
+  send(event(p, 'transfer', 'confirming', { confirmations: 2 }));
+  await step(1100);
+
+  if (p.scenario === 'reorg') {
+    send(event(p, 'transfer', 'dropped', { confirmations: 0 }));
+    log('worker', `${p.id} reorg dropped ${tx.slice(0, 12)}… before final. Resubmitting with the same reference`, 'ignored');
+    await step(1500);
+    const tx2 = '0x' + hex(64);
+    send(event(p, 'transfer', 'submitted', { txHash: tx2, attempt: 2 }));
+    for (let n = 1; n <= 2; n++) { await step(1000); send(event(p, 'transfer', 'confirming', { confirmations: n })); }
+    await step(1000);
+  }
+  send(event(p, 'transfer', 'final', { confirmations: CONFIRMATIONS }));
+
+  await drain(p, 'deposit.request');
+  log('worker', `${p.id} sent deposit.request to fiat-out provider for ${mxn(p.receive)}`);
+  if (p.scenario === 'outOfOrder') {
+    const processing = event(p, 'deposit', 'processing');
+    const done = event(p, 'deposit', 'succeeded');
+    await step(1800);
+    send(done);
+    await step(600);
+    send(processing);
+    return;
+  }
+  send(event(p, 'deposit', 'processing'));
+  await step(2400);
+  if (p.scenario === 'bankReject') {
+    send(event(p, 'deposit', 'failed'));
+    await drain(p, 'refund.request');
+    log('worker', `${p.id} sent refund.request: return ${usd(p.send)} to ${FUNDING_ACCOUNT}`);
+    send(event(p, 'refund', 'processing'));
+    await step(2600);
+    send(event(p, 'refund', 'succeeded'));
+    return;
+  }
+  send(event(p, 'deposit', 'succeeded'));
+}
+
+async function drain(p, kind) {
+  const i = queue.findIndex((x) => x.p === p && x.kind === kind);
+  if (i >= 0) queue.splice(i, 1);
+  await wait(200 / sim.speed);
+}
+
+// Two finished payouts so the list isn't empty on first load.
+function seed() {
+  const mk = (id, r, receive, status, ago) => {
+    const price = priceFromReceive(receive, 172310);
+    const at = Date.now() - ago;
+    const p = {
+      id, quoteId: rid('q_'), key: rid('k_', 8), recipient: RECIPIENTS[r], rate: 172310, ...price,
+      status, createdAt: at, updatedAt: at + 600_000, finishedAt: at + 600_000, eta: at + 900_000,
+      legs: newLegs(), ledger: [], scenario: 'happy', rateMoved: false, reason: null,
+    };
+    ['collect', 'deposit'].forEach((k) => Object.assign(p.legs[k], { status: 'succeeded', at: at + 300_000 }));
+    Object.assign(p.legs.transfer, { status: 'final', at: at + 400_000, confirmations: CONFIRMATIONS, txHash: '0x' + hex(64), attempt: 1 });
+    post(p, 'USD', 'sender_bank', 'usd_clearing', p.send, 'collected');
+    post(p, 'USD', 'usd_clearing', 'fee_revenue', p.fee, 'fee');
+    post(p, 'USD', 'usd_clearing', 'onramp', p.convert, 'convert to digital dollars');
+    post(p, 'DUSD', 'onramp', 'treasury_wallet', p.convert, 'minted 1:1');
+    post(p, 'DUSD', 'treasury_wallet', 'offramp_wallet', p.convert, 'on-chain transfer');
+    post(p, 'DUSD', 'offramp_wallet', 'offramp', p.convert, 'convert to MXN');
+    post(p, 'MXN', 'offramp', 'recipient_bank', p.receive, 'deposit');
+    server.payouts[id] = p;
+  };
+  mk('PO-1039', 1, 4_820_000, 'delivered', 26 * 3600_000);
+  mk('PO-1040', 0, 31_000_000, 'delivered', 3 * 3600_000);
+}
+
+// ---------------------------------------------------------------------------
+// Client. Holds only view state; every status comes from api.*.
+// ---------------------------------------------------------------------------
+const ui = {
+  view: 'list',
+  list: null,
+  listError: false,
+  recipientId: 'r1',
+  mode: 'receive',
+  input: '42,800.00',
+  quote: null,
+  prevQuote: null,
+  quoting: false,
+  quoteError: null,
+  submitting: false,
+  submitError: null,
+  expiredByServer: false,
+  detail: null,
+  lastSync: null,
+  supportOpen: false,
+};
+let currentDetailId = null;
+const app = document.getElementById('app');
+
+function go(view, id) {
+  ui.view = view;
+  currentDetailId = view === 'detail' ? id : null;
+  if (view === 'detail') { ui.detail = null; ui.supportOpen = false; refreshDetail(); }
+  if (view === 'list') refreshList();
+  if (view === 'new') { ui.quote = null; ui.prevQuote = null; ui.quoteError = null; ui.submitError = null; ui.expiredByServer = false; }
+  render();
+  renderLedger();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  const views = { list: viewList, new: viewNew, detail: viewDetail };
+  app.innerHTML = views[ui.view]();
+  bind();
+  renderSide();
+}
+
+// Side navigation. The theme toggle is a per-viewer convenience; the page
+// follows the system setting until someone picks one.
+const side = document.getElementById('side');
+let themeChoice = null;
+function readTheme() {
+  if (themeChoice) return themeChoice;
+  try { return localStorage.getItem('theme') || 'system'; } catch { return 'system'; }
+}
+function applyTheme(t) {
+  themeChoice = t;
+  if (t === 'system') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('theme', t); } catch { /* storage blocked: still applies for this visit */ }
+}
+function renderSide() {
+  const theme = readTheme();
+  const link = (view, n, label) => `<a data-nav="${view}" class="${ui.view === view || (view === 'list' && ui.view === 'detail') ? 'active' : ''}" ${ui.view === view ? 'aria-current="page"' : ''} tabindex="0"><span class="num">${n}</span>${label}</a>`;
+  side.innerHTML = `
+    <div class="brand"><span class="brand-mark" aria-hidden="true">↗</span>Payouts</div>
+    <div class="label grp">Send</div>
+    <nav aria-label="Main">${link('list', '01', 'All payouts')}${link('new', '02', 'New payout')}</nav>
+    <div class="account"><span class="label">Funding account</span><b class="num">${FUNDING_ACCOUNT}</b>Operations
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        ${['system', 'light', 'dark'].map((t) => `<button data-theme-set="${t}" aria-pressed="${theme === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}
+      </div>
+    </div>`;
+  side.querySelectorAll('[data-nav]').forEach((el) => {
+    const nav = () => go(el.dataset.nav);
+    el.addEventListener('click', nav);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') nav(); });
+  });
+  side.querySelectorAll('[data-theme-set]').forEach((el) => el.addEventListener('click', () => { applyTheme(el.dataset.themeSet); renderSide(); }));
+}
+
+function statusPill(p) {
+  const map = {
+    created: ['info', 'Starting'], collecting: ['info', 'In progress'], transferring: ['info', 'In progress'],
+    paying_out: ['info', 'In progress'], refunding: ['caution', 'Refunding'],
+    delivered: ['ok', 'Delivered'], failed: ['danger', 'Not sent'], refunded: ['caution', 'Refunded'],
+  };
+  if (p.legs && p.legs.transfer.status === 'checking') return `<span class="pill caution">Checking</span>`;
+  const [cls, label] = map[p.status];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+
+function callout(kind, key, title, body, role = 'status') {
+  return `<div class="callout ${kind}" role="${role}"><span class="k">${key}</span>${title ? `<strong>${title}</strong>` : ''}${body ? `<p>${body}</p>` : ''}</div>`;
+}
+
+function feedBanner() {
+  if (!sim.feedDown) return '';
+  const since = ui.lastSync ? ` This is the last status we confirmed, at ${time(ui.lastSync)}.` : '';
+  return `<div style="margin-bottom:var(--s5)">${callout('caution', 'Offline', 'Can\'t reach the server right now', `Retrying every few seconds.${since} Your payouts keep moving on our side.`)}</div>`;
+}
+
+function pageHead(eyebrow, title, lede, action = '') {
+  return `<header class="page-head"><div class="row spread"><div>
+      <div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${lede ? `<p class="lede">${lede}</p>` : ''}
+    </div>${action}</div></header>`;
+}
+
+function viewList() {
+  const rows = ui.list;
+  let body;
+  if (!rows) body = `<p class="empty"><span class="spinner"></span>Loading payouts…</p>`;
+  else if (!rows.length) body = `<p class="empty">No payouts yet.</p>`;
+  else body = `<div class="tbl-wrap"><table class="list"><thead><tr><th>Recipient</th><th class="hide-sm">Date</th><th class="r">They receive</th><th class="r hide-sm">You sent</th><th>Status</th></tr></thead><tbody>
+    ${rows.map((p) => `<tr class="click" data-open="${p.id}" tabindex="0" aria-label="Open ${p.id}">
+      <td><b>${esc(p.recipient.label)}</b><div class="id">${p.id}</div></td>
+      <td class="hide-sm meta">${day(p.createdAt)}, ${shortTime(p.createdAt)}</td>
+      <td class="r num">${mxn(p.receive)}</td>
+      <td class="r num hide-sm muted">${usd(p.send)}</td>
+      <td>${statusPill(p)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  return `${feedBanner()}
+    ${pageHead('Payouts', 'Payouts', 'Pay suppliers in Mexico in pesos, from your dollar account.', '<button class="btn btn-primary" data-act="new">New payout</button>')}
+    ${body}`;
+}
+
+function viewNew() {
+  const cur = ui.mode === 'receive' ? 'MXN' : 'USD';
+  return `<button class="link back" data-act="list">← All payouts</button>
+  ${pageHead('New payout', 'Pay a supplier', 'Choose who to pay and how much. You\'ll see the exact amounts before anything is sent.')}
+  <div class="new-grid">
+    <div class="card stack">
+      <fieldset>
+        <legend class="label">Recipient</legend>
+        <div class="recipients">
+          ${RECIPIENTS.map((r) => `<label class="recipient">
+            <input type="radio" name="recipient" value="${r.id}" ${ui.recipientId === r.id ? 'checked' : ''}>
+            <span><b>${esc(r.label)}</b><div class="meta">${esc(r.city)} · Bank account ${r.account} · Pesos</div></span>
+          </label>`).join('')}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="label">Amount</legend>
+        <div class="segmented" role="radiogroup" aria-label="Which amount you are entering">
+          <label><input type="radio" name="mode" value="receive" ${ui.mode === 'receive' ? 'checked' : ''}>They receive (MXN)</label>
+          <label><input type="radio" name="mode" value="send" ${ui.mode === 'send' ? 'checked' : ''}>You send (USD)</label>
+        </div>
+        <label class="sr" for="amount">Amount in ${cur}</label>
+        <div class="amount-field">
+          ${cur === 'USD' ? '<span class="cur">$</span>' : ''}
+          <input id="amount" inputmode="decimal" autocomplete="off" value="${esc(ui.input)}" aria-describedby="amount-hint amount-error">
+          <span class="cur">${cur}</span>
+        </div>
+        <div class="field-hint" id="amount-hint">${ui.mode === 'receive'
+          ? 'Use this when you owe an invoice in pesos. The supplier receives exactly this amount.'
+          : 'Use this when you have a dollar budget. Fees come out of this amount.'}</div>
+        <div class="field-error" id="amount-error" role="alert">${ui.quoteError ? esc(ui.quoteError) : ''}</div>
+      </fieldset>
+      <button class="btn" data-act="quote" ${ui.quoting ? 'disabled' : ''}>${ui.quoting ? '<span class="spinner"></span>Getting rate…' : (ui.quote ? 'Get a new rate' : 'See rate and fees')}</button>
+    </div>
+    <div id="quote-card">${quoteCard()}</div>
+  </div>`;
+}
+
+function quoteCard() {
+  const q = ui.quote;
+  if (!q) return `<div class="card quote"><div class="section-head"><h2 style="margin:0">Summary</h2></div><p class="meta" style="margin:0">Enter an amount and press <b>See rate and fees</b>. The rate is then held for ${QUOTE_TTL_MS / 1000} seconds.</p></div>`;
+  const r = RECIPIENTS.find((x) => x.id === q.recipientId);
+  const left = Math.max(0, q.expiresAt - Date.now());
+  const expired = ui.expiredByServer || (left === 0 && !ui.submitting);
+  let changed = '';
+  if (ui.prevQuote && !expired) {
+    const pq = ui.prevQuote;
+    if (q.mode === 'receive' && pq.send !== q.send) changed = callout('caution', 'New rate', `You now send ${usd(q.send)}`, `Was ${usd(pq.send)}.`);
+    if (q.mode === 'send' && pq.receive !== q.receive) changed = callout('caution', 'New rate', `They now receive ${mxn(q.receive)}`, `Was ${mxn(pq.receive)}.`);
+  }
+  const summary = `<dl>
+      <div class="big" style="display:contents"><dt>${esc(r.label)} receives</dt><dd>${mxn(q.receive)}</dd></div>
+      <hr>
+      <dt>Rate</dt><dd>1 USD = ${rateText(q.rate)} MXN</dd>
+      <dt>Converted</dt><dd>${usd(q.convert)}</dd>
+      <dt>Our fee</dt><dd>${usd(q.fee)}</dd>
+      <hr>
+      <div class="big" style="display:contents"><dt>You send</dt><dd>${usd(q.send)}</dd></div>
+    </dl>`;
+  if (expired) {
+    return `<div class="card quote stack">
+      <div class="section-head"><h2 style="margin:0">Rate expired</h2></div>
+      ${callout('caution', 'Nothing was sent', ui.expiredByServer ? 'The rate expired before your confirmation reached us.' : `This rate expired at ${time(q.expiresAt)}.`, 'Nothing was charged. Get a new rate to continue.')}
+      <div style="opacity:.55">${summary}</div>
+      <button class="btn btn-primary btn-lg" data-act="requote">Get a new rate</button>
+    </div>`;
+  }
+  return `<div class="card quote stack">
+    <div class="section-head"><h2 style="margin:0">Summary</h2></div>
+    ${changed}
+    ${summary}
+    <div class="hold" id="hold">${holdInner(q)}</div>
+    ${ui.submitError ? callout('danger', 'Not sent', esc(ui.submitError), '', 'alert') : ''}
+    <button class="btn btn-primary btn-lg" data-act="confirm" ${ui.submitting ? 'disabled aria-busy="true"' : ''}>
+      ${ui.submitting ? '<span class="spinner"></span>Sending…' : `Confirm and send ${usd(q.send)}`}</button>
+    <p class="promise">Debited from ${FUNDING_ACCOUNT}. Usually arrives in about 15 minutes. If it can't be delivered, you get all of ${usd(q.send)} back, fee included.</p>
+  </div>`;
+}
+
+function holdInner(q) {
+  const left = Math.max(0, q.expiresAt - Date.now());
+  const secs = Math.ceil(left / 1000);
+  const pct = (left / QUOTE_TTL_MS) * 100;
+  const text = ui.submitting ? 'Confirming with the server…'
+    : secs <= 10 ? `Rate held for ${secs}s. Confirm now or get a new rate.`
+    : `Rate held for 0:${String(secs).padStart(2, '0')}`;
+  return `<div class="hold-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+    <div class="hold-text">${text}</div>`;
+}
+
+const LEG_COPY = {
+  collect: (p, l) => ({
+    title: 'Dollars collected from your account',
+    state: {
+      waiting: 'Waiting to start',
+      submitted: `Requesting ${usd(p.send)} from ${FUNDING_ACCOUNT}`,
+      succeeded: `Collected ${usd(p.send)}`,
+      failed: 'Your bank declined the debit. No money moved.',
+    }[l.status],
+  }),
+  transfer: (p, l) => ({
+    title: 'Funds moving to Mexico',
+    state: {
+      waiting: 'Starts once your dollars are collected',
+      submitted: l.attempt > 1 ? 'Sending again with the same reference. Nothing is sent twice.' : 'Sending',
+      checking: 'The network hasn\'t answered yet. We\'re checking before doing anything else. Nothing will be sent twice.',
+      confirming: `Confirming (${l.confirmations} of ${CONFIRMATIONS})`,
+      dropped: 'The transfer didn\'t settle. Sending again with the same reference.',
+      final: 'Arrived',
+    }[l.status],
+  }),
+  deposit: (p, l) => ({
+    title: `Pesos deposited to ${p.recipient.account}`,
+    state: {
+      waiting: 'Starts once the funds arrive',
+      processing: 'The supplier\'s bank is processing the deposit',
+      succeeded: `${mxn(p.receive)} deposited`,
+      failed: 'The bank rejected the account details. Nothing was deposited.',
+    }[l.status],
+  }),
+  refund: (p, l) => ({
+    title: 'Refund to your account',
+    state: {
+      processing: `Returning ${usd(p.send)}, fee included, to ${FUNDING_ACCOUNT}`,
+      succeeded: `Refunded ${usd(p.send)}`,
+    }[l.status],
+  }),
+};
+
+function stepClass(leg, status, p) {
+  if (['succeeded', 'final'].includes(status)) return 'done';
+  if (status === 'failed') return 'failed';
+  if (status === 'checking' || status === 'dropped') return 'checking';
+  if (status === 'waiting') return FINAL.includes(p.status) || p.status === 'refunding' ? 'skipped' : '';
+  return 'active';
+}
+
+const STEP_WORD = { done: 'Done', failed: 'Failed', checking: 'Checking', skipped: 'Not needed', active: 'In progress', '': 'Waiting' };
+
+function viewDetail() {
+  const p = ui.detail;
+  if (!p) return `<button class="link back" data-act="list">← All payouts</button>${feedBanner()}<p class="empty"><span class="spinner"></span>Loading payout…</p>`;
+  const legs = ['collect', 'transfer', 'deposit'];
+  if (p.legs.refund.status !== 'none') legs.push('refund');
+  const slowLeg = p.scenario === 'slow' && !FINAL.includes(p.status) && p.updatedAt < Date.now() - 6000;
+  const steps = legs.map((name, i) => {
+    const l = p.legs[name];
+    const c = LEG_COPY[name](p, l);
+    const base = stepClass(name, l.status, p);
+    let cls = base;
+    let state = base === 'skipped' ? 'Not needed' : c.state;
+    if (base === 'active') {
+      state = `<span class="spinner" aria-hidden="true"></span>${state}`;
+      if (slowLeg) { cls += ' slow'; state += '. Taking longer than usual. Nothing is wrong yet.'; }
+    }
+    if (base === 'checking') state = `<span class="spinner" aria-hidden="true"></span>${state}`;
+    const n = name === 'refund' ? '↺' : String(i + 1).padStart(2, '0');
+    const at = (base === 'done' || base === 'failed') && l.at ? ` · ${time(l.at)}` : '';
+    return `<li class="step ${cls}"><span class="when">${n} · ${STEP_WORD[base]}${at}</span>
+      <div class="title">${c.title}</div><div class="state">${state}</div></li>`;
+  }).join('');
+
+  let banner;
+  if (p.status === 'delivered') banner = callout('ok', '✓ Delivered', `${mxn(p.receive)} arrived at ${shortTime(p.finishedAt)}`, `In ${esc(p.recipient.label.toLowerCase())}'s account ${p.recipient.account}.`);
+  else if (p.status === 'refunded') banner = callout('caution', '↺ Refunded in full', `${usd(p.send)} is back in ${FUNDING_ACCOUNT}, fee included`, `${esc(p.reason)} The supplier received nothing. Check their bank details before sending again.`);
+  else if (p.status === 'failed') banner = callout('danger', '× Not sent', esc(p.reason), 'No money left your account and nothing was charged.');
+  else if (p.status === 'refunding') banner = callout('caution', '! Refunding', 'Couldn\'t deliver. Refunding you.', `${esc(p.reason)} You'll get all of ${usd(p.send)} back.`);
+  else if (p.legs.transfer.status === 'checking') banner = callout('caution', '! Checking', 'Confirming where your funds are', 'A provider didn\'t answer in time. We\'re asking it directly. Don\'t send this payout again.');
+  else banner = callout('info', '→ In progress', `Expected by ${shortTime(p.eta)}`, 'You can close this page. The status is saved and will be here when you come back.');
+
+  const amountLabel = { delivered: 'They received', failed: 'Not sent. Quoted amount', refunded: 'Not delivered. Quoted amount', refunding: 'Not delivered. Quoted amount' }[p.status] || 'They receive';
+  return `<button class="link back" data-act="list">← All payouts</button>
+  ${feedBanner()}
+  ${pageHead(`Payout · <span class="mono">${p.id}</span>`, `To ${esc(p.recipient.label.toLowerCase())}`, `${esc(p.recipient.city)} · Bank account ${p.recipient.account}`, statusPill(p))}
+  <div class="card stack">
+    <div>
+      <span class="label">${amountLabel}</span>
+      <div class="amount-hero">${fmt(p.receive)}<span class="cur">MXN</span></div>
+    </div>
+    <dl class="kv">
+      <dt>You sent</dt><dd>${usd(p.send)}</dd>
+      <dt>Rate, locked</dt><dd>1 USD = ${rateText(p.rate)} MXN</dd>
+      <dt>Fee</dt><dd>${usd(p.fee)}</dd>
+      <dt>Started</dt><dd>${day(p.createdAt)}, ${shortTime(p.createdAt)}</dd>
+    </dl>
+    <div aria-live="polite">${banner}</div>
+  </div>
+  <div class="card">
+    <div class="section-head row spread"><h2 style="margin:0">Status</h2>
+      <span class="updated">${ui.lastSync ? 'updated ' + time(ui.lastSync) : ''}</span></div>
+    <ol class="timeline">${steps}</ol>
+  </div>
+  <div class="card">
+    <details class="support" ${ui.supportOpen ? 'open' : ''}>
+      <summary>Details for support</summary>
+      <dl class="kv">
+        <dt>Payout</dt><dd>${p.id}</dd>
+        <dt>Quote</dt><dd>${p.quoteId}</dd>
+        <dt>Request key</dt><dd>${p.key}</dd>
+        <dt>Network ref.</dt><dd>${p.legs.transfer.txHash || '—'}</dd>
+        <dt>State</dt><dd>${p.status}</dd>
+      </dl>
+    </details>
+  </div>`;
+}
+
+function bind(root = app) {
+  root.querySelectorAll('[data-act]').forEach((el) => el.addEventListener('click', () => actions[el.dataset.act]()));
+  root.querySelectorAll('[data-open]').forEach((el) => {
+    const open = () => go('detail', el.dataset.open);
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+  });
+  root.querySelectorAll('input[name="recipient"]').forEach((el) => el.addEventListener('change', () => { ui.recipientId = el.value; clearQuote(); }));
+  root.querySelectorAll('input[name="mode"]').forEach((el) => el.addEventListener('change', () => {
+    // Keep the numbers coherent when switching: show the other side of the current quote.
+    if (ui.quote) ui.input = fmt(el.value === 'send' ? ui.quote.send : ui.quote.receive);
+    ui.mode = el.value; clearQuote(); render();
+  }));
+  const amount = root.querySelector('#amount');
+  if (amount) amount.addEventListener('input', () => { ui.input = amount.value; if (ui.quote) clearQuote(); });
+  const sup = root.querySelector('details.support');
+  if (sup) sup.addEventListener('toggle', () => { ui.supportOpen = sup.open; });
+}
+
+// An edited amount or recipient invalidates the quote; the old one simply expires on the server.
+function clearQuote() {
+  if (!ui.quote) return;
+  ui.quote = null; ui.prevQuote = null; ui.expiredByServer = false; ui.submitError = null;
+  refreshQuoteCard();
+  const btn = app.querySelector('[data-act="quote"]');
+  if (btn) btn.textContent = 'See rate and fees';
+}
+
+const actions = {
+  list: () => go('list'),
+  new: () => go('new'),
+  async quote() {
+    const cents = parseCents(ui.input);
+    ui.quoteError = null; ui.submitError = null;
+    if (cents === null || cents === 0) { ui.quoteError = 'Enter an amount, like 42,800.00.'; render(); return; }
+    ui.quoting = true; render();
+    const prev = ui.expiredByServer || (ui.quote && ui.quote.expiresAt <= Date.now()) ? ui.quote : null;
+    const res = await api.createQuote({ recipientId: ui.recipientId, mode: ui.mode, amount: cents });
+    ui.quoting = false;
+    if (res.status !== 201) {
+      ui.quoteError = res.error === 'below_min' ? `The minimum is ${usd(SEND_MIN)} sent.` : `The maximum is ${usd(SEND_MAX)} per payout.`;
+      ui.quote = null;
+    } else {
+      ui.prevQuote = prev;
+      ui.quote = res.body;
+      ui.attemptKey = rid('k_', 8); // one key per quote = one per confirm attempt
+      ui.expiredByServer = false;
+    }
+    render();
+  },
+  requote() { actions.quote(); },
+  async confirm() {
+    if (ui.submitting || !ui.quote) return;
+    ui.submitting = true; ui.submitError = null; refreshQuoteCard();
+    const res = await api.createPayout({ quoteId: ui.quote.id, key: ui.attemptKey });
+    ui.submitting = false;
+    if (res.status === 201 || res.status === 200) { go('detail', res.body.id); return; }
+    if (res.status === 410) ui.expiredByServer = true;
+    else if (res.status === 409) ui.submitError = 'This rate was already used for a payout. Get a new rate to send another.';
+    else ui.submitError = 'Something went wrong. Nothing was sent.';
+    refreshQuoteCard();
+  },
+};
+
+function refreshQuoteCard() {
+  const el = document.getElementById('quote-card');
+  if (el) { el.innerHTML = quoteCard(); bind(el); }
+}
+
+async function refreshList() {
+  const res = await api.listPayouts();
+  if (res.status === 200) { ui.list = res.body; ui.lastSync = Date.now(); }
+  if (ui.view === 'list') render();
+}
+async function refreshDetail() {
+  const id = currentDetailId;
+  const res = await api.getPayout(id);
+  if (res.status === 200 && currentDetailId === id) { ui.detail = res.body; ui.lastSync = Date.now(); }
+  if (ui.view === 'detail' && currentDetailId === id) render();
+}
+
+// Poll every second while a list or an unfinished payout is on screen. The
+// countdown ticks four times a second but only touches the hold bar.
+setInterval(() => {
+  if (ui.view === 'list') refreshList();
+  if (ui.view === 'detail' && (!ui.detail || !FINAL.includes(ui.detail.status) || sim.feedDown)) refreshDetail();
+}, 1000);
+setInterval(() => {
+  if (ui.view !== 'new' || !ui.quote || ui.expiredByServer) return;
+  const hold = document.getElementById('hold');
+  if (ui.quote.expiresAt <= Date.now() && !ui.submitting) { refreshQuoteCard(); return; }
+  if (hold) {
+    hold.innerHTML = holdInner(ui.quote);
+    hold.classList.toggle('low', ui.quote.expiresAt - Date.now() <= 10_000);
+  }
+}, 250);
+
+// ---------------------------------------------------------------------------
+// Simulation rail
+// ---------------------------------------------------------------------------
+const rail = document.getElementById('rail');
+function renderRail() {
+  rail.innerHTML = `
+    <div class="section-head"><div class="eyebrow">Not part of the product</div><h2>Simulation</h2></div>
+    <p class="note">Forces each provider behaviour so every screen can be seen.</p>
+    <span class="label">Next payout</span>
+    ${SCENARIOS.map(([id, label, hint]) => `<label class="opt"><input type="radio" name="scenario" value="${id}" ${sim.scenario === id ? 'checked' : ''}>
+      <span>${label}<small>${hint}</small></span></label>`).join('')}
+    <label class="opt"><input type="checkbox" id="rate-moved" ${sim.rateMoved ? 'checked' : ''}>
+      <span>Rate moves 2% before conversion<small>The recipient still gets the quoted pesos.</small></span></label>
+    <span class="label">Right now</span>
+    <label class="opt"><input type="checkbox" id="feed-down" ${sim.feedDown ? 'checked' : ''}>
+      <span>Client can't reach the API<small>Screens keep the last confirmed status.</small></span></label>
+    <button class="btn" data-sim="almost">Quote: jump to 1s left</button>
+    <button class="btn" data-sim="double">Confirm twice (same key)</button>
+    <button class="btn" data-sim="close">Close the tab and come back</button>
+    <label for="speed" class="label">Speed</label>
+    <select id="speed">${[1, 3, 10].map((s) => `<option value="${s}" ${sim.speed === s ? 'selected' : ''}>${s}×</option>`).join('')}</select>
+    <span class="label">Server log</span>
+    <ul class="log" id="log"></ul>
+    <span class="label">Ledger <span id="ledger-for"></span></span>
+    <div id="ledger"></div>`;
+  rail.querySelectorAll('input[name="scenario"]').forEach((el) => el.addEventListener('change', () => { sim.scenario = el.value; }));
+  rail.querySelector('#rate-moved').addEventListener('change', (e) => { sim.rateMoved = e.target.checked; });
+  rail.querySelector('#feed-down').addEventListener('change', (e) => { sim.feedDown = e.target.checked; render(); });
+  rail.querySelector('#speed').addEventListener('change', (e) => { sim.speed = Number(e.target.value); });
+  rail.querySelectorAll('[data-sim]').forEach((el) => el.addEventListener('click', () => simActions[el.dataset.sim]()));
+  renderLog();
+  renderLedger();
+}
+
+const simActions = {
+  almost() {
+    if (ui.view !== 'new' || !ui.quote) { log('sim', 'Get a rate on New payout first'); return; }
+    const t = Date.now() + 1000;
+    server.quotes[ui.quote.id].expiresAt = t;
+    ui.quote.expiresAt = t;
+    log('sim', `${ui.quote.id} now expires at ${time(t)}`);
+  },
+  async double() {
+    if (ui.view !== 'new' || !ui.quote) { log('sim', 'Get a rate on New payout first'); return; }
+    log('sim', 'Two POST /payouts at once with the same key, bypassing the button lock');
+    ui.submitting = true; refreshQuoteCard();
+    const body = { quoteId: ui.quote.id, key: ui.attemptKey };
+    const [a, b] = await Promise.all([api.createPayout(body), api.createPayout(body)]);
+    ui.submitting = false;
+    const ok = [a, b].find((r) => r.body);
+    log('sim', `Responses ${a.status} and ${b.status}. Payouts for this key: ${Object.values(server.payouts).filter((p) => p.key === body.key).length}`);
+    if (ok) go('detail', ok.body.id); else refreshQuoteCard();
+  },
+  close() {
+    log('sim', 'Tab closed: client state discarded. Reopening reads everything from the API');
+    Object.assign(ui, { list: null, detail: null, quote: null, prevQuote: null, submitting: false, lastSync: null });
+    go('list');
+  },
+};
+
+function renderLog() {
+  const el = document.getElementById('log');
+  if (!el) return;
+  el.innerHTML = server.log.map((l) => `<li class="${l.cls}"><span class="k">${time(l.at)} ${l.kind}</span> ${esc(l.text)}</li>`).join('') || '<li class="k">Nothing yet</li>';
+}
+
+function renderLedger() {
+  const el = document.getElementById('ledger');
+  if (!el) return;
+  const p = server.payouts[currentDetailId];
+  document.getElementById('ledger-for').textContent = p ? `· ${p.id}` : '';
+  if (!p) { el.innerHTML = '<p class="note">Open a payout to see its entries.</p>'; return; }
+  if (!p.ledger.length) { el.innerHTML = '<p class="note">No money has moved yet.</p>'; return; }
+  const sums = {};
+  p.ledger.forEach((e) => { sums[e.cur] = (sums[e.cur] || 0) + e.amount; });
+  const delivered = p.ledger.filter((e) => e.acct === 'recipient_bank' && e.cur === 'MXN').reduce((s, e) => s + e.amount, 0);
+  const balanced = Object.values(sums).every((v) => v === 0);
+  el.innerHTML = `<table class="ledger"><tbody>${p.ledger.map((e) => `<tr><td>${e.cur}</td><td>${e.acct}</td><td class="r">${e.amount > 0 ? '+' : ''}${fmt(e.amount)}</td></tr>`).join('')}</tbody></table>
+    <div class="check ${balanced ? 'ok' : 'err'}">${Object.entries(sums).map(([c, v]) => `${c} ${fmt(v)}`).join(' · ')} ${balanced ? '✓ sums to zero' : '✗ unbalanced'}</div>
+    ${p.status === 'delivered' ? `<div class="check ${delivered === p.receive ? 'ok' : 'err'}">Delivered ${mxn(delivered)} ${delivered === p.receive ? '= quoted ✓' : '≠ quoted ✗'}</div>` : ''}`;
+}
+
+applyTheme(readTheme());
+seed();
+renderRail();
+go('list');
+</script>
+</body>
+</html>
