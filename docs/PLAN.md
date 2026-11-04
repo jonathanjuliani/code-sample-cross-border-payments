@@ -397,16 +397,16 @@ Each phase ends with `pnpm verify` green and a commit. A phase isn't done until 
 
 ## 18. Done means
 
-- [ ] A fresh clone on a Unix machine runs with `docker compose up` and nothing else.
-- [ ] Two Confirm clicks leave one row in `payouts` (checked with a query, not on screen).
-- [ ] A quote past its hold is refused, and the screen offers a new price.
-- [ ] Each switch in §11 leaves its payout in one final state and its ledger at zero per currency.
-- [ ] Reopening a payout after closing the tab shows what the server has.
-- [ ] `recipient_bank` MXN for a delivered payout equals the `receive` shown at confirm.
-- [ ] `docs/DECISIONS.md` records what was left out (PLAN §16 "Skipped") and why.
-- [ ] No colour literal in `apps/web/src` outside the token files, and every text pair passes AA in both themes.
-- [ ] The app makes no request to a third-party host at runtime (fonts included).
-- [ ] Every switch can be forced from `/ops`, and `/ops` shows each payout's full server-side history: events, legs, inbox, outbox, idempotency record and ledger.
+- [x] A fresh clone on a Unix machine runs with `docker compose up` and nothing else. _(Phase 6: compose gate; see PROCESS)_
+- [x] Two Confirm clicks leave one row in `payouts` (checked with a query, not on screen). _(e2e H1; api H1)_
+- [x] A quote past its hold is refused, and the screen offers a new price. _(e2e H2 expiry)_
+- [x] Each switch in §11 leaves its payout in one final state and its ledger at zero per currency. _(scenarios + ops S5)_
+- [x] Reopening a payout after closing the tab shows what the server has. _(e2e H9)_
+- [x] `recipient_bank` MXN for a delivered payout equals the `receive` shown at confirm. _(ledger test)_
+- [x] `docs/DECISIONS.md` records what was left out (PLAN §16 "Skipped") and why. _(D21)_
+- [x] No colour literal in `apps/web/src` outside the token files, and every text pair passes AA in both themes. _(check-tokens + tokens.test + axe)_
+- [x] The app makes no request to a third-party host at runtime (fonts included). _(e2e localhost-only)_
+- [x] Every switch can be forced from `/ops`, and `/ops` shows each payout's full server-side history: events, legs, inbox, outbox, idempotency record and ledger. _(ops S8 inspector + e2e S5)_
 
 ## 19. Fixed values
 

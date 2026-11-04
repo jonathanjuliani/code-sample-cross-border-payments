@@ -154,7 +154,7 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 ## D14. pnpm `allowBuilds` for better-sqlite3 and esbuild
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: Set `allowBuilds.better-sqlite3: true` and `allowBuilds.esbuild: true` in `pnpm-workspace.yaml`. Phase 1's brief said `better-sqlite3: false`; under pnpm 11 that skips the package's install script entirely, so no `.node` binding is present and the API cannot open a database. With `true`, `prebuild-install` downloads a platform binary (it does not fall through to node-gyp when a prebuild exists). `esbuild` must also be allowed or Vite's binary is missing.
 
@@ -168,7 +168,7 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 ## D15. Idempotency body hash is canonical JSON (sorted keys)
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: `POST /payouts` hashes the validated body with SHA-256 over `JSON.stringify` of recursively key-sorted objects (`apps/api/src/util/canonical-json.ts`). Key order in the raw request must not change the hash.
 
@@ -179,19 +179,19 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 ## D16. Recipients expose `city`; column added to the schema
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: Phase 2's `GET /recipients` returns `city`. PLAN §6's recipients table omitted it; the seed cities (Monterrey, Guadalajara, Veracruz) are stored in a `city` column and returned in the shared `RecipientSchema`.
 
 ## D17. Idempotent payout replay answers 200
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: The first successful `POST /payouts` stores `response_status = 201`. A later request with the same key and body hash returns **200** with that stored body (PLAN §7: "201 created; 200 replay"), not 201 again.
 
 ## D18. Outbox `due_at` and resend-safe collect transition
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: Scheduled outbox work uses a nullable `due_at` column (`NULL` = due now). On `ProviderTimeout` the original request row is marked sent, the leg goes to `checking`, and a `status.query` row is inserted with `due_at = now + STATUS_BACKOFF_MS[0]`. Later queries walk the backoff list; after `PROVIDER_WINDOW_MS` with `not_found`, a new `*.request` is inserted with the same `provider_ref`. Accepting a `collect.request` transitions `created → collecting` only when the payout is still `created`, so a timeout-then-resend path does not attempt an illegal `collecting → collecting`.
 
@@ -203,7 +203,7 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 ## D19. In-process webhook delivery and network-fee constants
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: Simulator providers post events with `app.inject` to `/webhooks/:provider` (same validation, inbox, machine and ledger as an external caller). Chain fee estimate and actual are `NETWORK_FEE_ESTIMATE_MINOR = 25` and `NETWORK_FEE_ACTUAL_MINOR = 40` in `providers/sim/chain.ts`; the `final` event carries the actual in `detail.networkFeeMinor`, and `onTransferFinal` posts that amount (skipping the fee legs when 0).
 
@@ -215,7 +215,7 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 ## D20. Ops speed control and scrollable logs
 
-**Status**: Proposed
+**Status**: Accepted
 
 **Decision**: `/ops` speed is a `<fieldset>` of `aria-pressed` buttons (accent-soft when pressed), not `Button variant="primary"`. Ops log `<pre>` panels grow with the page (no inner scroll). Support details on the payout screen use `Button variant="link"`.
 
@@ -224,3 +224,30 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Pressed fieldset for speed_ (chosen): matches ThemeSwitch / Segmented; axe S6 stays green in light and dark.
 - _Primary fill for the active speed_ (rejected): Chromium/axe reported surface behind white `on-accent` text even when the painted pixels were indigo.
 - _No inner scroll on logs_ (chosen): avoids axe `scrollable-region-focusable` vs Biome `noNoninteractiveTabindex` on a focusable `<pre>`.
+
+## D21. What PLAN §16 skipped, and why it stays skipped
+
+**Status**: Accepted
+
+**Decision**: The items under PLAN §16 "Skipped, and why" stay out of scope for this sample. Recorded here so a later reader does not treat them as unfinished work.
+
+**Options considered**
+
+- _Auth and multiple businesses_ (skipped): one sender keeps the focus on the money path. `X-Account-Id` marks where auth would go.
+- _Adding and editing recipients_ (skipped): bank-detail validation is its own problem; seeds are enough to trigger hop 3's rejection.
+- _Real providers and a real chain_ (skipped): the simulator can fail on demand; a live chain cannot.
+- _Compliance (KYC, sanctions, daily limits)_ (skipped): required in production; it would sit before `collecting` and drown the payout story.
+- _Fix bank details and retry instead of refunding_ (skipped): needs a held state with a deadline; the refund path keeps the invariant simpler.
+- _Postgres_ (skipped): SQLite gives transactions and unique constraints in one file; the schema stays portable (see D2).
+
+## D22. Idempotent SQLite column migrations
+
+**Status**: Accepted
+
+**Decision**: After `schema.sql` runs, `migrate(db)` adds any columns that older compose volumes lack (`recipients.city`, `outbox.due_at`) and backfills seed cities when blank. `CREATE TABLE IF NOT EXISTS` alone is not enough for additive columns on a persisted file DB.
+
+**Options considered**
+
+- _Idempotent `ALTER TABLE … ADD COLUMN`_ (chosen): keeps existing payout history on the volume; one test covers each column.
+- _Wipe the compose volume on every upgrade_ (rejected): surprising for a sample someone leaves running.
+- _A versioned migration framework_ (rejected): two columns do not justify the machinery.

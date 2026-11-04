@@ -181,3 +181,41 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 - `pnpm verify` green. Totals: shared 17, api 60, web 7 (tokens 4, tone 2, amountField 1).
 - `pnpm test:e2e` → 17 passed.
 - Next: [Phase 6](phases/phase-6-reconciliation-docs.md).
+
+## Phase 6: reconciliation, run steps, coverage
+
+**Built**
+
+- [README](../README.md) run / develop / try-the-failures sections; H table links into coverage.
+- [COVERAGE.md](COVERAGE.md): every H, S, P, T, N id with status, evidence and how to see it (from `pnpm verify` + `pnpm test:e2e` on 2026-11-03, Node 24.21.0).
+- DECISIONS: D14–D20 Accepted; [D21](DECISIONS.md#d21-what-plan-16-skipped-and-why-it-stays-skipped) for PLAN §16 skipped items; [D22](DECISIONS.md#d22-idempotent-sqlite-column-migrations) for volume-safe column adds. PLAN §18 checklist ticked with evidence.
+- `apps/api/src/db/migrate.ts`: add `recipients.city` and `outbox.due_at` when missing on an existing file DB.
+
+**Found**
+
+- S8 e2e was flaky when Confirm locked before a second click; the test now replays the stored key through the API so the ops log always records `idempotent replay`.
+- A persisted Compose volume from before D16/D18 lacked `city` and `due_at`; `CREATE TABLE IF NOT EXISTS` never alters. Migration added and tested.
+
+**Fresh-clone run** (2026-11-03)
+
+- `docker compose up --build` → web + ops at `:8801`, API healthy.
+- Every §11 switch that ends a payout, forced via the same API `/ops` uses, on that stack:
+
+  | Switch | Final state | Ledger Σ/currency |
+  | --- | --- | --- |
+  | `collect.decline` | failed | 0 |
+  | `deposit.rejectBank` | refunded | 0 |
+  | `rate.move` | delivered | 0 |
+  | `webhook.duplicate` | delivered | 0 |
+  | `webhook.outOfOrder` | delivered | 0 |
+  | `transfer.timeout` | delivered | 0 |
+  | `transfer.timeoutLost` | delivered | 0 |
+  | `transfer.reorg` | delivered | 0 |
+  | `slow` | delivered | 0 |
+  | `client.readsFail` | GET /payouts → 503 | — |
+  | `crash.afterCommit` | covered by scenarios H11 | — |
+
+**Gate 6** (2026-11-03)
+
+- `pnpm verify` and `pnpm test:e2e` green after the migration + docs pass.
+- Next: [Phase 7](phases/phase-7-nice-to-haves.md) only if an N item is pulled in.
