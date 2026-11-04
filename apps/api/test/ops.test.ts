@@ -1,6 +1,8 @@
 import { SimulationFlagsSchema } from '@payout/shared';
 import { afterEach, describe, expect, it } from 'vitest';
+import { startWorker } from '../src/outbox/worker.ts';
 import { IllegalTransition, transition } from '../src/payouts/machine.ts';
+import { createInstantProvider, createTimeoutProvider } from '../src/providers/types.ts';
 import { createQuote, createTestContext, newIdempotencyKey, type TestContext } from './helpers.ts';
 import { createSimTestContext, runToFinal, type SimTestContext } from './sim-helpers.ts';
 
@@ -179,6 +181,117 @@ describe('ops API', () => {
     });
     expect(summary.json().stuck.length).toBeGreaterThanOrEqual(1);
     expect(summary.json().stuck[0].payoutId).toBe(created.json().id);
+  });
+
+  it('N3: re-run status query queues one status.query for a checking leg', async () => {
+    plain = await createTestContext(undefined, {
+      OPS_ENABLED: 'true',
+      STATUS_BACKOFF_MS: '1000,2000',
+    });
+    const quote = await createQuote(plain, { mode: 'receive', amountMinor: 4_280_000 });
+    const created = await plain.app.inject({
+      method: 'POST',
+      url: '/payouts',
+      headers: { ...plain.accountHeaders, 'idempotency-key': newIdempotencyKey() },
+      payload: { quoteId: quote.json().id },
+    });
+    const payoutId = created.json().id as string;
+
+    const collect = createTimeoutProvider(createInstantProvider());
+    const worker = startWorker({
+      db: plain.db,
+      clock: plain.clock,
+      log: plain.app.log,
+      config: plain.config,
+      providers: {
+        collect,
+        transfer: createInstantProvider(),
+        deposit: createInstantProvider(),
+        refund: createInstantProvider(),
+      },
+    });
+    await worker.tickOnce();
+    worker.stop();
+
+    const before = plain.db
+      .prepare(`SELECT COUNT(*) AS n FROM outbox WHERE payout_id = @id AND kind = 'status.query'`)
+      .get({ id: payoutId }) as { n: number };
+
+    const statusBefore = plain.db
+      .prepare(`SELECT status FROM payouts WHERE id = @id`)
+      .get({ id: payoutId }) as { status: string };
+
+    const res = await plain.app.inject({
+      method: 'POST',
+      url: `/ops/payouts/${payoutId}/status-query`,
+      headers: plain.accountHeaders,
+      payload: { leg: 'collect' },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({ ok: true });
+
+    const after = plain.db
+      .prepare(`SELECT COUNT(*) AS n FROM outbox WHERE payout_id = @id AND kind = 'status.query'`)
+      .get({ id: payoutId }) as { n: number };
+    expect(after.n).toBe(before.n + 1);
+
+    const statusAfter = plain.db
+      .prepare(`SELECT status FROM payouts WHERE id = @id`)
+      .get({ id: payoutId }) as { status: string };
+    expect(statusAfter.status).toBe(statusBefore.status);
+
+    const notChecking = await plain.app.inject({
+      method: 'POST',
+      url: `/ops/payouts/${payoutId}/status-query`,
+      headers: plain.accountHeaders,
+      payload: { leg: 'transfer' },
+    });
+    expect(notChecking.statusCode).toBe(409);
+  });
+
+  it('N3: flag for review sets flagged_at without changing payout status', async () => {
+    ctx = await createSimTestContext();
+    const { payout } = await runToFinal(ctx, {});
+    const statusBefore = ctx.db
+      .prepare(`SELECT status FROM payouts WHERE id = @id`)
+      .get({ id: payout.id }) as { status: string };
+
+    const res = await ctx.app.inject({
+      method: 'POST',
+      url: `/ops/payouts/${payout.id}/flag`,
+      headers: ctx.accountHeaders,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().flaggedAt).toBeTruthy();
+
+    const row = ctx.db
+      .prepare(`SELECT status, flagged_at FROM payouts WHERE id = @id`)
+      .get({ id: payout.id }) as { status: string; flagged_at: string };
+    expect(row.status).toBe(statusBefore.status);
+    expect(row.flagged_at).toBe(res.json().flaggedAt);
+
+    const again = await ctx.app.inject({
+      method: 'POST',
+      url: `/ops/payouts/${payout.id}/flag`,
+      headers: ctx.accountHeaders,
+    });
+    expect(again.json().flaggedAt).toBe(row.flagged_at);
+
+    ctx.clock.advance(ctx.config.STUCK_AFTER_MS + 1);
+    // Delivered legs are final — force a checking row so stuck includes the flag badge.
+    ctx.db
+      .prepare(
+        `UPDATE payout_legs SET status = 'checking', updated_at = @at
+         WHERE payout_id = @id AND leg = 'transfer'`,
+      )
+      .run({ id: payout.id, at: ctx.clock.now().toISOString() });
+    const summary = await ctx.app.inject({
+      method: 'GET',
+      url: '/ops/summary',
+      headers: ctx.accountHeaders,
+    });
+    const stuck = summary.json().stuck as Array<{ payoutId: string; flagged: boolean }>;
+    expect(stuck.some((s) => s.payoutId === payout.id && s.flagged)).toBe(true);
   });
 
   it('S7: no bank account token in any ops event, log line or response', async () => {

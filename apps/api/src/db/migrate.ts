@@ -28,4 +28,9 @@ export function migrate(db: Db): void {
   if (outbox.size > 0 && !outbox.has('due_at')) {
     db.exec(`ALTER TABLE outbox ADD COLUMN due_at TEXT`);
   }
+
+  const payouts = columnNames(db, 'payouts');
+  if (payouts.size > 0 && !payouts.has('flagged_at')) {
+    db.exec(`ALTER TABLE payouts ADD COLUMN flagged_at TEXT`);
+  }
 }

@@ -7,6 +7,7 @@ import { openSse } from '../http/sse.ts';
 import { balances, journalSums } from '../ledger/balances.ts';
 import { getFlags, resetFlags, setFlags } from '../providers/sim/flags.ts';
 import { maskSecret } from '../webhooks/sign.ts';
+import { flagPayoutForReview, queueStatusQuery } from './actions.ts';
 import { buildOpsSummary } from './summary.ts';
 
 const OPS_STREAM_TICK_MS = 2000;
@@ -135,6 +136,7 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
 
     return {
       payout,
+      flaggedAt: (payout.flagged_at as string | null) ?? null,
       legs,
       inboxEvents: inbox,
       outbox,
@@ -208,6 +210,47 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
   });
 
   app.post('/ops/simulation/reset', async () => resetFlags());
+
+  app.post<{ Params: { id: string }; Body: { leg?: string } }>(
+    '/ops/payouts/:id/status-query',
+    async (request, reply) => {
+      const leg = request.body?.leg;
+      if (typeof leg !== 'string' || !leg) {
+        return reply.code(400).send({
+          error: 'validation_failed',
+          message: 'body.leg is required',
+        });
+      }
+      const result = queueStatusQuery(db, clock, request.log, request.params.id, leg);
+      if (!result.ok) {
+        if (result.error === 'not_found') {
+          return reply.code(404).send({ error: 'not_found', message: 'Payout or leg not found' });
+        }
+        if (result.error === 'bad_leg') {
+          return reply.code(400).send({ error: 'validation_failed', message: 'Unknown leg' });
+        }
+        if (result.error === 'not_checking') {
+          return reply.code(409).send({
+            error: 'not_checking',
+            message: 'Leg is not in checking',
+          });
+        }
+        return reply.code(409).send({
+          error: 'no_provider_ref',
+          message: 'Leg has no provider_ref',
+        });
+      }
+      return { ok: true, outboxId: result.outboxId };
+    },
+  );
+
+  app.post<{ Params: { id: string } }>('/ops/payouts/:id/flag', async (request, reply) => {
+    const result = flagPayoutForReview(db, clock, request.log, request.params.id);
+    if (!result.ok) {
+      return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
+    }
+    return { ok: true, flaggedAt: result.flaggedAt };
+  });
 
   app.post<{ Params: { id: string }; Body: { ms?: number } }>(
     '/ops/quotes/:id/expire-in',

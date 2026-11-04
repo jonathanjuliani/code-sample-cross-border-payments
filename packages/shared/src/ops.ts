@@ -63,6 +63,7 @@ export const OpsSummarySchema = z
           leg: z.string(),
           status: z.string(),
           ageMs: z.number().int().nonnegative(),
+          flagged: z.boolean(),
         })
         .strict(),
     ),

@@ -275,3 +275,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Raw body HMAC_ (chosen): matches what providers sign on the wire.
 - _Canonical JSON of the parsed object_ (rejected): whitespace and key order would invalidate honest signatures.
 - _Skip signing in tests_ (rejected): the sim and tests share the same signed path.
+
+## D25. Ops support actions never move money
+
+**Status**: Accepted
+
+**Decision**: "Re-run status query" only inserts a due-now `status.query` outbox row for a leg already in `checking`. "Flag for review" only sets `payouts.flagged_at` (idempotent). Both record an `api` ops event. Neither transitions the payout, mutates legs, or posts ledger entries. Stuck rows expose `flagged` for the badge.
+
+**Options considered**
+
+- _Outbox-only re-query_ (chosen): reuses the worker's getStatus path; no second code path into providers from HTTP.
+- _Call getStatus inside the request_ (rejected): providers are never called from request handlers.
+- _A separate flagged table_ (rejected): one nullable column is enough for this sample.

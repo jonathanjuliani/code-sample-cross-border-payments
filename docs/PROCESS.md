@@ -254,3 +254,16 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green (api 67). `pnpm test:e2e` → 19 passed.
 - Next: N3 (ops support actions).
+
+## Phase 7 / N3: ops support actions
+
+**Built**
+
+- `POST /ops/payouts/:id/status-query` queues a due-now `status.query` for a `checking` leg (409 otherwise). `POST /ops/payouts/:id/flag` sets `flagged_at` once. Neither changes payout status or ledger.
+- Schema + migrate for `payouts.flagged_at`. Stuck summary includes `flagged`. `/ops` inspector panel with Load, Re-run status query, Flag for review; Stuck shows a Flagged badge.
+- API tests for both actions; e2e that the button queues one query.
+
+**Gate N3** (2026-11-04)
+
+- `pnpm verify` green (api 70). `pnpm test:e2e` → 20 passed.
+- Next: N4 already Handled via P4; N5 (testnet lookup) if pulled.

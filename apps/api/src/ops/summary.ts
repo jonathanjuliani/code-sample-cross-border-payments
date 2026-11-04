@@ -21,7 +21,13 @@ export function buildOpsSummary(
   outboxPending: number;
   outboxOldestAgeMs: number | null;
   workerLastTickAt: string | null;
-  stuck: Array<{ payoutId: string; leg: string; status: string; ageMs: number }>;
+  stuck: Array<{
+    payoutId: string;
+    leg: string;
+    status: string;
+    ageMs: number;
+    flagged: boolean;
+  }>;
 } {
   const statusRows = db
     .prepare(`SELECT status, COUNT(*) AS n FROM payouts GROUP BY status`)
@@ -60,10 +66,18 @@ export function buildOpsSummary(
 
   const legs = db
     .prepare(
-      `SELECT payout_id, leg, status, updated_at FROM payout_legs
-       WHERE status NOT IN ('waiting', 'succeeded', 'failed', 'final')`,
+      `SELECT l.payout_id, l.leg, l.status, l.updated_at, p.flagged_at
+       FROM payout_legs l
+       JOIN payouts p ON p.id = l.payout_id
+       WHERE l.status NOT IN ('waiting', 'succeeded', 'failed', 'final')`,
     )
-    .all() as Array<{ payout_id: string; leg: string; status: string; updated_at: string }>;
+    .all() as Array<{
+    payout_id: string;
+    leg: string;
+    status: string;
+    updated_at: string;
+    flagged_at: string | null;
+  }>;
 
   const stuck = legs
     .map((leg) => {
@@ -76,6 +90,7 @@ export function buildOpsSummary(
         leg: leg.leg,
         status: leg.status,
         ageMs,
+        flagged: Boolean(leg.flagged_at),
       };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);

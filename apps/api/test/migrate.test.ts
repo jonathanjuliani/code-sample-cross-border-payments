@@ -42,4 +42,12 @@ describe('db migrate', () => {
     const cols = db.prepare(`PRAGMA table_info(outbox)`).all() as Array<{ name: string }>;
     expect(cols.some((c) => c.name === 'due_at')).toBe(true);
   });
+
+  it('adds payouts.flagged_at on a pre-N3 database', () => {
+    const db = new Database(':memory:');
+    db.exec(`CREATE TABLE payouts (id TEXT PRIMARY KEY)`);
+    migrate(db);
+    const cols = db.prepare(`PRAGMA table_info(payouts)`).all() as Array<{ name: string }>;
+    expect(cols.some((c) => c.name === 'flagged_at')).toBe(true);
+  });
 });

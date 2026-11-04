@@ -57,3 +57,23 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
+.badge {
+  display: inline-block;
+  margin-left: var(--s2);
+  padding: 2px var(--s2);
+  border-radius: var(--radius);
+  background: var(--caution-soft);
+  color: var(--caution);
+  font-size: var(--fs-label);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+}
+.linkish {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}

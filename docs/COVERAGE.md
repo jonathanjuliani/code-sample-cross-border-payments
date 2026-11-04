@@ -72,7 +72,7 @@ Status values: **Handled**, **Partial**, **Not handled: by choice**, **Not handl
 | --- | --- | --- | --- | --- | --- |
 | N1 | SSE instead of polling | Handled | `GET /payouts/:id/stream` + `/ops/stream`; client prefers SSE, polls on error | `apps/api/test/stream.test.ts`; `e2e/stream.spec.ts` › N1 | Open a payout; timeline advances without 2s poll GETs |
 | N2 | Signed webhooks (HMAC) | Handled | `Timestamp` + `Signature` HMAC-SHA256 over `timestamp.body`; 5 min window; sim signs | `apps/api/test/webhooks.test.ts` › N2 | `/ops` Config shows `webhookSecretMasked` |
-| N3 | Support actions on `/ops` | Not handled: later | Phase 7 | — | — |
+| N3 | Support actions on `/ops` | Handled | Re-run status.query for checking legs; `flagged_at` + Stuck badge; neither moves money | `apps/api/test/ops.test.ts` › N3; `e2e/ops-actions.spec.ts` | `/ops` → Payout inspector |
 | N4 | Reorg simulation | Handled | Same as P4 via `transfer.reorg` | `apps/api/test/scenarios.test.ts` › `P4: reorg…` | `/ops` → `transfer.reorg` |
 | N5 | Read a real testnet transfer | Not handled: later | Phase 7 | — | — |
 | N6 | Second chain behind `Provider` | Not handled: later | Phase 7 | — | — |

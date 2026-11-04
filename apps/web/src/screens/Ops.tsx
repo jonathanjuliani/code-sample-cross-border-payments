@@ -50,6 +50,13 @@ export function Ops() {
   const [kindFilter, setKindFilter] = useState('');
   const [payoutFilter, setPayoutFilter] = useState('');
   const [recon, setRecon] = useState<string>('');
+  const [inspectId, setInspectId] = useState('');
+  const [inspector, setInspector] = useState<{
+    payoutId: string;
+    flaggedAt: string | null;
+    legs: Array<{ leg: string; status: string; provider_ref: string | null }>;
+    actionMsg: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     const sum = await request('/ops/summary', { method: 'GET', schema: OpsSummarySchema });
@@ -112,6 +119,75 @@ export function Ops() {
       schema: SimulationFlagsSchema,
     });
     if (res.ok) setFlags(res.data);
+  }
+
+  async function loadInspector(id: string) {
+    const trimmed = id.trim();
+    if (!trimmed) return;
+    const res = await request(`/ops/payouts/${trimmed}`, {
+      method: 'GET',
+      schema: z.object({
+        flaggedAt: z.string().nullable(),
+        legs: z.array(
+          z.object({
+            leg: z.string(),
+            status: z.string(),
+            provider_ref: z.string().nullable(),
+          }),
+        ),
+      }),
+    });
+    if (!res.ok) {
+      setInspector({
+        payoutId: trimmed,
+        flaggedAt: null,
+        legs: [],
+        actionMsg: `Could not load ${trimmed}`,
+      });
+      return;
+    }
+    setInspector({
+      payoutId: trimmed,
+      flaggedAt: res.data.flaggedAt,
+      legs: res.data.legs,
+      actionMsg: '',
+    });
+  }
+
+  async function rerunStatusQuery(leg: string) {
+    if (!inspector) return;
+    const res = await request(`/ops/payouts/${inspector.payoutId}/status-query`, {
+      method: 'POST',
+      schema: z.object({ ok: z.literal(true), outboxId: z.number() }),
+      body: JSON.stringify({ leg }),
+    });
+    if (res.ok) {
+      setInspector({
+        ...inspector,
+        actionMsg: `Queued status.query for ${leg} (outbox #${res.data.outboxId})`,
+      });
+      await load();
+      return;
+    }
+    setInspector({ ...inspector, actionMsg: `Re-run failed (${res.status})` });
+  }
+
+  async function flagForReview() {
+    if (!inspector) return;
+    const res = await request(`/ops/payouts/${inspector.payoutId}/flag`, {
+      method: 'POST',
+      schema: z.object({ ok: z.literal(true), flaggedAt: z.string() }),
+    });
+    if (res.ok) {
+      setInspector({
+        ...inspector,
+        flaggedAt: res.data.flaggedAt,
+        actionMsg: 'Flagged for review',
+      });
+      await load();
+      return;
+    }
+    setInspector({ ...inspector, actionMsg: `Flag failed (${res.status})` });
   }
 
   if (opsOff) {
@@ -194,12 +270,80 @@ export function Ops() {
           <ul>
             {summary.stuck.map((s) => (
               <li key={`${s.payoutId}-${s.leg}`} className="mono meta">
-                {s.payoutId} · {s.leg} · {s.status} · {Math.round(s.ageMs / 1000)}s
+                <button
+                  type="button"
+                  className={styles.linkish}
+                  onClick={() => {
+                    setInspectId(s.payoutId);
+                    void loadInspector(s.payoutId);
+                  }}
+                >
+                  {s.payoutId}
+                </button>{' '}
+                · {s.leg} · {s.status} · {Math.round(s.ageMs / 1000)}s
+                {s.flagged ? (
+                  <span className={styles.badge} data-testid="flagged-badge">
+                    Flagged
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>
         ) : (
           <p className="muted">None</p>
+        )}
+      </Card>
+
+      <Card>
+        <SectionHead>Payout inspector</SectionHead>
+        <div className="row">
+          <input
+            className={styles.input}
+            placeholder="payout id"
+            aria-label="Inspector payout id"
+            value={inspectId}
+            onChange={(e) => setInspectId(e.target.value)}
+          />
+          <Button onClick={() => void loadInspector(inspectId)}>Load</Button>
+        </div>
+        {inspector ? (
+          <div className="stack" style={{ marginTop: 'var(--s3)' }}>
+            <p className="meta mono">
+              {inspector.payoutId}
+              {inspector.flaggedAt ? (
+                <span className={styles.badge} data-testid="flagged-badge">
+                  Flagged {inspector.flaggedAt}
+                </span>
+              ) : null}
+            </p>
+            <ul>
+              {inspector.legs.map((leg) => (
+                <li key={leg.leg} className="mono meta row" style={{ gap: 'var(--s2)' }}>
+                  <span>
+                    {leg.leg} · {leg.status}
+                  </span>
+                  {leg.status === 'checking' ? (
+                    <Button
+                      onClick={() => void rerunStatusQuery(leg.leg)}
+                      data-testid={`rerun-${leg.leg}`}
+                    >
+                      Re-run status query
+                    </Button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            <Button onClick={() => void flagForReview()} data-testid="flag-for-review">
+              Flag for review
+            </Button>
+            {inspector.actionMsg ? (
+              <p className="meta" data-testid="inspector-action">
+                {inspector.actionMsg}
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="muted">Enter a payout id to inspect.</p>
         )}
       </Card>
 
