@@ -1,0 +1,26 @@
+.root {
+  margin-top: var(--s3);
+  display: inline-flex;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+  background: var(--surface);
+  margin-inline: 0;
+  min-inline-size: 0;
+}
+.root button {
+  border: 0;
+  background: none;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  cursor: pointer;
+  min-height: 28px;
+}
+.root button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

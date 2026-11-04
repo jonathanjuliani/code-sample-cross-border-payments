@@ -21,6 +21,7 @@
     "postinstall": "node scripts/copy-fonts.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@biomejs/biome": "^2.2.4",
     "@playwright/test": "^1.55.0",
     "typescript": "^5.9.2",

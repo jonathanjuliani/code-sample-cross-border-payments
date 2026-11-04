@@ -1,0 +1,9 @@
+.root {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.root + .root {
+  margin-top: var(--s4);
+}

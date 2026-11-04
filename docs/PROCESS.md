@@ -156,3 +156,28 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 - `pnpm verify` green. Totals: shared 17, api 60 (scenarios 13, ops 8, reconciliation 1, prior 38), web 4.
 - `docker compose up -d --build` then `PUT /api/ops/simulation` with `deposit.rejectBank` → 200; `docker compose down`.
 - Next: [Phase 5](phases/phase-5-client-ops-page.md).
+
+## Phase 5: client and /ops page
+
+**Built**
+
+- Client plumbing: `request` + shared Zod schemas, path router (`/`, `/new`, `/payouts/:id`, `/ops`), `usePoll` with back-off and `lastConfirmedAt`, `tone` map, new-payout reducer with idempotency key on quote.
+- UI primitives from PLAN §14 (role tokens only) and the three sender screens plus `/ops` (Simulation, Summary, Stuck, Server log, Reconciliation, Config).
+- Playwright e2e: confirm (H1/H2/S4), timeline (happy/H4/H6/H9/S2/T7), ops (S5/S8), a11y (S6 light+dark, tabular figures, localhost-only, 375 px).
+
+**Found**
+
+- Speed on `/ops` is a pressed fieldset, not a primary `Button`: a selected primary fill confused axe's contrast sampling even when pixels were correct ([D20](DECISIONS.md#d20-ops-speed-control-and-scrollable-logs)).
+- Ops log panels grow with the page instead of an inner scroll (axe vs Biome on focusable `<pre>`).
+- Support details must not use the bare `.label` class on a `<button>` (UA button face + `--text-subtle` fails dark contrast); use `Button variant="link"`.
+- `ThemeSwitch` applies the stored theme on mount, not only on click.
+
+**Dropped**
+
+- Nothing from the brief. SSE, screenshot tests and support actions stay nice-to-haves.
+
+**Gate 5** (2026-11-03)
+
+- `pnpm verify` green. Totals: shared 17, api 60, web 7 (tokens 4, tone 2, amountField 1).
+- `pnpm test:e2e` → 17 passed.
+- Next: [Phase 6](phases/phase-6-reconciliation-docs.md).

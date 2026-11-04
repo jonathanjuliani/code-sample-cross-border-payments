@@ -1,0 +1,52 @@
+.root {
+  list-style: none;
+  padding: 0;
+  margin: var(--s2) 0 0 var(--s2);
+  border-left: 2px solid var(--border);
+}
+.step {
+  position: relative;
+  padding: 0 0 var(--s5) var(--s5);
+}
+.step:last-child {
+  padding-bottom: 0;
+}
+.ring {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--surface);
+}
+.success .ring {
+  border-color: var(--success-line);
+  background: var(--success-line);
+}
+.caution .ring {
+  border-color: var(--caution);
+}
+.danger .ring {
+  border-color: var(--danger-line);
+}
+.dashed .ring {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--text-subtle);
+  margin-bottom: 2px;
+}
+.title {
+  font-weight: var(--fw-semibold);
+}
+.detail {
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+  margin-top: 2px;
+}

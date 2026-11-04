@@ -1,0 +1,48 @@
+.root {
+  min-height: var(--target);
+  padding: 0 var(--s5);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background-color: var(--surface);
+  cursor: pointer;
+  font-weight: var(--fw-semibold);
+  transition: background-color var(--t-fast);
+}
+.root:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+}
+.root.primary {
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.root.primary:hover:not(:disabled) {
+  background-color: var(--accent);
+  filter: brightness(1.15);
+}
+.root.lg {
+  min-height: var(--target-primary);
+  font-size: var(--fs-lede);
+  width: 100%;
+}
+.root:disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  border-color: var(--disabled-bg);
+  cursor: not-allowed;
+  filter: none;
+}
+.root.link {
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-meta);
+  min-height: auto;
+}
+.root.link:hover:not(:disabled) {
+  background-color: transparent;
+  filter: none;
+}

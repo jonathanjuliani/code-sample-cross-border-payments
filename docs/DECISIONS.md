@@ -212,3 +212,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _`app.inject`_ (chosen): one code path for webhooks; tests and compose share behaviour.
 - _Direct `applyProviderEvent` from the sim_ (rejected): bypasses inbox dedupe and HTTP validation.
 - _Fee hardcoded only in postings_ (rejected): reconciliation and P2 need the sim record and the ledger to share the same actual.
+
+## D20. Ops speed control and scrollable logs
+
+**Status**: Proposed
+
+**Decision**: `/ops` speed is a `<fieldset>` of `aria-pressed` buttons (accent-soft when pressed), not `Button variant="primary"`. Ops log `<pre>` panels grow with the page (no inner scroll). Support details on the payout screen use `Button variant="link"`.
+
+**Options considered**
+
+- _Pressed fieldset for speed_ (chosen): matches ThemeSwitch / Segmented; axe S6 stays green in light and dark.
+- _Primary fill for the active speed_ (rejected): Chromium/axe reported surface behind white `on-accent` text even when the painted pixels were indigo.
+- _No inner scroll on logs_ (chosen): avoids axe `scrollable-region-focusable` vs Biome `noNoninteractiveTabindex` on a focusable `<pre>`.

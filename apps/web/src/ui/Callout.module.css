@@ -1,0 +1,48 @@
+.root {
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  padding: 14px 18px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.label {
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+.title {
+  display: block;
+  font-weight: var(--fw-semibold);
+}
+.body {
+  margin: 2px 0 0;
+  color: var(--text);
+}
+.info {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+.info .label {
+  color: var(--accent);
+}
+.success {
+  border-left-color: var(--success-line);
+  background: var(--success-soft);
+}
+.success .label {
+  color: var(--success);
+}
+.caution {
+  border-left-color: var(--caution);
+  background: var(--caution-soft);
+}
+.caution .label {
+  color: var(--caution);
+}
+.danger {
+  border-left-color: var(--danger-line);
+  background: var(--danger-soft);
+}
+.danger .label {
+  color: var(--danger);
+}

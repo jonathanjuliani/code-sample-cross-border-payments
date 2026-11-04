@@ -1,0 +1,25 @@
+.bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 250ms linear;
+}
+.low .fill {
+  background: var(--caution);
+}
+.text {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+  margin-top: var(--s2);
+}
+.low .text {
+  color: var(--caution);
+  font-weight: var(--fw-medium);
+}

@@ -1,0 +1,25 @@
+.root {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s2) var(--s4);
+  margin: 0;
+}
+.root dt {
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+  align-self: center;
+}
+.root dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.big dt {
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+}
+.big dd {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+}

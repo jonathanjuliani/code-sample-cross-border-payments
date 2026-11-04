@@ -1,0 +1,26 @@
+.root {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  background: var(--surface-sunken);
+  gap: 3px;
+  flex-wrap: wrap;
+}
+.root label {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
+}
+.root input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.root label:has(input:checked) {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
