@@ -2,10 +2,13 @@ import type { FastifyInstance } from 'fastify';
 import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
+import { getFlags } from '../providers/sim/flags.ts';
+import { isLegSlow } from '../providers/sim/timing.ts';
 import { createPayout, type ProviderSpy } from './create.ts';
 import {
   type LegRow,
   type PayoutRow,
+  serializeLeg,
   serializePayout,
   serializePayoutListItem,
 } from './serialize.ts';
@@ -16,6 +19,7 @@ export type PayoutRouteDeps = {
   config: AppConfig;
   providerSpy?: ProviderSpy;
   abortAfterQuoteConsumed?: () => void;
+  onCrashAfterCommit?: () => void;
 };
 
 function loadLegs(db: Db, payoutId: string): LegRow[] {
@@ -33,8 +37,28 @@ function loadLegs(db: Db, payoutId: string): LegRow[] {
     .all({ id: payoutId }) as LegRow[];
 }
 
+function serializeWithSlow(clock: Clock, payout: PayoutRow, legs: LegRow[]) {
+  const speed = getFlags().speed;
+  const nowMs = clock.now().getTime();
+  return {
+    ...serializePayout(payout, legs),
+    legs: legs.map((leg) =>
+      serializeLeg(
+        leg,
+        isLegSlow({
+          payoutId: payout.id,
+          leg: leg.leg,
+          status: leg.status,
+          nowMs,
+          speed,
+        }),
+      ),
+    ),
+  };
+}
+
 export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps): void {
-  const { db, clock, config, providerSpy, abortAfterQuoteConsumed } = deps;
+  const { db, clock, config, providerSpy, abortAfterQuoteConsumed, onCrashAfterCommit } = deps;
 
   app.post('/payouts', async (request, reply) => {
     const keyHeader = request.headers['idempotency-key'];
@@ -50,6 +74,10 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
       ...(providerSpy ? { providerSpy } : {}),
       ...(abortAfterQuoteConsumed ? { abortAfterQuoteConsumed } : {}),
     });
+
+    if (result.status === 201) {
+      onCrashAfterCommit?.();
+    }
 
     return reply.code(result.status).send(result.body);
   });
@@ -72,7 +100,7 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
       if (!payout) {
         return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
       }
-      return serializePayout(payout, loadLegs(db, payout.id));
+      return serializeWithSlow(clock, payout, loadLegs(db, payout.id));
     }
 
     const rows = db
@@ -89,6 +117,6 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
     if (!payout) {
       return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
     }
-    return serializePayout(payout, loadLegs(db, payout.id));
+    return serializeWithSlow(clock, payout, loadLegs(db, payout.id));
   });
 }

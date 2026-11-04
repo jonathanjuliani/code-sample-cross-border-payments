@@ -115,8 +115,7 @@ export function applyProviderEvent(
   const confirmations = typeof detail.confirmations === 'number' ? detail.confirmations : null;
   const txHash = typeof detail.txHash === 'string' ? detail.txHash : null;
   const rateMoved = detail.rateMoved === true;
-  const networkFee =
-    typeof detail.networkFeeMinor === 'number' ? detail.networkFeeMinor : undefined;
+  const networkFee = typeof detail.networkFeeMinor === 'number' ? detail.networkFeeMinor : 0;
 
   let legStatus: LegStatus | WebhookEvent['status'] = event.status;
   if (event.leg === 'collect' && event.status === 'declined') {

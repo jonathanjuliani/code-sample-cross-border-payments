@@ -1,7 +1,6 @@
 import type { FastifyBaseLogger } from 'fastify';
 import type { Clock } from '../clock.ts';
 import type { Db } from '../db/open.ts';
-import { DEFAULT_NETWORK_FEE_MINOR } from './accounts.ts';
 import { type JournalLeg, postJournal } from './post.ts';
 
 export type PayoutAmounts = {
@@ -51,23 +50,26 @@ export function onTransferFinal(
   clock: Clock,
   log: FastifyBaseLogger,
   payout: PayoutAmounts,
-  networkFeeMinor: number = DEFAULT_NETWORK_FEE_MINOR,
+  networkFeeMinor = 0,
 ): void {
-  const fee = Math.min(networkFeeMinor, payout.fee_minor);
-  postJournal(db, clock, log, payout.id, 'transfer final', [
+  const entries: JournalLeg[] = [
     {
       currency: 'DUSD',
       from: 'treasury_wallet',
       to: 'offramp_wallet',
       amountMinor: payout.convert_minor,
     },
-    {
+  ];
+  const fee = Math.min(Math.max(0, networkFeeMinor), payout.fee_minor);
+  if (fee > 0) {
+    entries.push({
       currency: 'USD',
       from: 'fee_revenue',
       to: 'network_fee_expense',
       amountMinor: fee,
-    },
-  ]);
+    });
+  }
+  postJournal(db, clock, log, payout.id, 'transfer final', entries);
 }
 
 export function onDepositSucceeded(

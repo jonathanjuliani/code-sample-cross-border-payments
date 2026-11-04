@@ -5,8 +5,16 @@ import { buildApp } from './app.ts';
 import { createSystemClock } from './clock.ts';
 import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
-import { startWorker } from './outbox/worker.ts';
-import { createInstantProvider } from './providers/types.ts';
+import { startWorker, type Worker } from './outbox/worker.ts';
+import {
+  bindFlagRecorder,
+  consumeCrashAfterCommit,
+  createRealSimScheduler,
+  createSimBundle,
+  loadFlagsFromEnv,
+  setSimScheduler,
+} from './providers/sim/index.ts';
+import type { SimRecords } from './providers/sim/records.ts';
 import { expireDue } from './quotes/expire.ts';
 
 const config = loadConfig();
@@ -18,10 +26,46 @@ const db = openDb(config.DB_PATH);
 const clock = createSystemClock();
 seedIfEmpty(db, clock);
 
+loadFlagsFromEnv(config.SIM_FLAGS);
+setSimScheduler(createRealSimScheduler());
+
+let worker: Worker | null = null;
+let simRecords: SimRecords = {
+  collect: new Map(),
+  chain: new Map(),
+  offramp: new Map(),
+  refund: new Map(),
+};
+
 const app = await buildApp({
   db,
   clock,
   config,
+  getWorkerLastTickAt: () => worker?.lastTickAt() ?? null,
+  getSimRecords: () => simRecords,
+  onCrashAfterCommit: () => {
+    if (!consumeCrashAfterCommit()) return;
+    worker?.stop();
+    // Compose restarts the process via restart: unless-stopped.
+    process.exitCode = 1;
+    void app.close().finally(() => {
+      process.exit(1);
+    });
+  },
+});
+
+bindFlagRecorder(db, clock, app.log);
+
+const sim = createSimBundle(app);
+simRecords = sim.records;
+
+worker = startWorker({
+  db,
+  clock,
+  log: app.log,
+  config,
+  providers: sim.providers,
+  intervalMs: config.WORKER_INTERVAL_MS,
 });
 
 const expireTimer = setInterval(() => {
@@ -33,25 +77,8 @@ const expireTimer = setInterval(() => {
 }, 5_000);
 expireTimer.unref?.();
 
-// Phase 3: instant providers stand in until the Phase 4 simulator.
-// They accept submits; status events arrive via /webhooks in real runs / tests.
-const instant = createInstantProvider();
-const worker = startWorker({
-  db,
-  clock,
-  log: app.log,
-  config,
-  providers: {
-    collect: instant,
-    transfer: instant,
-    deposit: instant,
-    refund: instant,
-  },
-  intervalMs: config.WORKER_INTERVAL_MS,
-});
-
 app.addHook('onClose', async () => {
-  worker.stop();
+  worker?.stop();
   clearInterval(expireTimer);
 });
 

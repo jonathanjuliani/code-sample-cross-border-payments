@@ -200,3 +200,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _`due_at` on the outbox row_ (chosen): one poll query; no separate scheduler table.
 - _Always transition on accept_ (rejected): resend after a timeout would throw `IllegalTransition` and leave the hop stuck.
 - _In-memory timers only_ (rejected): a restart would lose the next query time (breaks H11 for checking legs).
+
+## D19. In-process webhook delivery and network-fee constants
+
+**Status**: Proposed
+
+**Decision**: Simulator providers post events with `app.inject` to `/webhooks/:provider` (same validation, inbox, machine and ledger as an external caller). Chain fee estimate and actual are `NETWORK_FEE_ESTIMATE_MINOR = 25` and `NETWORK_FEE_ACTUAL_MINOR = 40` in `providers/sim/chain.ts`; the `final` event carries the actual in `detail.networkFeeMinor`, and `onTransferFinal` posts that amount (skipping the fee legs when 0).
+
+**Options considered**
+
+- _`app.inject`_ (chosen): one code path for webhooks; tests and compose share behaviour.
+- _Direct `applyProviderEvent` from the sim_ (rejected): bypasses inbox dedupe and HTTP validation.
+- _Fee hardcoded only in postings_ (rejected): reconciliation and P2 need the sim record and the ledger to share the same actual.

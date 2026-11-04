@@ -4,6 +4,7 @@ import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
 import { recordEvent } from '../ops/events.ts';
 import { transition } from '../payouts/machine.ts';
+import { markLegStarted } from '../providers/sim/timing.ts';
 import { type Provider, type ProviderMap, ProviderTimeout } from '../providers/types.ts';
 import { applyProviderEvent } from '../webhooks/apply.ts';
 import { insertOutbox, type OutboxKind } from './write.ts';
@@ -129,6 +130,7 @@ export function startWorker(opts: {
            SET status = 'submitted', attempt = attempt + 1, updated_at = @at
            WHERE payout_id = @payout_id AND leg = @leg`,
         ).run({ payout_id: row.payout_id, leg, at });
+        markLegStarted(row.payout_id, leg, clock.now().getTime());
 
         if (leg === 'collect') {
           const status = db
@@ -163,6 +165,7 @@ export function startWorker(opts: {
            SET status = 'checking', attempt = attempt + 1, updated_at = @at
            WHERE payout_id = @payout_id AND leg = @leg`,
         ).run({ payout_id: row.payout_id, leg, at });
+        markLegStarted(row.payout_id, leg, clock.now().getTime());
 
         if (leg === 'collect') {
           const status = db

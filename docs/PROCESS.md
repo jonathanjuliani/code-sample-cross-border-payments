@@ -132,3 +132,27 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green. Totals: shared 17, api 38 (health 2, quotes 5, payouts.create 11, machine 4, ledger 5, worker 5, webhooks 6), web 4.
 - Next: [Phase 4](phases/phase-4-simulator-ops-api.md).
+
+## Phase 4: provider simulator and /ops API
+
+**Built**
+
+- In-memory simulation flags (`SIM_FLAGS`, `PUT /ops/simulation`), injectable `simDelay` scheduler.
+- Collect / chain / offramp fakes: dedupe on `provider_ref`, in-process webhook delivery via `app.inject`, every §11 switch.
+- Network fee constants on the chain (`ESTIMATE` 25 / `ACTUAL` 40); `onTransferFinal` posts the actual (0 when absent).
+- `/ops/*` when `OPS_ENABLED` (summary, events, inspector, config, simulation, expire-in), `GET /reconciliation`, per-leg `slow` on payout reads, `client.readsFail` → 503.
+
+**Found**
+
+- Simulator webhooks must go through the real Fastify stack (`app.inject`) so inbox dedupe and the state machine stay on the same path as production ([D19](DECISIONS.md#d19-in-process-webhook-delivery-and-network-fee-constants)).
+- `crash.afterCommit` is one-shot: consume the flag, stop the worker (tests) or exit 1 (compose restart).
+
+**Dropped**
+
+- Nothing from the brief. UI for `/ops` is Phase 5.
+
+**Gate 4** (2026-11-03)
+
+- `pnpm verify` green. Totals: shared 17, api 60 (scenarios 13, ops 8, reconciliation 1, prior 38), web 4.
+- `docker compose up -d --build` then `PUT /api/ops/simulation` with `deposit.rejectBank` → 200; `docker compose down`.
+- Next: [Phase 5](phases/phase-5-client-ops-page.md).

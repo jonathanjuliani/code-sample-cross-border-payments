@@ -128,6 +128,14 @@ export function createPayout(opts: CreatePayoutOptions): CreatePayoutResult {
 
     if (existing) {
       if (existing.body_hash !== hash) {
+        recordEvent(db, log, {
+          kind: 'api',
+          level: 'warn',
+          at: nowIso,
+          payoutId: existing.payout_id,
+          message: 'idempotency_conflict',
+          data: { key: idempotencyKey },
+        });
         return {
           status: 409,
           body: {
@@ -203,6 +211,13 @@ export function createPayout(opts: CreatePayoutOptions): CreatePayoutResult {
           message: 'Quote expired before confirmation',
         },
       };
+      recordEvent(db, log, {
+        kind: 'api',
+        level: 'info',
+        at: nowIso,
+        message: 'quote_expired',
+        data: { quoteId: quote.id },
+      });
       storeIdempotency(db, idempotencyKey, hash, null, result.status, result.body, nowIso);
       return result;
     }

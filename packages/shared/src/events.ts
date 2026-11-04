@@ -63,6 +63,7 @@ export const ReconciliationItemSchema = z
     payoutId: z.string().min(1),
     mismatches: z.array(z.string()),
     fxVarianceMinor: z.number().int(),
+    networkFeeExpenseMinor: z.number().int().default(0),
   })
   .strict();
 export type ReconciliationItem = z.infer<typeof ReconciliationItemSchema>;
@@ -70,6 +71,13 @@ export type ReconciliationItem = z.infer<typeof ReconciliationItemSchema>;
 export const ReconciliationResponseSchema = z
   .object({
     items: z.array(ReconciliationItemSchema),
+    totals: z
+      .object({
+        fxVarianceMinor: z.number().int(),
+        networkFeeExpenseMinor: z.number().int(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type ReconciliationResponse = z.infer<typeof ReconciliationResponseSchema>;
