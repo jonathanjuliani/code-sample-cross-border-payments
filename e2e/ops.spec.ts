@@ -25,13 +25,32 @@ test('S5: a switch set on /ops changes the next payout', async ({ page, request 
 
 test('S8: the server log shows the replay when Confirm is sent twice with the same key', async ({
   page,
+  request,
 }) => {
   await page.goto('/new');
   await page.getByRole('radio', { name: /Fabric supplier/i }).check();
   await page.getByLabel(/Amount in MXN/i).fill('42800.00');
   await page.getByRole('button', { name: 'See rate and fees' }).click();
-  await page.getByRole('button', { name: 'Confirm' }).dblclick();
+  const confirmReq = page.waitForRequest(
+    (r) => r.url().includes('/api/payouts') && r.method() === 'POST',
+  );
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  const first = await confirmReq;
   await expect(page).toHaveURL(/\/payouts\/PO-/);
+
+  const key = first.headers()['idempotency-key'];
+  const body = first.postData() ?? '';
+  expect(key).toBeTruthy();
+  const replay = await request.post('/api/payouts', {
+    headers: {
+      'x-account-id': 'acct_demo',
+      'content-type': 'application/json',
+      'idempotency-key': key as string,
+    },
+    data: JSON.parse(body) as object,
+  });
+  expect(replay.status()).toBe(200);
+
   await page.goto('/ops');
   await expect(page.locator('pre').filter({ hasText: /idempotent replay/i })).toBeVisible({
     timeout: 15_000,
