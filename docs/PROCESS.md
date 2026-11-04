@@ -303,3 +303,9 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green. `pnpm test:e2e` → 22 passed.
 - Phase 7 N items N1–N7 done (N4 was already Handled via P4).
+
+## Sample complete
+
+Phases 0–7 are finished. PLAN §18 checklist is ticked. Every H, S, P, T and N row in [COVERAGE.md](COVERAGE.md) is Handled (skipped PLAN §16 items stay under [D21](DECISIONS.md#d21-what-plan-16-skipped-and-why-it-stays-skipped)). There is no Phase 8; anything new needs a DECISIONS entry that reopens scope.
+
+Last green run on this close-out: `pnpm verify` (api 86, shared 17, web 7) and `pnpm test:e2e` (22) from the N7 gate.

@@ -1,6 +1,6 @@
 # Coverage
 
-Statuses as of 2026-11-03. Node `v24.21.0`. Commands that produced them:
+Statuses as of 2026-11-04 (Phases 0–7 complete, including N1–N7). Node `v24.21.0`. Commands that produced them:
 
 ```bash
 pnpm verify

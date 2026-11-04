@@ -5,13 +5,15 @@ One brief per phase. Each is written so someone (a person or an agent) who has r
 | Phase | Brief                                          | Ends with                                                                 |
 | ----- | ---------------------------------------------- | ------------------------------------------------------------------------- |
 | 0     | done: PLAN, mockup, DECISIONS v1, AGENTS       | The invariant and H1 to H12 written before code                           |
-| 1     | [Foundation](phase-1-foundation.md)            | `docker compose up` answers `/health`; money and token checks green       |
-| 2     | [Quotes and payouts](phase-2-quotes-payouts.md) | H1, H2, H3; illegal transitions refused                                  |
-| 3     | [Ledger, outbox, webhooks](phase-3-ledger-outbox-webhooks.md) | H7, H8, H11, H12; every journal sums to zero               |
-| 4     | [Simulator and ops API](phase-4-simulator-ops-api.md) | Every §11 switch ends in a final state with a balanced ledger      |
-| 5     | [Client and /ops page](phase-5-client-ops-page.md) | Playwright flows and axe green in both themes                        |
-| 6     | [Reconciliation and docs](phase-6-reconciliation-docs.md) | Fresh clone, one command, every switch tried by hand           |
-| 7     | [Nice-to-haves](phase-7-nice-to-haves.md)      | Each N item with a test, or it doesn't ship                                |
+| 1     | done: [Foundation](phase-1-foundation.md)      | `docker compose up` answers `/health`; money and token checks green       |
+| 2     | done: [Quotes and payouts](phase-2-quotes-payouts.md) | H1, H2, H3; illegal transitions refused                            |
+| 3     | done: [Ledger, outbox, webhooks](phase-3-ledger-outbox-webhooks.md) | H7, H8, H11, H12; every journal sums to zero             |
+| 4     | done: [Simulator and ops API](phase-4-simulator-ops-api.md) | Every §11 switch ends in a final state with a balanced ledger |
+| 5     | done: [Client and /ops page](phase-5-client-ops-page.md) | Playwright flows and axe green in both themes                      |
+| 6     | done: [Reconciliation and docs](phase-6-reconciliation-docs.md) | Fresh clone, one command, every switch tried by hand         |
+| 7     | done: [Nice-to-haves](phase-7-nice-to-haves.md) | Each N item with a test (N1–N7; N4 via P4)                               |
+
+There is no Phase 8. Further work is maintenance or a new DECISIONS entry that reopens scope.
 
 ## How to work a phase
 
