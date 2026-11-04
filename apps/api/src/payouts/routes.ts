@@ -3,6 +3,7 @@ import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
 import { openSse } from '../http/sse.ts';
+import { lookupTransferByHash } from '../network/lookup.ts';
 import { getFlags } from '../providers/sim/flags.ts';
 import { isLegSlow } from '../providers/sim/timing.ts';
 import { createPayout, type ProviderSpy } from './create.ts';
@@ -16,6 +17,11 @@ import {
 
 const STREAM_TICK_MS = 250;
 
+export type LookupFetch = (
+  input: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string },
+) => Promise<{ ok: boolean; json: () => Promise<unknown> }>;
+
 export type PayoutRouteDeps = {
   db: Db;
   clock: Clock;
@@ -23,6 +29,8 @@ export type PayoutRouteDeps = {
   providerSpy?: ProviderSpy;
   abortAfterQuoteConsumed?: () => void;
   onCrashAfterCommit?: () => void;
+  /** Test-only: recorded RPC responses so CI never hits the network. */
+  lookupFetch?: LookupFetch;
 };
 
 function loadLegs(db: Db, payoutId: string): LegRow[] {
@@ -61,7 +69,15 @@ function serializeWithSlow(clock: Clock, payout: PayoutRow, legs: LegRow[]) {
 }
 
 export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps): void {
-  const { db, clock, config, providerSpy, abortAfterQuoteConsumed, onCrashAfterCommit } = deps;
+  const {
+    db,
+    clock,
+    config,
+    providerSpy,
+    abortAfterQuoteConsumed,
+    onCrashAfterCommit,
+    lookupFetch,
+  } = deps;
 
   app.post('/payouts', async (request, reply) => {
     const keyHeader = request.headers['idempotency-key'];
@@ -162,6 +178,39 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
       if (timer) clearInterval(timer);
     });
     tick();
+  });
+
+  app.get<{ Params: { id: string } }>('/payouts/:id/network-ref', async (request, reply) => {
+    if (!config.TESTNET_LOOKUP_ENABLED) {
+      return reply.code(404).send({
+        error: 'not_found',
+        message: 'Testnet lookup is off',
+      });
+    }
+    const payout = db.prepare(`SELECT * FROM payouts WHERE id = @id`).get({
+      id: request.params.id,
+    }) as PayoutRow | undefined;
+    if (!payout) {
+      return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
+    }
+    const transfer = loadLegs(db, payout.id).find((leg) => leg.leg === 'transfer' && leg.tx_hash);
+    if (!transfer?.tx_hash) {
+      return reply.code(404).send({
+        error: 'not_found',
+        message: 'No network reference on this payout',
+      });
+    }
+    const ref = await lookupTransferByHash(transfer.tx_hash, {
+      rpcUrl: config.TESTNET_RPC_URL,
+      ...(lookupFetch ? { fetchFn: lookupFetch } : {}),
+    });
+    if (!ref) {
+      return reply.code(404).send({
+        error: 'not_found',
+        message: 'Transfer not found on testnet',
+      });
+    }
+    return ref;
   });
 
   app.get<{ Params: { id: string } }>('/payouts/:id', async (request, reply) => {

@@ -19,6 +19,7 @@ export type TestContext = {
 export async function createTestContext(
   hooks?: BuildAppOptions['testHooks'],
   env: Record<string, string> = {},
+  opts: Pick<BuildAppOptions, 'lookupFetch'> = {},
 ): Promise<TestContext> {
   const db = openDb(':memory:');
   const clock = createFakeClock(Date.parse('2026-11-03T15:00:00.000Z'));
@@ -36,6 +37,7 @@ export async function createTestContext(
     clock,
     config,
     ...(hooks ? { testHooks: hooks } : {}),
+    ...(opts.lookupFetch ? { lookupFetch: opts.lookupFetch } : {}),
   });
   return {
     app,

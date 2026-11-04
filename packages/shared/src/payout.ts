@@ -113,3 +113,16 @@ export const ErrorBodySchema = z
   })
   .strict();
 export type ErrorBody = z.infer<typeof ErrorBodySchema>;
+
+/** Read-only testnet transfer facts for support details (N5). */
+export const NetworkRefSchema = z
+  .object({
+    hash: z.string().min(1),
+    blockNumber: z.string().nullable(),
+    from: z.string().nullable(),
+    to: z.string().nullable(),
+    valueWei: z.string().nullable(),
+    source: z.literal('testnet-rpc'),
+  })
+  .strict();
+export type NetworkRef = z.infer<typeof NetworkRefSchema>;

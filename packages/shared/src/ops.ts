@@ -85,6 +85,7 @@ export const OpsConfigSchema = z
     appVersion: z.string(),
     opsEnabled: z.boolean(),
     webhookSecretMasked: z.string(),
+    testnetLookupEnabled: z.boolean(),
   })
   .strict();
 export type OpsConfig = z.infer<typeof OpsConfigSchema>;

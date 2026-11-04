@@ -1,5 +1,6 @@
-import type { Recipient } from '@payout/shared';
-import { useState } from 'react';
+import { type NetworkRef, NetworkRefSchema, type Recipient } from '@payout/shared';
+import { useEffect, useState } from 'react';
+import { request } from '../state/api.ts';
 import { useLivePayout } from '../state/livePayout.ts';
 import { navigate } from '../state/route.ts';
 import { payoutPillLabel, payoutTone } from '../state/tone.ts';
@@ -16,8 +17,28 @@ import { buildTimeline, payoutBanner } from './timelineCopy.ts';
 
 export function PayoutDetail({ id, recipients }: { id: string; recipients: Recipient[] }) {
   const [supportOpen, setSupportOpen] = useState(false);
+  const [networkRef, setNetworkRef] = useState<NetworkRef | null>(null);
   const { payout, offline, lastConfirmedAt, transport } = useLivePayout(id, { while: true });
   const recipient = recipients.find((r) => r.id === payout?.recipientId);
+
+  useEffect(() => {
+    if (!supportOpen || !payout?.legs.some((l) => l.leg === 'transfer' && l.txHash)) {
+      setNetworkRef(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const res = await request(`/payouts/${id}/network-ref`, {
+        method: 'GET',
+        schema: NetworkRefSchema,
+      });
+      if (!cancelled && res.ok) setNetworkRef(res.data);
+      if (!cancelled && !res.ok) setNetworkRef(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supportOpen, payout, id]);
 
   if (!payout) {
     return <p className="muted">Loading…</p>;
@@ -102,6 +123,15 @@ export function PayoutDetail({ id, recipients }: { id: string; recipients: Recip
                   {leg.txHash ? ` · ${leg.txHash}` : ''}
                 </p>
               ))}
+              {networkRef ? (
+                <div data-testid="network-ref">
+                  <p className="label">Network reference</p>
+                  <p className="meta mono">hash · {networkRef.hash}</p>
+                  <p className="meta mono">block · {networkRef.blockNumber ?? '—'}</p>
+                  <p className="meta mono">from · {networkRef.from ?? '—'}</p>
+                  <p className="meta mono">to · {networkRef.to ?? '—'}</p>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </Card>

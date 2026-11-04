@@ -267,3 +267,16 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green (api 70). `pnpm test:e2e` → 20 passed.
 - Next: N4 already Handled via P4; N5 (testnet lookup) if pulled.
+
+## Phase 7 / N5: testnet network reference
+
+**Built**
+
+- `GET /payouts/:id/network-ref`: when `TESTNET_LOOKUP_ENABLED`, looks up the transfer leg `tx_hash` via public `eth_getTransactionByHash` (no API keys). Off by default → 404.
+- Unit tests use a recorded Sepolia-shaped fixture and an injected `fetch` — CI never opens a socket. Support details show the facts when the endpoint returns 200.
+- `/ops/config` exposes `testnetLookupEnabled`.
+
+**Gate N5** (2026-11-04)
+
+- `pnpm verify` green (api 73). `pnpm test:e2e` still green (lookup stays off in e2e).
+- Next: N6 (second chain provider) if pulled.

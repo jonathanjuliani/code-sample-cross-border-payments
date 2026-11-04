@@ -433,6 +433,8 @@ Every number and name the code needs, so nobody invents one. Each one lives in e
 | `SIM_RATE_JITTER_E4`  | `150`                    | Quote rate is `172500 ± jitter`. `0` in tests.                                   |
 | `LOG_LEVEL`           | `info`                   | Fastify's pino logger.                                                           |
 | `WEBHOOK_SECRET`      | `whsec_demo_sample`      | HMAC-SHA256 for `POST /webhooks/*` (`Signature` over `timestamp.body`). Masked on `/ops/config`. |
+| `TESTNET_LOOKUP_ENABLED` | `false`              | When true, `GET /payouts/:id/network-ref` looks up the transfer hash via public JSON-RPC (no keys). |
+| `TESTNET_RPC_URL`     | `https://rpc.sepolia.org` | Used only when lookup is enabled. Tests inject a recorded response instead.                  |
 
 ### Money
 

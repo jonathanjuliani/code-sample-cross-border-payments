@@ -33,6 +33,12 @@ const EnvSchema = z.object({
   APP_VERSION: z.string().default('0.1.0'),
   /** Shared HMAC secret for `POST /webhooks/*`. Sample default; override in real deploys. */
   WEBHOOK_SECRET: z.string().min(8).default('whsec_demo_sample'),
+  /** Off by default. When true, support details may look up a transfer hash via public JSON-RPC. */
+  TESTNET_LOOKUP_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  TESTNET_RPC_URL: z.string().default('https://rpc.sepolia.org'),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

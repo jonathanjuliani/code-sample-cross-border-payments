@@ -6,7 +6,7 @@ import { registerLedgerRoutes } from './ledger/routes.ts';
 import { registerReconciliationRoute } from './ops/reconciliation.ts';
 import { registerOpsRoutes } from './ops/routes.ts';
 import type { ProviderSpy } from './payouts/create.ts';
-import { registerPayoutRoutes } from './payouts/routes.ts';
+import { type LookupFetch, registerPayoutRoutes } from './payouts/routes.ts';
 import { getFlags } from './providers/sim/flags.ts';
 import type { SimRecords } from './providers/sim/records.ts';
 import { registerQuoteRoutes } from './quotes/routes.ts';
@@ -25,6 +25,8 @@ export type BuildAppOptions = {
     providerSpy?: ProviderSpy;
     abortAfterQuoteConsumed?: () => void;
   };
+  /** Test-only: recorded JSON-RPC for N5 so CI never hits the network. */
+  lookupFetch?: LookupFetch;
 };
 
 export async function buildApp({
@@ -35,6 +37,7 @@ export async function buildApp({
   getSimRecords,
   onCrashAfterCommit,
   testHooks,
+  lookupFetch,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: {
@@ -97,6 +100,7 @@ export async function buildApp({
     ...(testHooks?.abortAfterQuoteConsumed
       ? { abortAfterQuoteConsumed: testHooks.abortAfterQuoteConsumed }
       : {}),
+    ...(lookupFetch ? { lookupFetch } : {}),
   });
   registerLedgerRoutes(app, db);
   registerWebhookRoutes(app, { db, clock, config });

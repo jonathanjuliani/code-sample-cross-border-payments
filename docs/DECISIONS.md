@@ -287,3 +287,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Outbox-only re-query_ (chosen): reuses the worker's getStatus path; no second code path into providers from HTTP.
 - _Call getStatus inside the request_ (rejected): providers are never called from request handlers.
 - _A separate flagged table_ (rejected): one nullable column is enough for this sample.
+
+## D26. Testnet lookup is opt-in and keyless
+
+**Status**: Accepted
+
+**Decision**: Support-details network lookup uses public JSON-RPC (`eth_getTransactionByHash`) behind `TESTNET_LOOKUP_ENABLED` (default false). No explorer API keys. Unit tests inject a recorded response; CI never contacts a remote host.
+
+**Options considered**
+
+- _Public RPC, no keys_ (chosen): matches "display only" and the no-keys constraint.
+- _Etherscan-style API_ (rejected): needs a key.
+- _Always-on live fetch in tests_ (rejected): flakes and violates the no-network-in-CI rule.
