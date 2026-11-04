@@ -8,7 +8,8 @@ import { insertOutbox } from '../outbox/write.ts';
 import { expireDue } from '../quotes/expire.ts';
 import { bodyHash } from '../util/canonical-json.ts';
 import { nextPayoutId, providerRef } from '../util/ids.ts';
-import { type LegRow, type PayoutRow, serializePayout } from './serialize.ts';
+import { loadLegs } from './legs.ts';
+import { type PayoutRow, serializePayout } from './serialize.ts';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -66,15 +67,6 @@ function storeIdempotency(
     response_body: JSON.stringify(body),
     created_at: createdAt,
   });
-}
-
-function loadLegs(db: Db, payoutId: string): LegRow[] {
-  return db
-    .prepare(
-      `SELECT payout_id, leg, status, attempt, provider_ref, tx_hash, confirmations, last_seq, updated_at
-       FROM payout_legs WHERE payout_id = @id ORDER BY leg`,
-    )
-    .all({ id: payoutId }) as LegRow[];
 }
 
 export function createPayout(opts: CreatePayoutOptions): CreatePayoutResult {

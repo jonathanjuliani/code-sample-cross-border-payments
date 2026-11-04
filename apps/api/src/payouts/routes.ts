@@ -7,8 +7,8 @@ import { lookupTransferByHash } from '../network/lookup.ts';
 import { getFlags } from '../providers/sim/flags.ts';
 import { isLegSlow } from '../providers/sim/timing.ts';
 import { createPayout, type ProviderSpy } from './create.ts';
+import { loadLegs } from './legs.ts';
 import {
-  type LegRow,
   type PayoutRow,
   serializeLeg,
   serializePayout,
@@ -32,21 +32,6 @@ export type PayoutRouteDeps = {
   /** Test-only: recorded RPC responses so CI never hits the network. */
   lookupFetch?: LookupFetch;
 };
-
-function loadLegs(db: Db, payoutId: string): LegRow[] {
-  return db
-    .prepare(
-      `SELECT payout_id, leg, status, attempt, provider_ref, tx_hash, confirmations, last_seq, updated_at
-       FROM payout_legs WHERE payout_id = @id
-       ORDER BY CASE leg
-         WHEN 'collect' THEN 1
-         WHEN 'transfer' THEN 2
-         WHEN 'deposit' THEN 3
-         WHEN 'refund' THEN 4
-       END`,
-    )
-    .all({ id: payoutId }) as LegRow[];
-}
 
 function serializeWithSlow(clock: Clock, payout: PayoutRow, legs: LegRow[]) {
   const speed = getFlags().speed;
