@@ -299,3 +299,14 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Public RPC, no keys_ (chosen): matches "display only" and the no-keys constraint.
 - _Etherscan-style API_ (rejected): needs a key.
 - _Always-on live fetch in tests_ (rejected): flakes and violates the no-network-in-CI rule.
+
+## D27. Second chain is a Provider swap only
+
+**Status**: Accepted
+
+**Decision**: `CHAIN_PROVIDER=alt` wires `createAltChainProvider` (same `Provider` contract, distinct hash prefix). Selection happens in `createSimBundle` / `server.ts`. `payouts/` and `ledger/` do not import either chain module.
+
+**Options considered**
+
+- _Config-selected Provider at the seam_ (chosen): proves hop 2 is swappable without touching money paths.
+- _If/else inside payouts or the worker_ (rejected): would couple domain code to a vendor.

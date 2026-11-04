@@ -280,3 +280,14 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green (api 73). `pnpm test:e2e` still green (lookup stays off in e2e).
 - Next: N6 (second chain provider) if pulled.
+
+## Phase 7 / N6: second chain behind Provider
+
+**Built**
+
+- `CHAIN_PROVIDER=sim|alt`. `createAltChainProvider` is a second hop-2 module selected only at wiring time (`createSimBundle` / server). Diff stays out of `payouts/` and `ledger/`.
+- Scenario suite runs for both (`describe.each`); happy path asserts the `0x{sim|alt}_` hash prefix.
+
+**Gate N6** (2026-11-04)
+
+- `pnpm verify` green (api 86; scenarios ×2). Next: N7 (screenshot tests) if pulled.

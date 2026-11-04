@@ -1,7 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import type { Clock } from '../../clock.ts';
 import type { ProviderMap } from '../types.ts';
-import { createChainProvider } from './chain.ts';
+import { type ChainProviderId, createChainProvider } from './chain.ts';
+import { createAltChainProvider } from './chain-alt.ts';
 import {
   createEagerSimScheduler,
   createQueuedSimScheduler,
@@ -27,22 +28,28 @@ export type SimBundle = {
   providers: ProviderMap;
   records: SimRecords;
   resetRecords: () => void;
+  chainProvider: ChainProviderId;
 };
 
 export function createSimBundle(
   app: FastifyInstance,
-  deps: { secret: string; clock: Clock },
+  deps: { secret: string; clock: Clock; chainProvider?: ChainProviderId },
 ): SimBundle {
+  const chainProvider = deps.chainProvider ?? 'sim';
   const records = createSimRecords();
   const post = createInjectPoster(app, deps);
   const { collect, refund } = createCollectProvider(post, records);
-  const transfer = createChainProvider(post, records);
+  const transfer =
+    chainProvider === 'alt'
+      ? createAltChainProvider(post, records)
+      : createChainProvider(post, records);
   const deposit = createOfframpProvider(post, records);
 
   return {
     providers: { collect, transfer, deposit, refund },
     records,
     resetRecords: () => clearSimRecords(records),
+    chainProvider,
   };
 }
 

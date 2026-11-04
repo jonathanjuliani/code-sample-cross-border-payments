@@ -86,6 +86,7 @@ export const OpsConfigSchema = z
     opsEnabled: z.boolean(),
     webhookSecretMasked: z.string(),
     testnetLookupEnabled: z.boolean(),
+    chainProvider: z.enum(['sim', 'alt']),
   })
   .strict();
 export type OpsConfig = z.infer<typeof OpsConfigSchema>;

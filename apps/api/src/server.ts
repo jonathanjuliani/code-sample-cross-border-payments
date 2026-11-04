@@ -56,7 +56,11 @@ const app = await buildApp({
 
 bindFlagRecorder(db, clock, app.log);
 
-const sim = createSimBundle(app, { secret: config.WEBHOOK_SECRET, clock });
+const sim = createSimBundle(app, {
+  secret: config.WEBHOOK_SECRET,
+  clock,
+  chainProvider: config.CHAIN_PROVIDER,
+});
 simRecords = sim.records;
 
 worker = startWorker({

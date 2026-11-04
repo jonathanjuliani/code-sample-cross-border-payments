@@ -39,6 +39,8 @@ const EnvSchema = z.object({
     .default('false')
     .transform((v) => v === 'true'),
   TESTNET_RPC_URL: z.string().default('https://rpc.sepolia.org'),
+  /** Which hop-2 chain `Provider` to wire. `alt` proves the seam (N6). */
+  CHAIN_PROVIDER: z.enum(['sim', 'alt']).default('sim'),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

@@ -190,6 +190,7 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
       opsEnabled: config.OPS_ENABLED,
       webhookSecretMasked: maskSecret(config.WEBHOOK_SECRET),
       testnetLookupEnabled: config.TESTNET_LOOKUP_ENABLED,
+      chainProvider: config.CHAIN_PROVIDER,
     };
   });
 

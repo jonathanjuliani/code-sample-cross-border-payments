@@ -75,5 +75,5 @@ Status values: **Handled**, **Partial**, **Not handled: by choice**, **Not handl
 | N3 | Support actions on `/ops` | Handled | Re-run status.query for checking legs; `flagged_at` + Stuck badge; neither moves money | `apps/api/test/ops.test.ts` › N3; `e2e/ops-actions.spec.ts` | `/ops` → Payout inspector |
 | N4 | Reorg simulation | Handled | Same as P4 via `transfer.reorg` | `apps/api/test/scenarios.test.ts` › `P4: reorg…` | `/ops` → `transfer.reorg` |
 | N5 | Read a real testnet transfer | Handled | `GET /payouts/:id/network-ref` via public JSON-RPC; off by default; recorded fixture in CI | `apps/api/test/network-lookup.test.ts` | Enable `TESTNET_LOOKUP_ENABLED`; open support details |
-| N6 | Second chain behind `Provider` | Not handled: later | Phase 7 | — | — |
+| N6 | Second chain behind `Provider` | Handled | `CHAIN_PROVIDER=sim\|alt`; `createAltChainProvider`; scenarios run for both | `apps/api/test/scenarios.test.ts` › chain=sim and chain=alt | Set `CHAIN_PROVIDER=alt` |
 | N7 | Screenshot tests both themes | Not handled: later | Phase 7 | — | — |

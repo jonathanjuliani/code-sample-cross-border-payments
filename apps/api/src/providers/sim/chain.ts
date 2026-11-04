@@ -11,9 +11,21 @@ export const NETWORK_FEE_ACTUAL_MINOR = 40;
 
 type Payload = { payoutId?: string; amountMinor?: number };
 
-export function createChainProvider(post: WebhookPoster, records: SimRecords): Provider {
+export type ChainProviderId = 'sim' | 'alt';
+
+/** Hop-2 chain behind the shared `Provider` interface. `id` only changes the hash prefix (N6). */
+export function createChainProvider(
+  post: WebhookPoster,
+  records: SimRecords,
+  opts: { id?: ChainProviderId } = {},
+): Provider {
+  const chainId = opts.id ?? 'sim';
   const seqByRef = new Map<string, number>();
   const attemptByRef = new Map<string, number>();
+
+  function txHashFor(ref: string): string {
+    return `0x${chainId}_${ref.replace(/[^a-zA-Z0-9]/g, '')}`;
+  }
 
   function nextSeq(ref: string): number {
     const n = (seqByRef.get(ref) ?? 0) + 1;
@@ -22,7 +34,7 @@ export function createChainProvider(post: WebhookPoster, records: SimRecords): P
   }
 
   async function emitConfirmations(ref: string, amountMinor: number, resubmit: boolean) {
-    const txHash = `0xsim_${ref.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const txHash = txHashFor(ref);
     await simDelay(1400);
     await deliverEvent(post, 'chain', {
       eventId: newEventId(),
@@ -101,7 +113,7 @@ export function createChainProvider(post: WebhookPoster, records: SimRecords): P
 
       if (getFlags()['transfer.timeout'] && attempt === 1) {
         // Transfer happened; status will show final when queried.
-        const txHash = `0xsim_${ref.replace(/[^a-zA-Z0-9]/g, '')}`;
+        const txHash = txHashFor(ref);
         records.chain.set(ref, {
           status: 'final',
           amountMinor,

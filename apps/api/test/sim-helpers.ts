@@ -80,7 +80,11 @@ export async function createSimTestContext(
     setSimScheduler(createEagerSimScheduler(clock));
   }
 
-  const sim = createSimBundle(app, { secret: config.WEBHOOK_SECRET, clock });
+  const sim = createSimBundle(app, {
+    secret: config.WEBHOOK_SECRET,
+    clock,
+    chainProvider: config.CHAIN_PROVIDER,
+  });
   records = sim.records;
 
   worker = startWorker({
