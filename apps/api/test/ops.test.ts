@@ -1,4 +1,11 @@
-import { SimulationFlagsSchema } from '@payout/shared';
+import {
+  CONFIRMATIONS,
+  FEE_BPS,
+  FEE_MIN_MINOR,
+  SEND_MAX_MINOR,
+  SEND_MIN_MINOR,
+  SimulationFlagsSchema,
+} from '@payout/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { startWorker } from '../src/outbox/worker.ts';
 import { IllegalTransition, transition } from '../src/payouts/machine.ts';
@@ -324,5 +331,10 @@ describe('ops API', () => {
     }
     expect(configJson.webhookSecretMasked).toMatch(/…/);
     expect(configBlob).not.toContain(ctx.config.WEBHOOK_SECRET);
+    expect(configJson.feeBps).toBe(FEE_BPS);
+    expect(configJson.feeMinMinor).toBe(FEE_MIN_MINOR);
+    expect(configJson.sendMinMinor).toBe(SEND_MIN_MINOR);
+    expect(configJson.sendMaxMinor).toBe(SEND_MAX_MINOR);
+    expect(configJson.confirmations).toBe(CONFIRMATIONS);
   });
 });

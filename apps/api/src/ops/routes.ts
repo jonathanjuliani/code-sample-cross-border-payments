@@ -1,4 +1,11 @@
-import { SimulationFlagsSchema } from '@payout/shared';
+import {
+  CONFIRMATIONS,
+  FEE_BPS,
+  FEE_MIN_MINOR,
+  SEND_MAX_MINOR,
+  SEND_MIN_MINOR,
+  SimulationFlagsSchema,
+} from '@payout/shared';
 import type { FastifyInstance } from 'fastify';
 import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
@@ -178,11 +185,11 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
   app.get('/ops/config', async () => {
     return {
       quoteTtlMs: config.QUOTE_TTL_MS,
-      feeBps: 50,
-      feeMinMinor: 200,
-      sendMinMinor: 1000,
-      sendMaxMinor: 5_000_000,
-      confirmations: 3,
+      feeBps: FEE_BPS,
+      feeMinMinor: FEE_MIN_MINOR,
+      sendMinMinor: SEND_MIN_MINOR,
+      sendMaxMinor: SEND_MAX_MINOR,
+      confirmations: CONFIRMATIONS,
       workerIntervalMs: config.WORKER_INTERVAL_MS,
       stuckAfterMs: config.STUCK_AFTER_MS,
       dbPath: config.DB_PATH,
