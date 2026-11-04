@@ -1,5 +1,7 @@
 import {
   OpsConfigSchema,
+  type OpsEvent,
+  OpsEventSchema,
   type OpsSummary,
   OpsSummarySchema,
   type SimulationFlags,
@@ -15,17 +17,7 @@ import { PageHead } from '../ui/PageHead.tsx';
 import { SectionHead } from '../ui/SectionHead.tsx';
 import styles from './Ops.module.css';
 
-const EventsSchema = z.array(
-  z.object({
-    id: z.number(),
-    at: z.string(),
-    kind: z.string(),
-    level: z.string(),
-    payoutId: z.string().nullable(),
-    message: z.string(),
-    data: z.record(z.string(), z.unknown()).nullable(),
-  }),
-);
+const EventsSchema = z.array(OpsEventSchema);
 
 const SWITCHES: Array<keyof SimulationFlags> = [
   'slow',
@@ -45,7 +37,7 @@ export function Ops() {
   const [opsOff, setOpsOff] = useState(false);
   const [summary, setSummary] = useState<OpsSummary | null>(null);
   const [flags, setFlags] = useState<SimulationFlags | null>(null);
-  const [events, setEvents] = useState<z.infer<typeof EventsSchema>>([]);
+  const [events, setEvents] = useState<OpsEvent[]>([]);
   const [config, setConfig] = useState<z.infer<typeof OpsConfigSchema> | null>(null);
   const [kindFilter, setKindFilter] = useState('');
   const [payoutFilter, setPayoutFilter] = useState('');
