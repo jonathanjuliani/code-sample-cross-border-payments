@@ -5,6 +5,7 @@ import { type BuildAppOptions, buildApp } from '../src/app.ts';
 import { type Clock, createFakeClock } from '../src/clock.ts';
 import { type AppConfig, loadConfig } from '../src/config.ts';
 import { type Db, openDb } from '../src/db/open.ts';
+import { createSimClientHints } from '../src/providers/client-hints.ts';
 import { signWebhook } from '../src/webhooks/sign.ts';
 
 export type TestContext = {
@@ -36,6 +37,7 @@ export async function createTestContext(
     db,
     clock,
     config,
+    clientHints: createSimClientHints(),
     ...(hooks ? { testHooks: hooks } : {}),
     ...(opts.lookupFetch ? { lookupFetch: opts.lookupFetch } : {}),
   });

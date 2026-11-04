@@ -6,6 +6,7 @@ import { loadConfig } from '../src/config.ts';
 import { openDb } from '../src/db/open.ts';
 import { assertBalanced, journalSums } from '../src/ledger/balances.ts';
 import { startWorker, type Worker } from '../src/outbox/worker.ts';
+import { createSimClientHints } from '../src/providers/client-hints.ts';
 import type { QueuedSimScheduler } from '../src/providers/sim/clock.ts';
 import {
   bindFlagRecorder,
@@ -64,6 +65,7 @@ export async function createSimTestContext(
     db,
     clock,
     config,
+    clientHints: createSimClientHints(),
     getWorkerLastTickAt: () => worker?.lastTickAt() ?? null,
     getSimRecords: () => records,
   });

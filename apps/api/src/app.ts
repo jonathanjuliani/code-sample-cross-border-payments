@@ -7,7 +7,7 @@ import { registerReconciliationRoute } from './ops/reconciliation.ts';
 import { registerOpsRoutes } from './ops/routes.ts';
 import type { ProviderSpy } from './payouts/create.ts';
 import { type LookupFetch, registerPayoutRoutes } from './payouts/routes.ts';
-import { getFlags } from './providers/sim/flags.ts';
+import { type ClientHints, noopClientHints } from './providers/client-hints.ts';
 import type { SimRecords } from './providers/sim/records.ts';
 import { registerQuoteRoutes } from './quotes/routes.ts';
 import { registerRecipientRoutes } from './recipients/routes.ts';
@@ -20,6 +20,8 @@ export type BuildAppOptions = {
   getWorkerLastTickAt?: () => Date | null;
   getSimRecords?: () => SimRecords;
   onCrashAfterCommit?: () => void;
+  /** Sender read-path hints (slow badge, simulated outage). Defaults to no-ops. */
+  clientHints?: ClientHints;
   /** Test-only hooks for Phase 2 atomicity / provider spy proofs. */
   testHooks?: {
     providerSpy?: ProviderSpy;
@@ -36,6 +38,7 @@ export async function buildApp({
   getWorkerLastTickAt,
   getSimRecords,
   onCrashAfterCommit,
+  clientHints = noopClientHints,
   testHooks,
   lookupFetch,
 }: BuildAppOptions) {
@@ -74,7 +77,7 @@ export async function buildApp({
   });
 
   app.addHook('onRequest', async (request, reply) => {
-    if (!getFlags()['client.readsFail']) return;
+    if (!clientHints.readsFail()) return;
     const path = request.url.split('?')[0] ?? request.url;
     if (request.method === 'GET' && (path === '/payouts' || path.startsWith('/payouts/'))) {
       return reply.code(503).send({
@@ -95,6 +98,7 @@ export async function buildApp({
     db,
     clock,
     config,
+    clientHints,
     ...(onCrashAfterCommit ? { onCrashAfterCommit } : {}),
     ...(testHooks?.providerSpy ? { providerSpy: testHooks.providerSpy } : {}),
     ...(testHooks?.abortAfterQuoteConsumed

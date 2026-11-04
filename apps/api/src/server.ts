@@ -6,6 +6,7 @@ import { createSystemClock } from './clock.ts';
 import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
 import { startWorker, type Worker } from './outbox/worker.ts';
+import { createSimClientHints } from './providers/client-hints.ts';
 import {
   bindFlagRecorder,
   consumeCrashAfterCommit,
@@ -41,6 +42,7 @@ const app = await buildApp({
   db,
   clock,
   config,
+  clientHints: createSimClientHints(),
   getWorkerLastTickAt: () => worker?.lastTickAt() ?? null,
   getSimRecords: () => simRecords,
   onCrashAfterCommit: () => {

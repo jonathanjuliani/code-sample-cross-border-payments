@@ -4,11 +4,11 @@ import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
 import { openSse } from '../http/sse.ts';
 import { lookupTransferByHash } from '../network/lookup.ts';
-import { getFlags } from '../providers/sim/flags.ts';
-import { isLegSlow } from '../providers/sim/timing.ts';
+import type { ClientHints } from '../providers/client-hints.ts';
 import { createPayout, type ProviderSpy } from './create.ts';
 import { loadLegs } from './legs.ts';
 import {
+  type LegRow,
   type PayoutRow,
   serializeLeg,
   serializePayout,
@@ -26,6 +26,7 @@ export type PayoutRouteDeps = {
   db: Db;
   clock: Clock;
   config: AppConfig;
+  clientHints: ClientHints;
   providerSpy?: ProviderSpy;
   abortAfterQuoteConsumed?: () => void;
   onCrashAfterCommit?: () => void;
@@ -33,20 +34,23 @@ export type PayoutRouteDeps = {
   lookupFetch?: LookupFetch;
 };
 
-function serializeWithSlow(clock: Clock, payout: PayoutRow, legs: LegRow[]) {
-  const speed = getFlags().speed;
+function serializeWithSlow(
+  clock: Clock,
+  payout: PayoutRow,
+  legs: LegRow[],
+  clientHints: ClientHints,
+) {
   const nowMs = clock.now().getTime();
   return {
     ...serializePayout(payout, legs),
     legs: legs.map((leg) =>
       serializeLeg(
         leg,
-        isLegSlow({
+        clientHints.isLegSlow({
           payoutId: payout.id,
           leg: leg.leg,
           status: leg.status,
           nowMs,
-          speed,
         }),
       ),
     ),
@@ -58,6 +62,7 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
     db,
     clock,
     config,
+    clientHints,
     providerSpy,
     abortAfterQuoteConsumed,
     onCrashAfterCommit,
@@ -104,7 +109,7 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
       if (!payout) {
         return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
       }
-      return serializeWithSlow(clock, payout, loadLegs(db, payout.id));
+      return serializeWithSlow(clock, payout, loadLegs(db, payout.id), clientHints);
     }
 
     const rows = db
@@ -127,7 +132,7 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
     let last = '';
     let timer: ReturnType<typeof setInterval> | undefined;
     const tick = () => {
-      if (getFlags()['client.readsFail']) {
+      if (clientHints.readsFail()) {
         if (timer) clearInterval(timer);
         sse.write('error', { error: 'simulated_outage' });
         sse.close();
@@ -142,7 +147,7 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
         sse.close();
         return;
       }
-      const body = serializeWithSlow(clock, row, loadLegs(db, row.id));
+      const body = serializeWithSlow(clock, row, loadLegs(db, row.id), clientHints);
       const encoded = JSON.stringify(body);
       if (encoded !== last) {
         last = encoded;
@@ -205,6 +210,6 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
     if (!payout) {
       return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
     }
-    return serializeWithSlow(clock, payout, loadLegs(db, payout.id));
+    return serializeWithSlow(clock, payout, loadLegs(db, payout.id), clientHints);
   });
 }
