@@ -1,0 +1,11 @@
+node_modules
+dist
+data
+test-results
+playwright-report
+.env
+*.db
+*.db-*
+.DS_Store
+coverage
+apps/web/public/fonts/*.woff2

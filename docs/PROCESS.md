@@ -55,3 +55,30 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
   Every delivered payout landed exactly 42,800.00 MXN. An expired quote answered 410 `quote_expired`; a used quote with a new key answered 409 `quote_used`.
 - Next: [Phase 1](phases/phase-1-foundation.md).
+
+## Phase 1: foundation
+
+**Built**
+
+- pnpm workspace (`apps/api`, `apps/web`, `packages/shared`), Biome, Vitest, Playwright config (no e2e yet), `.githooks`, CI workflow.
+- `packages/shared`: money constants and pricing (`priceFromSend` / `priceFromReceive`), Zod contracts for quotes, payouts, webhooks, ops/simulation flags.
+- `apps/api`: Fastify factory, Zod config, injectable clock, SQLite schema for every PLAN §6 table, seed recipients + funding account mask, `GET /health`, `X-Account-Id` hook.
+- `apps/web`: Vite + React placeholder "Payouts" page head, two-layer tokens copied from the mockup, self-hosted Figtree + JetBrains Mono, theme boot script, `check-tokens.mjs`, contrast tests.
+- `docker-compose.yml` with healthy API and nginx web proxying `/api/` → API.
+
+**Found**
+
+- pnpm 11 ignores dependency install scripts until listed under `allowBuilds`. Setting `better-sqlite3: false` (as the brief first said) leaves no native binding; `true` runs `prebuild-install` and works in `node:24-slim`. Recorded as [D14](DECISIONS.md#d14-pnpm-allowbuilds-for-better-sqlite3-and-esbuild).
+- Dark `border-strong` on `surface` is ~1.9:1; DECISIONS only claims 3.3:1 for light. Token tests assert dark line contrast on `success-line`, `danger-line`, and `rule-heavy` instead.
+- Root `prepare` must tolerate a missing `git` binary so Docker builds don't fail.
+
+**Dropped**
+
+- Nothing from the Phase 1 brief. History payouts `PO-1039`/`PO-1040` left as `TODO(phase-3)` in the seed.
+
+**Gate 1** (2026-11-03)
+
+- `pnpm verify`: Biome clean; `check-tokens: ok`; typecheck green in shared/api/web; 23 tests passed (shared 17, api 2, web 4).
+- `pnpm check:tokens` failed on a deliberate `color: #fff` in `app.module.css`, then passed after removal.
+- `docker compose up -d --build` → `curl -fsS localhost:8801/api/health` → `{"ok":true,"version":"0.1.0"}` → `docker compose down`.
+- Next: [Phase 2](phases/phase-2-quotes-payouts.md).

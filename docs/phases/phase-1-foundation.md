@@ -16,7 +16,7 @@
   - `check:tokens` (`node scripts/check-tokens.mjs`)
   - `verify`: `pnpm lint && pnpm check:tokens && pnpm typecheck && pnpm test`
   - `test:e2e` (`playwright test`), `prepare` (sets `core.hooksPath` to `.githooks`)
-- `pnpm-workspace.yaml`: `apps/*`, `packages/*`, and `allowBuilds: { better-sqlite3: false }`.
+- `pnpm-workspace.yaml`: `apps/*`, `packages/*`, and `allowBuilds: { better-sqlite3: true, esbuild: true }` (see [D14](../DECISIONS.md#d14-pnpm-allowbuilds-for-better-sqlite3-and-esbuild); `false` skips the install script and leaves no native binding under pnpm 11).
 - `.nvmrc` (`24`), `tsconfig.base.json` (strict, `erasableSyntaxOnly`, `verbatimModuleSyntax`, `allowImportingTsExtensions`, `noEmit`), `biome.json`, `.gitignore` (`node_modules`, `dist`, `data`, `test-results`, `playwright-report`).
 - `.githooks/pre-commit`: `pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true`.
 - `.github/workflows/ci.yml`: job `verify` (install with `--frozen-lockfile`, `pnpm verify`) and job `e2e` (installs Playwright Chromium, `pnpm test:e2e`). The e2e job may be a placeholder that passes with zero tests until Phase 5.

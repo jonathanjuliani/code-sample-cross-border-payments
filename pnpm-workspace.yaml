@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Install scripts: esbuild fetches its binary; better-sqlite3's script downloads a
+# prebuild (not a node-gyp compile). Both must be allowed or bindings are missing.
+allowBuilds:
+  esbuild: true
+  better-sqlite3: true

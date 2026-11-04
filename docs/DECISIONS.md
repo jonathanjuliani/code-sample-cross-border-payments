@@ -151,3 +151,17 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Own 30-line router_ (chosen): four routes, no nested layouts, no loaders.
 - _Hash routes_ (rejected): `/ops` should be a plain URL someone can type.
 - _A router library_ (rejected): more surface than the app needs.
+
+## D14. pnpm `allowBuilds` for better-sqlite3 and esbuild
+
+**Status**: Proposed
+
+**Decision**: Set `allowBuilds.better-sqlite3: true` and `allowBuilds.esbuild: true` in `pnpm-workspace.yaml`. Phase 1's brief said `better-sqlite3: false`; under pnpm 11 that skips the package's install script entirely, so no `.node` binding is present and the API cannot open a database. With `true`, `prebuild-install` downloads a platform binary (it does not fall through to node-gyp when a prebuild exists). `esbuild` must also be allowed or Vite's binary is missing.
+
+**Options considered**
+
+- _`allowBuilds: true` for both_ (chosen): install scripts run; bindings exist locally and in `node:24-slim`.
+- _`better-sqlite3: false` as the brief said_ (rejected): no native binding after `pnpm install`.
+- _Commit a vendored `.node` file_ (rejected): platform-specific and brittle.
+
+**Consequences**: AGENTS.md matches this. If a platform has no prebuild, install will try node-gyp and may fail in slim images — revisit then.

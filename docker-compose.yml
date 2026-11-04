@@ -1,0 +1,39 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      OPS_ENABLED: "true"
+      DB_PATH: /data/payouts.db
+      PORT: "3000"
+      ACCOUNT_ID: acct_demo
+      LOG_LEVEL: info
+    volumes:
+      - payout-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "${WEB_PORT:-8801}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  payout-data:

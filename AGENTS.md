@@ -60,7 +60,7 @@ No full bank account numbers, wallet secrets or keys in logs, `ops_events` or AP
 ## When running the code
 
 - Node runs the API's TypeScript directly (type stripping), so source must stay erasable: no `enum`, no `namespace`, no parameter properties. Relative imports keep their `.ts` extension.
-- `better-sqlite3` loads its bundled prebuilt binary. `allowBuilds: false` in `pnpm-workspace.yaml` is deliberate: approving the build makes pnpm compile it with node-gyp, which fails in a slim container.
+- `better-sqlite3` loads a prebuilt binary via its install script (`prebuild-install`). In pnpm 11 that script only runs when `allowBuilds.better-sqlite3` is `true` in `pnpm-workspace.yaml`; `false` leaves no `.node` file at all. The script downloads a prebuild rather than compiling with node-gyp.
 - Tests use an in-memory SQLite database and an injected clock (`now()` from `apps/api/src/clock.ts`). Never call `Date.now()` directly in API code, and never sleep in a test to wait for a quote to expire.
 
 ## Commits

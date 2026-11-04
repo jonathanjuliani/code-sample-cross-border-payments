@@ -1,0 +1,42 @@
+:root {
+  --p-paper-0: #fbf9f6;
+  --p-paper-1: #f7f4ef;
+  --p-paper-2: #f0ece5;
+  --p-paper-3: #e6e1d9;
+  --p-stone-900: #141414;
+  --p-stone-700: #4b4a46;
+  --p-stone-600: #6f6c66;
+  --p-stone-500: #8d8a83;
+  --p-indigo-700: #0b0c9c;
+  --p-indigo-50: #e9e9f6;
+  --p-ember-700: #a83b18;
+  --p-ember-600: #d9532b;
+  --p-ember-50: #fbebe3;
+  --p-green-700: #2a6e4c;
+  --p-green-600: #2f7a55;
+  --p-green-50: #e6f1ea;
+  --p-amber-700: #8a5a00;
+  --p-amber-50: #fbf1dc;
+  --p-white: #ffffff;
+
+  --p-night-0: #121211;
+  --p-night-1: #1c1b19;
+  --p-night-2: #24231f;
+  --p-night-3: #2e2c29;
+  --p-night-4: #4a4743;
+  --p-sand-100: #f1eee8;
+  --p-sand-300: #bcb8b0;
+  --p-sand-400: #a3a099;
+  --p-indigo-300: #a6a8f7;
+  --p-indigo-900: #23244d;
+  --p-indigo-950: #0b0c4a;
+  --p-ember-300: #f2875f;
+  --p-ember-950: #3a1e14;
+  --p-green-300: #74c79d;
+  --p-green-950: #142a1f;
+  --p-amber-300: #e9b95c;
+  --p-amber-950: #33270f;
+
+  --p-font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --p-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
