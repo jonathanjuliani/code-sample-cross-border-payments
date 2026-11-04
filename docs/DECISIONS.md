@@ -251,3 +251,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Idempotent `ALTER TABLE … ADD COLUMN`_ (chosen): keeps existing payout history on the volume; one test covers each column.
 - _Wipe the compose volume on every upgrade_ (rejected): surprising for a sample someone leaves running.
 - _A versioned migration framework_ (rejected): two columns do not justify the machinery.
+
+## D23. SSE via fetch, and closing streams on read outage
+
+**Status**: Accepted
+
+**Decision**: Timeline and `/ops` live updates use `GET …/stream` as server-sent events. The client opens the stream with `fetch` (not `EventSource`) so it can send `X-Account-Id`. On stream error it falls back to the existing 2s poll. While `client.readsFail` is on, stream ticks emit an `error` event and close the connection so the offline strip still shows the last confirmed time (S2); new stream opens get 503 the same as `GET /payouts*`.
+
+**Options considered**
+
+- _`fetch` + stream reader_ (chosen): same auth header as every other call.
+- _Browser `EventSource`_ (rejected): cannot set custom headers.
+- _Leave open streams running under `client.readsFail`_ (rejected): S2 never shows offline while SSE stays preferred.

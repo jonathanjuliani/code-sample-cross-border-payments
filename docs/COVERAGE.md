@@ -70,7 +70,7 @@ Status values: **Handled**, **Partial**, **Not handled: by choice**, **Not handl
 
 | ID | What | Status | How it's handled | Evidence | How to see it |
 | --- | --- | --- | --- | --- | --- |
-| N1 | SSE instead of polling | Not handled: later | Phase 7 | — | — |
+| N1 | SSE instead of polling | Handled | `GET /payouts/:id/stream` + `/ops/stream`; client prefers SSE, polls on error | `apps/api/test/stream.test.ts`; `e2e/stream.spec.ts` › N1 | Open a payout; timeline advances without 2s poll GETs |
 | N2 | Signed webhooks (HMAC) | Not handled: later | Phase 7 | — | — |
 | N3 | Support actions on `/ops` | Not handled: later | Phase 7 | — | — |
 | N4 | Reorg simulation | Handled | Same as P4 via `transfer.reorg` | `apps/api/test/scenarios.test.ts` › `P4: reorg…` | `/ops` → `transfer.reorg` |

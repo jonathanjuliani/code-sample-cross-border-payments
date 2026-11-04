@@ -8,7 +8,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { request } from '../state/api.ts';
-import { usePoll } from '../state/poll.ts';
+import { useLiveOps } from '../state/liveOps.ts';
 import { Button } from '../ui/Button.tsx';
 import { Card } from '../ui/Card.tsx';
 import { PageHead } from '../ui/PageHead.tsx';
@@ -90,7 +90,8 @@ export function Ops() {
     return true;
   }, [kindFilter, payoutFilter]);
 
-  usePoll(load, 2000, { while: !opsOff });
+  const { transport } = useLiveOps({ while: !opsOff, load });
+
   useEffect(() => {
     void load();
   }, [load]);
@@ -132,6 +133,9 @@ export function Ops() {
         title="Ops"
         lede="Force provider behaviour and inspect what the server did."
       />
+      <span data-testid="ops-transport" hidden>
+        {transport}
+      </span>
 
       <Card>
         <SectionHead>Simulation</SectionHead>

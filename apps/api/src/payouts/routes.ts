@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
+import { openSse } from '../http/sse.ts';
 import { getFlags } from '../providers/sim/flags.ts';
 import { isLegSlow } from '../providers/sim/timing.ts';
 import { createPayout, type ProviderSpy } from './create.ts';
@@ -12,6 +13,8 @@ import {
   serializePayout,
   serializePayoutListItem,
 } from './serialize.ts';
+
+const STREAM_TICK_MS = 250;
 
 export type PayoutRouteDeps = {
   db: Db;
@@ -108,6 +111,57 @@ export function registerPayoutRoutes(app: FastifyInstance, deps: PayoutRouteDeps
       .all() as PayoutRow[];
 
     return rows.map((row) => serializePayoutListItem(row, loadLegs(db, row.id)));
+  });
+
+  app.get<{ Params: { id: string } }>('/payouts/:id/stream', async (request, reply) => {
+    const payout = db.prepare(`SELECT * FROM payouts WHERE id = @id`).get({
+      id: request.params.id,
+    }) as PayoutRow | undefined;
+    if (!payout) {
+      return reply.code(404).send({ error: 'not_found', message: 'Payout not found' });
+    }
+
+    const once = request.headers['x-sse-once'] === '1';
+    const sse = openSse(request, reply);
+    let last = '';
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const tick = () => {
+      if (getFlags()['client.readsFail']) {
+        if (timer) clearInterval(timer);
+        sse.write('error', { error: 'simulated_outage' });
+        sse.close();
+        return;
+      }
+      const row = db.prepare(`SELECT * FROM payouts WHERE id = @id`).get({
+        id: request.params.id,
+      }) as PayoutRow | undefined;
+      if (!row) {
+        if (timer) clearInterval(timer);
+        sse.write('error', { error: 'not_found' });
+        sse.close();
+        return;
+      }
+      const body = serializeWithSlow(clock, row, loadLegs(db, row.id));
+      const encoded = JSON.stringify(body);
+      if (encoded !== last) {
+        last = encoded;
+        sse.write('payout', body);
+      }
+      if (
+        once ||
+        row.status === 'delivered' ||
+        row.status === 'failed' ||
+        row.status === 'refunded'
+      ) {
+        if (timer) clearInterval(timer);
+        sse.close();
+      }
+    };
+    timer = setInterval(tick, STREAM_TICK_MS);
+    request.raw.on('close', () => {
+      if (timer) clearInterval(timer);
+    });
+    tick();
   });
 
   app.get<{ Params: { id: string } }>('/payouts/:id', async (request, reply) => {

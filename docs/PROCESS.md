@@ -219,3 +219,21 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` and `pnpm test:e2e` green after the migration + docs pass.
 - Next: [Phase 7](phases/phase-7-nice-to-haves.md) only if an N item is pulled in.
+
+## Phase 7 / N1: server-sent events
+
+**Built**
+
+- `GET /payouts/:id/stream` and `GET /ops/stream` as `text/event-stream` via `reply.hijack()` (`apps/api/src/http/sse.ts`). Header `x-sse-once: 1` ends after the first payload for unit tests.
+- Client `openSse` uses `fetch` + `ReadableStream` so `X-Account-Id` can be sent (browser `EventSource` cannot). `useLivePayout` / `useLiveOps` prefer the stream and fall back to the existing poll path on error or an `error` event.
+- Open streams close when `client.readsFail` is on, so the offline strip still appears (S2).
+- e2e: timeline advances with polling GETs aborted; falls back when the stream closes.
+
+**Found**
+
+- Preferring SSE with `offline: false` forever hid S2 until the server closed live streams under `client.readsFail` ([D23](DECISIONS.md#d23-sse-via-fetch-and-closing-streams-on-read-outage)).
+
+**Gate N1** (2026-11-04)
+
+- `pnpm verify` green (api 64 including stream tests). `pnpm test:e2e` → 19 passed.
+- Next: N2 (HMAC webhook signatures).

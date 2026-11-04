@@ -3,9 +3,12 @@ import type { FastifyInstance } from 'fastify';
 import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
+import { openSse } from '../http/sse.ts';
 import { balances, journalSums } from '../ledger/balances.ts';
 import { getFlags, resetFlags, setFlags } from '../providers/sim/flags.ts';
 import { buildOpsSummary } from './summary.ts';
+
+const OPS_STREAM_TICK_MS = 2000;
 
 export type OpsRouteDeps = {
   db: Db;
@@ -19,6 +22,28 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
 
   app.get('/ops/summary', async () => {
     return buildOpsSummary(db, clock, config, getWorkerLastTickAt());
+  });
+
+  app.get('/ops/stream', async (request, reply) => {
+    const once = request.headers['x-sse-once'] === '1';
+    const sse = openSse(request, reply);
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const tick = () => {
+      sse.write('ops', {
+        summary: buildOpsSummary(db, clock, config, getWorkerLastTickAt()),
+        simulation: getFlags(),
+        at: clock.now().toISOString(),
+      });
+      if (once) {
+        if (timer) clearInterval(timer);
+        sse.close();
+      }
+    };
+    timer = setInterval(tick, OPS_STREAM_TICK_MS);
+    request.raw.on('close', () => {
+      if (timer) clearInterval(timer);
+    });
+    tick();
   });
 
   app.get<{

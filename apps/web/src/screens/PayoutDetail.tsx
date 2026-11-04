@@ -1,7 +1,6 @@
-import { type Payout, PayoutSchema, type Recipient } from '@payout/shared';
-import { useCallback, useEffect, useState } from 'react';
-import { request } from '../state/api.ts';
-import { usePoll } from '../state/poll.ts';
+import type { Recipient } from '@payout/shared';
+import { useState } from 'react';
+import { useLivePayout } from '../state/livePayout.ts';
 import { navigate } from '../state/route.ts';
 import { payoutPillLabel, payoutTone } from '../state/tone.ts';
 import { Button } from '../ui/Button.tsx';
@@ -16,27 +15,9 @@ import { Timeline } from '../ui/Timeline.tsx';
 import { buildTimeline, payoutBanner } from './timelineCopy.ts';
 
 export function PayoutDetail({ id, recipients }: { id: string; recipients: Recipient[] }) {
-  const [payout, setPayout] = useState<Payout | null>(null);
   const [supportOpen, setSupportOpen] = useState(false);
+  const { payout, offline, lastConfirmedAt, transport } = useLivePayout(id, { while: true });
   const recipient = recipients.find((r) => r.id === payout?.recipientId);
-
-  const load = useCallback(async () => {
-    const res = await request(`/payouts/${encodeURIComponent(id)}`, {
-      method: 'GET',
-      schema: PayoutSchema,
-    });
-    if (!res.ok) return false;
-    setPayout(res.data);
-    return true;
-  }, [id]);
-
-  const final =
-    payout?.status === 'delivered' || payout?.status === 'failed' || payout?.status === 'refunded';
-  const { offline, lastConfirmedAt } = usePoll(load, 1000, { while: !final });
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   if (!payout) {
     return <p className="muted">Loading…</p>;
@@ -75,6 +56,9 @@ export function PayoutDetail({ id, recipients }: { id: string; recipients: Recip
           </Pill>
         }
       />
+      <span data-testid="live-transport" hidden>
+        {transport}
+      </span>
 
       <div className="stack">
         <Card>
