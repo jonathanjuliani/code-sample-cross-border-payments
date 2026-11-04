@@ -5,6 +5,7 @@ import { type BuildAppOptions, buildApp } from '../src/app.ts';
 import { type Clock, createFakeClock } from '../src/clock.ts';
 import { type AppConfig, loadConfig } from '../src/config.ts';
 import { type Db, openDb } from '../src/db/open.ts';
+import { signWebhook } from '../src/webhooks/sign.ts';
 
 export type TestContext = {
   app: FastifyInstance;
@@ -65,4 +66,27 @@ export async function createQuote(
     },
   });
   return res;
+}
+
+/** POST a webhook with a valid HMAC over `timestamp.body` (N2). */
+export async function postSignedWebhook(
+  ctx: TestContext,
+  provider: string,
+  body: Record<string, unknown>,
+  opts: { timestampSec?: number; signature?: string; secret?: string } = {},
+) {
+  const raw = JSON.stringify(body);
+  const timestamp = String(opts.timestampSec ?? Math.floor(ctx.clock.now().getTime() / 1000));
+  const signature =
+    opts.signature ?? signWebhook(opts.secret ?? ctx.config.WEBHOOK_SECRET, timestamp, raw);
+  return ctx.app.inject({
+    method: 'POST',
+    url: `/webhooks/${provider}`,
+    headers: {
+      'content-type': 'application/json',
+      timestamp,
+      signature,
+    },
+    payload: raw,
+  });
 }

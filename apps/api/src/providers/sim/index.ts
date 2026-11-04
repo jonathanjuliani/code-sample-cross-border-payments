@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import type { Clock } from '../../clock.ts';
 import type { ProviderMap } from '../types.ts';
 import { createChainProvider } from './chain.ts';
 import {
@@ -28,9 +29,12 @@ export type SimBundle = {
   resetRecords: () => void;
 };
 
-export function createSimBundle(app: FastifyInstance): SimBundle {
+export function createSimBundle(
+  app: FastifyInstance,
+  deps: { secret: string; clock: Clock },
+): SimBundle {
   const records = createSimRecords();
-  const post = createInjectPoster(app);
+  const post = createInjectPoster(app, deps);
   const { collect, refund } = createCollectProvider(post, records);
   const transfer = createChainProvider(post, records);
   const deposit = createOfframpProvider(post, records);

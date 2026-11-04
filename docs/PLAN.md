@@ -131,7 +131,7 @@ JSON, validated with the shared Zod schemas. Errors are `{ error: code, message,
 | `GET /payouts`                        | List, newest first, with status and leg summary                                          | 200                                                                                                            |
 | `GET /payouts/:id`                    | One payout with legs, timestamps and a per-leg `slow` flag (§19)                          | 200, 404                                                                                                       |
 | `GET /payouts?idempotencyKey=`        | Find the attempt after a lost response                                                   | 200, 404                                                                                                       |
-| `POST /webhooks/:provider`            | Simulator status events `{ eventId, providerRef, leg, status, seq, detail }`             | 200 applied; 200 `ignored: duplicate`; 200 `ignored: stale`; 400                                               |
+| `POST /webhooks/:provider`            | Simulator status events `{ eventId, providerRef, leg, status, seq, detail }`; headers `Timestamp` (unix sec) + `Signature` (HMAC-SHA256 hex of `timestamp.body`) | 200 applied; 200 `ignored: duplicate`; 200 `ignored: stale`; 401 bad/stale signature; 400                                               |
 | `GET /payouts/:id/ledger`             | Entries and per-currency sums                                                            | 200                                                                                                            |
 | `GET /reconciliation`                 | Per payout: our ledger vs the simulator's record, and the mismatches                     | 200                                                                                                            |
 | `GET /ops/summary`                    | Counters, payouts by state, stuck legs, outbox backlog, worker heartbeat (see §13)        | 200                                                                                                            |
@@ -248,7 +248,7 @@ It is not linked from the sender's side nav. Dev builds show a small "Ops" link 
 | Reconciliation       | `GET /reconciliation`       | Per-payout mismatches between our ledger and the simulator's record, and `fx_variance` totals                                           |
 | Server log           | `GET /ops/events`           | Live tail, newest first, filter by kind and by payout id. Same lines as the mockup's log: API calls and their status, transactions, state transitions (and refused ones), webhooks applied or ignored with the reason, outbox sends, worker decisions, provider calls |
 | Payout inspector     | `GET /ops/payouts/:id`      | Opened from any payout id on the page: legs with sequence numbers, inbox events, outbox rows, the idempotency record, ledger entries with per-currency sums and the "delivered = quoted" check |
-| Config               | `GET /ops/config`           | Read only: quote TTL, fee, limits, confirmations, worker interval, stuck threshold, DB path, app version, `OPS_ENABLED`                  |
+| Config               | `GET /ops/config`           | Read only: quote TTL, fee, limits, confirmations, worker interval, stuck threshold, DB path, app version, `OPS_ENABLED`, masked `WEBHOOK_SECRET` |
 | Simulation           | `GET`/`PUT /ops/simulation` | The next-payout scenario, every switch in §11, speed, "Expire a quote in 1s" (picks the newest active quote), and Reset                 |
 
 The page polls every 2 seconds; server-sent events are N1. Every number and log line comes from the API, so anyone can check a claim ("two confirms made one payout") on `/ops` instead of in the database.
@@ -432,6 +432,7 @@ Every number and name the code needs, so nobody invents one. Each one lives in e
 | `SIM_FLAGS`           | unset                    | JSON of §11 flags applied at startup. Used by tests and by e2e.                  |
 | `SIM_RATE_JITTER_E4`  | `150`                    | Quote rate is `172500 ± jitter`. `0` in tests.                                   |
 | `LOG_LEVEL`           | `info`                   | Fastify's pino logger.                                                           |
+| `WEBHOOK_SECRET`      | `whsec_demo_sample`      | HMAC-SHA256 for `POST /webhooks/*` (`Signature` over `timestamp.body`). Masked on `/ops/config`. |
 
 ### Money
 

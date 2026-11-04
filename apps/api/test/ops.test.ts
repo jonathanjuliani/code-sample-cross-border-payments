@@ -204,9 +204,12 @@ describe('ops API', () => {
       url: '/ops/config',
       headers: ctx.accountHeaders,
     });
-    const configBlob = JSON.stringify(config.json());
+    const configJson = config.json();
+    const configBlob = JSON.stringify(configJson);
     for (const t of tokens) {
       expect(configBlob).not.toContain(t.bank_account_token);
     }
+    expect(configJson.webhookSecretMasked).toMatch(/…/);
+    expect(configBlob).not.toContain(ctx.config.WEBHOOK_SECRET);
   });
 });

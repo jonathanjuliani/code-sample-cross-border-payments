@@ -1,13 +1,20 @@
 import { WebhookEventSchema, type WebhookProvider } from '@payout/shared';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { Clock } from '../clock.ts';
+import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
 import { recordEvent } from '../ops/events.ts';
 import { IllegalTransition } from '../payouts/machine.ts';
 import { applyProviderEvent } from './apply.ts';
+import { verifyWebhookSignature } from './sign.ts';
 
-export function registerWebhookRoutes(app: FastifyInstance, deps: { db: Db; clock: Clock }): void {
-  const { db, clock } = deps;
+type RequestWithRawBody = FastifyRequest & { rawBody?: string };
+
+export function registerWebhookRoutes(
+  app: FastifyInstance,
+  deps: { db: Db; clock: Clock; config: AppConfig },
+): void {
+  const { db, clock, config } = deps;
 
   app.post<{ Params: { provider: string } }>('/webhooks/:provider', async (request, reply) => {
     const provider = request.params.provider as WebhookProvider;
@@ -15,6 +22,24 @@ export function registerWebhookRoutes(app: FastifyInstance, deps: { db: Db; cloc
       return reply.code(400).send({
         error: 'validation_failed',
         message: 'Unknown webhook provider',
+      });
+    }
+
+    const rawBody = (request as RequestWithRawBody).rawBody ?? '';
+    const verified = verifyWebhookSignature({
+      secret: config.WEBHOOK_SECRET,
+      timestampHeader: request.headers.timestamp,
+      signatureHeader: request.headers.signature,
+      rawBody,
+      nowMs: clock.now().getTime(),
+    });
+    if (!verified.ok) {
+      return reply.code(401).send({
+        error: 'invalid_signature',
+        message:
+          verified.reason === 'stale_timestamp'
+            ? 'Webhook timestamp outside tolerance window'
+            : 'Missing or invalid webhook signature',
       });
     }
 

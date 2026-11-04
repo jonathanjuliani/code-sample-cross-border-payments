@@ -83,6 +83,7 @@ export const OpsConfigSchema = z
     dbPath: z.string(),
     appVersion: z.string(),
     opsEnabled: z.boolean(),
+    webhookSecretMasked: z.string(),
   })
   .strict();
 export type OpsConfig = z.infer<typeof OpsConfigSchema>;

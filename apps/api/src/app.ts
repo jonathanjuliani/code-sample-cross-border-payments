@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import Fastify, { type FastifyRequest } from 'fastify';
 import type { Clock } from './clock.ts';
 import type { AppConfig } from './config.ts';
 import type { Db } from './db/open.ts';
@@ -41,6 +41,18 @@ export async function buildApp({
       level: config.LOG_LEVEL,
       redact: ['*.bankAccountToken', 'req.headers["idempotency-key"]'],
     },
+  });
+
+  // Keep the exact JSON bytes for webhook HMAC (`timestamp.body`).
+  app.removeContentTypeParser('application/json');
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (request, body, done) => {
+    const raw = typeof body === 'string' ? body : String(body);
+    (request as FastifyRequest & { rawBody?: string }).rawBody = raw;
+    try {
+      done(null, JSON.parse(raw) as unknown);
+    } catch (err) {
+      done(err as Error, undefined);
+    }
   });
 
   app.addHook('onRequest', async (request, reply) => {
@@ -87,7 +99,7 @@ export async function buildApp({
       : {}),
   });
   registerLedgerRoutes(app, db);
-  registerWebhookRoutes(app, { db, clock });
+  registerWebhookRoutes(app, { db, clock, config });
 
   if (config.OPS_ENABLED) {
     registerOpsRoutes(app, {

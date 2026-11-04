@@ -9,6 +9,7 @@ services:
       PORT: "3000"
       ACCOUNT_ID: acct_demo
       LOG_LEVEL: info
+      WEBHOOK_SECRET: whsec_demo_sample
     volumes:
       - payout-data:/data
     healthcheck:

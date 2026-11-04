@@ -1,6 +1,8 @@
 import type { WebhookEvent, WebhookProvider } from '@payout/shared';
 import type { FastifyInstance } from 'fastify';
+import type { Clock } from '../../clock.ts';
 import { randomBase32 } from '../../util/ids.ts';
+import { signWebhook } from '../../webhooks/sign.ts';
 import { simDelay } from './clock.ts';
 import { consumeWebhookDuplicate } from './flags.ts';
 
@@ -24,12 +26,23 @@ export async function settleSimJobs(): Promise<void> {
   }
 }
 
-export function createInjectPoster(app: FastifyInstance): WebhookPoster {
+export function createInjectPoster(
+  app: FastifyInstance,
+  deps: { secret: string; clock: Clock },
+): WebhookPoster {
   return async (provider, event) => {
+    const body = JSON.stringify(event);
+    const timestamp = String(Math.floor(deps.clock.now().getTime() / 1000));
+    const signature = signWebhook(deps.secret, timestamp, body);
     const res = await app.inject({
       method: 'POST',
       url: `/webhooks/${provider}`,
-      payload: event,
+      headers: {
+        'content-type': 'application/json',
+        timestamp,
+        signature,
+      },
+      payload: body,
     });
     if (res.statusCode >= 400) {
       app.log.warn(

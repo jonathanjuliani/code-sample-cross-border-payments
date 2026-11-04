@@ -237,3 +237,20 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 
 - `pnpm verify` green (api 64 including stream tests). `pnpm test:e2e` → 19 passed.
 - Next: N2 (HMAC webhook signatures).
+
+## Phase 7 / N2: signed webhooks
+
+**Built**
+
+- `WEBHOOK_SECRET` env (default `whsec_demo_sample`). `POST /webhooks/:provider` requires `Timestamp` (unix seconds) and `Signature` (HMAC-SHA256 hex of `timestamp.body`); rejects missing/bad signature or timestamps outside 5 minutes with 401.
+- JSON parser keeps `rawBody` so the HMAC matches the bytes on the wire. Simulator `createInjectPoster` signs with the clock and secret. Masked secret on `GET /ops/config` (`webhookSecretMasked`).
+- API tests: bad signature 401, stale timestamp 401, replay still deduped as duplicate.
+
+**Found**
+
+- Signing must use the exact request body string, not a re-serialized object ([D24](DECISIONS.md#d24-webhook-hmac-over-raw-body)).
+
+**Gate N2** (2026-11-04)
+
+- `pnpm verify` green (api 67). `pnpm test:e2e` → 19 passed.
+- Next: N3 (ops support actions).

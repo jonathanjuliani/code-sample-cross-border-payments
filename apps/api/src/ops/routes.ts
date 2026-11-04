@@ -6,6 +6,7 @@ import type { Db } from '../db/open.ts';
 import { openSse } from '../http/sse.ts';
 import { balances, journalSums } from '../ledger/balances.ts';
 import { getFlags, resetFlags, setFlags } from '../providers/sim/flags.ts';
+import { maskSecret } from '../webhooks/sign.ts';
 import { buildOpsSummary } from './summary.ts';
 
 const OPS_STREAM_TICK_MS = 2000;
@@ -185,6 +186,7 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
       dbPath: config.DB_PATH,
       appVersion: config.APP_VERSION,
       opsEnabled: config.OPS_ENABLED,
+      webhookSecretMasked: maskSecret(config.WEBHOOK_SECRET),
     };
   });
 

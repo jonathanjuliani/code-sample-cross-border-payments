@@ -263,3 +263,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _`fetch` + stream reader_ (chosen): same auth header as every other call.
 - _Browser `EventSource`_ (rejected): cannot set custom headers.
 - _Leave open streams running under `client.readsFail`_ (rejected): S2 never shows offline while SSE stays preferred.
+
+## D24. Webhook HMAC over raw body
+
+**Status**: Accepted
+
+**Decision**: Webhooks are authenticated with HMAC-SHA256 of `` `${timestamp}.${rawBody}` ``, hex-encoded in the `Signature` header, with unix-seconds `Timestamp`. Tolerance is 5 minutes against the injectable clock. The JSON content-type parser stores the exact request string as `rawBody` before `JSON.parse`. `/ops/config` exposes only a masked form of `WEBHOOK_SECRET`. Inbox dedupe still applies after a valid signature (replay ≠ re-apply).
+
+**Options considered**
+
+- _Raw body HMAC_ (chosen): matches what providers sign on the wire.
+- _Canonical JSON of the parsed object_ (rejected): whitespace and key order would invalidate honest signatures.
+- _Skip signing in tests_ (rejected): the sim and tests share the same signed path.

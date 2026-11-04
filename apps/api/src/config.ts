@@ -31,6 +31,8 @@ const EnvSchema = z.object({
   SIM_RATE_JITTER_E4: z.coerce.number().int().nonnegative().default(150),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   APP_VERSION: z.string().default('0.1.0'),
+  /** Shared HMAC secret for `POST /webhooks/*`. Sample default; override in real deploys. */
+  WEBHOOK_SECRET: z.string().min(8).default('whsec_demo_sample'),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

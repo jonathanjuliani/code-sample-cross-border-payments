@@ -2,7 +2,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { accountBalance, assertBalanced } from '../src/ledger/balances.ts';
 import { startWorker } from '../src/outbox/worker.ts';
 import { createInstantProvider } from '../src/providers/types.ts';
-import { createQuote, createTestContext, newIdempotencyKey, type TestContext } from './helpers.ts';
+import { WEBHOOK_TOLERANCE_MS } from '../src/webhooks/sign.ts';
+import {
+  createQuote,
+  createTestContext,
+  newIdempotencyKey,
+  postSignedWebhook,
+  type TestContext,
+} from './helpers.ts';
 
 async function createPayout(ctx: TestContext) {
   const quote = await createQuote(ctx, { mode: 'receive', amountMinor: 4_280_000 });
@@ -36,11 +43,7 @@ async function sendCollect(ctx: TestContext, payoutId: string) {
 }
 
 async function webhook(ctx: TestContext, provider: string, body: Record<string, unknown>) {
-  return ctx.app.inject({
-    method: 'POST',
-    url: `/webhooks/${provider}`,
-    payload: body,
-  });
+  return postSignedWebhook(ctx, provider, body);
 }
 
 describe('webhooks', () => {
@@ -332,5 +335,64 @@ describe('webhooks', () => {
     expect(status.status).toBe('delivered');
     assertBalanced(ctx.db, payout.id);
     expect(accountBalance(ctx.db, payout.id, 'recipient_bank', 'MXN')).toBe(payout.receiveMinor);
+  });
+
+  it('N2: a bad signature is 401', async () => {
+    ctx = await createTestContext();
+    const payout = await createPayout(ctx);
+    const ref = await sendCollect(ctx, payout.id);
+    const res = await postSignedWebhook(
+      ctx,
+      'collect',
+      {
+        eventId: 'evt_badsig000001',
+        providerRef: ref,
+        leg: 'collect',
+        status: 'succeeded',
+        seq: 1,
+      },
+      { signature: '0'.repeat(64) },
+    );
+    expect(res.statusCode).toBe(401);
+    expect(res.json()).toMatchObject({ error: 'invalid_signature' });
+  });
+
+  it('N2: a stale timestamp is 401', async () => {
+    ctx = await createTestContext();
+    const payout = await createPayout(ctx);
+    const ref = await sendCollect(ctx, payout.id);
+    const staleSec = Math.floor((ctx.clock.now().getTime() - WEBHOOK_TOLERANCE_MS - 1_000) / 1000);
+    const res = await postSignedWebhook(
+      ctx,
+      'collect',
+      {
+        eventId: 'evt_stale0000001',
+        providerRef: ref,
+        leg: 'collect',
+        status: 'succeeded',
+        seq: 1,
+      },
+      { timestampSec: staleSec },
+    );
+    expect(res.statusCode).toBe(401);
+    expect(res.json()).toMatchObject({ error: 'invalid_signature' });
+  });
+
+  it('N2: a replayed event with a valid signature is still deduped', async () => {
+    ctx = await createTestContext();
+    const payout = await createPayout(ctx);
+    const ref = await sendCollect(ctx, payout.id);
+    const event = {
+      eventId: 'evt_replay000001',
+      providerRef: ref,
+      leg: 'collect',
+      status: 'succeeded',
+      seq: 1,
+    };
+    const first = await postSignedWebhook(ctx, 'collect', event);
+    expect(first.statusCode).toBe(200);
+    const second = await postSignedWebhook(ctx, 'collect', event);
+    expect(second.statusCode).toBe(200);
+    expect(second.json()).toMatchObject({ ok: true, ignored: 'duplicate' });
   });
 });
