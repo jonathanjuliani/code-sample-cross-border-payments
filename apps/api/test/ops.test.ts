@@ -254,6 +254,38 @@ describe('ops API', () => {
       payload: { leg: 'transfer' },
     });
     expect(notChecking.statusCode).toBe(409);
+
+    const badLeg = await plain.app.inject({
+      method: 'POST',
+      url: `/ops/payouts/${payoutId}/status-query`,
+      headers: plain.accountHeaders,
+      payload: { leg: 'not-a-leg' },
+    });
+    expect(badLeg.statusCode).toBe(400);
+    expect(badLeg.json().error).toBe('validation_failed');
+  });
+
+  it('ops write edges reject bodies that fail shared Zod schemas', async () => {
+    ctx = await createSimTestContext();
+    const quote = await createQuote(ctx, { mode: 'send', amountMinor: 10_000 });
+
+    const badExpire = await ctx.app.inject({
+      method: 'POST',
+      url: `/ops/quotes/${quote.json().id}/expire-in`,
+      headers: ctx.accountHeaders,
+      payload: { ms: -1 },
+    });
+    expect(badExpire.statusCode).toBe(400);
+    expect(badExpire.json().error).toBe('validation_failed');
+
+    const missingLeg = await ctx.app.inject({
+      method: 'POST',
+      url: '/ops/payouts/pay_missing/status-query',
+      headers: ctx.accountHeaders,
+      payload: {},
+    });
+    expect(missingLeg.statusCode).toBe(400);
+    expect(missingLeg.json().error).toBe('validation_failed');
   });
 
   it('N3: flag for review sets flagged_at without changing payout status', async () => {

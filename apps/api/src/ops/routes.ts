@@ -1,12 +1,15 @@
 import {
   CONFIRMATIONS,
+  ExpireQuoteRequestSchema,
   FEE_BPS,
   FEE_MIN_MINOR,
+  LegNameSchema,
   SEND_MAX_MINOR,
   SEND_MIN_MINOR,
   SimulationFlagsSchema,
 } from '@payout/shared';
 import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
@@ -18,6 +21,8 @@ import { flagPayoutForReview, queueStatusQuery } from './actions.ts';
 import { buildOpsSummary } from './summary.ts';
 
 const OPS_STREAM_TICK_MS = 2000;
+
+const StatusQueryBodySchema = z.object({ leg: LegNameSchema }).strict();
 
 export type OpsRouteDeps = {
   db: Db;
@@ -220,38 +225,36 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
 
   app.post('/ops/simulation/reset', async () => resetFlags());
 
-  app.post<{ Params: { id: string }; Body: { leg?: string } }>(
-    '/ops/payouts/:id/status-query',
-    async (request, reply) => {
-      const leg = request.body?.leg;
-      if (typeof leg !== 'string' || !leg) {
-        return reply.code(400).send({
-          error: 'validation_failed',
-          message: 'body.leg is required',
-        });
+  app.post<{ Params: { id: string } }>('/ops/payouts/:id/status-query', async (request, reply) => {
+    const parsed = StatusQueryBodySchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({
+        error: 'validation_failed',
+        message: 'body.leg must be a known leg',
+        issues: parsed.error.issues,
+      });
+    }
+    const result = queueStatusQuery(db, clock, request.log, request.params.id, parsed.data.leg);
+    if (!result.ok) {
+      if (result.error === 'not_found') {
+        return reply.code(404).send({ error: 'not_found', message: 'Payout or leg not found' });
       }
-      const result = queueStatusQuery(db, clock, request.log, request.params.id, leg);
-      if (!result.ok) {
-        if (result.error === 'not_found') {
-          return reply.code(404).send({ error: 'not_found', message: 'Payout or leg not found' });
-        }
-        if (result.error === 'bad_leg') {
-          return reply.code(400).send({ error: 'validation_failed', message: 'Unknown leg' });
-        }
-        if (result.error === 'not_checking') {
-          return reply.code(409).send({
-            error: 'not_checking',
-            message: 'Leg is not in checking',
-          });
-        }
+      if (result.error === 'bad_leg') {
+        return reply.code(400).send({ error: 'validation_failed', message: 'Unknown leg' });
+      }
+      if (result.error === 'not_checking') {
         return reply.code(409).send({
-          error: 'no_provider_ref',
-          message: 'Leg has no provider_ref',
+          error: 'not_checking',
+          message: 'Leg is not in checking',
         });
       }
-      return { ok: true, outboxId: result.outboxId };
-    },
-  );
+      return reply.code(409).send({
+        error: 'no_provider_ref',
+        message: 'Leg has no provider_ref',
+      });
+    }
+    return { ok: true, outboxId: result.outboxId };
+  });
 
   app.post<{ Params: { id: string } }>('/ops/payouts/:id/flag', async (request, reply) => {
     const result = flagPayoutForReview(db, clock, request.log, request.params.id);
@@ -261,36 +264,34 @@ export function registerOpsRoutes(app: FastifyInstance, deps: OpsRouteDeps): voi
     return { ok: true, flaggedAt: result.flaggedAt };
   });
 
-  app.post<{ Params: { id: string }; Body: { ms?: number } }>(
-    '/ops/quotes/:id/expire-in',
-    async (request, reply) => {
-      const ms = request.body?.ms;
-      if (!Number.isInteger(ms) || (ms as number) < 0) {
-        return reply.code(400).send({
-          error: 'validation_failed',
-          message: 'body.ms must be a non-negative integer',
-        });
-      }
-
-      const quote = db
-        .prepare(`SELECT id, status FROM quotes WHERE id = @id`)
-        .get({ id: request.params.id }) as { id: string; status: string } | undefined;
-      if (!quote) {
-        return reply.code(404).send({ error: 'not_found', message: 'Quote not found' });
-      }
-      if (quote.status !== 'active') {
-        return reply.code(409).send({
-          error: 'quote_not_active',
-          message: 'Quote is not active',
-        });
-      }
-
-      const expiresAt = new Date(clock.now().getTime() + (ms as number)).toISOString();
-      db.prepare(`UPDATE quotes SET expires_at = @expires_at WHERE id = @id`).run({
-        id: quote.id,
-        expires_at: expiresAt,
+  app.post<{ Params: { id: string } }>('/ops/quotes/:id/expire-in', async (request, reply) => {
+    const parsed = ExpireQuoteRequestSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({
+        error: 'validation_failed',
+        message: 'body.ms must be a non-negative integer',
+        issues: parsed.error.issues,
       });
-      return { ok: true, expiresAt };
-    },
-  );
+    }
+
+    const quote = db
+      .prepare(`SELECT id, status FROM quotes WHERE id = @id`)
+      .get({ id: request.params.id }) as { id: string; status: string } | undefined;
+    if (!quote) {
+      return reply.code(404).send({ error: 'not_found', message: 'Quote not found' });
+    }
+    if (quote.status !== 'active') {
+      return reply.code(409).send({
+        error: 'quote_not_active',
+        message: 'Quote is not active',
+      });
+    }
+
+    const expiresAt = new Date(clock.now().getTime() + parsed.data.ms).toISOString();
+    db.prepare(`UPDATE quotes SET expires_at = @expires_at WHERE id = @id`).run({
+      id: quote.id,
+      expires_at: expiresAt,
+    });
+    return { ok: true, expiresAt };
+  });
 }
