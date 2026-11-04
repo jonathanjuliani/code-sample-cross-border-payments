@@ -20,7 +20,7 @@ export function Timeline({ steps }: { steps: TimelineStep[] }) {
           className={`${styles.step} ${styles[step.tone]} ${step.dashed ? styles.dashed : ''}`}
         >
           <span className={styles.ring} aria-hidden />
-          <div className={styles.meta}>
+          <div className={styles.meta} data-testid="timeline-meta">
             {step.index} · {step.word}
             {step.at ? ` · ${step.at}` : ''}
           </div>

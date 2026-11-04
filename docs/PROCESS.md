@@ -291,3 +291,15 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 **Gate N6** (2026-11-04)
 
 - `pnpm verify` green (api 86; scenarios ×2). Next: N7 (screenshot tests) if pulled.
+
+## Phase 7 / N7: screenshot baselines
+
+**Built**
+
+- `e2e/screenshots.spec.ts`: new (quote), delivered payout, list, and `/ops` in light and dark at 1280×800. Hold bar, timeline times, monospace ids, and `<pre>` panels are masked so a real clock still yields stable diffs.
+- Baselines committed for `chromium-darwin` and `chromium-linux` (CI).
+
+**Gate N7** (2026-11-04)
+
+- `pnpm verify` green. `pnpm test:e2e` → 22 passed.
+- Phase 7 N items N1–N7 done (N4 was already Handled via P4).

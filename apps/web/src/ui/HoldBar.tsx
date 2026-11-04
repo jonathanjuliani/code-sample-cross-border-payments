@@ -34,7 +34,7 @@ export function HoldBar({
   }, [low]);
 
   return (
-    <div className={low ? styles.low : undefined}>
+    <div className={low ? styles.low : undefined} data-testid="hold-bar">
       <div className={styles.bar} aria-hidden>
         <span className={styles.fill} style={{ width: `${pct}%` }} />
       </div>

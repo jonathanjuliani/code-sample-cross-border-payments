@@ -310,3 +310,14 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 - _Config-selected Provider at the seam_ (chosen): proves hop 2 is swappable without touching money paths.
 - _If/else inside payouts or the worker_ (rejected): would couple domain code to a vendor.
+
+## D28. Screenshot baselines mask clock-owned pixels
+
+**Status**: Accepted
+
+**Decision**: N7 screenshots use fixed amounts and themes, with Playwright masks over hold countdown, timeline timestamps, monospace ids, and ops `<pre>` panels. Darwin and Linux baselines are both committed because Chromium paints differ by OS. Update snapshots only on purpose (`--update-snapshots`).
+
+**Options considered**
+
+- _Mask dynamic regions_ (chosen): e2e keeps a real system clock; no second fake-clock path in `server.ts`.
+- _Fake clock in the e2e API process_ (rejected): larger surface for a sample that already masks those pixels.
