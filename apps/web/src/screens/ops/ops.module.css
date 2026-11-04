@@ -1,0 +1,79 @@
+.switches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--s2);
+}
+.switch {
+  display: flex;
+  gap: var(--s2);
+  align-items: center;
+  font-size: var(--fs-meta);
+  font-family: var(--font-mono);
+}
+.log {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  white-space: pre-wrap;
+  background: var(--surface-sunken);
+  padding: var(--s3);
+  border-radius: var(--radius);
+  margin: 0;
+}
+.input {
+  min-height: var(--target);
+  padding: 0 var(--s3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--s2) 2px 2px;
+  margin: 0;
+  min-inline-size: 0;
+  background: var(--surface-sunken);
+}
+.speed legend {
+  padding: 0 var(--s2);
+  float: left;
+  width: auto;
+}
+.speedBtn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-meta);
+  cursor: pointer;
+  min-height: 36px;
+}
+.speedBtn[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.badge {
+  display: inline-block;
+  margin-left: var(--s2);
+  padding: 2px var(--s2);
+  border-radius: var(--radius);
+  background: var(--caution-soft);
+  color: var(--caution);
+  font-size: var(--fs-label);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+}
+.linkish {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}

@@ -1,4 +1,5 @@
 import {
+  type OpsConfig,
   OpsConfigSchema,
   type OpsEvent,
   OpsEventSchema,
@@ -11,44 +12,28 @@ import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { request } from '../state/api.ts';
 import { useLiveOps } from '../state/liveOps.ts';
-import { Button } from '../ui/Button.tsx';
-import { Card } from '../ui/Card.tsx';
 import { PageHead } from '../ui/PageHead.tsx';
-import { SectionHead } from '../ui/SectionHead.tsx';
-import styles from './Ops.module.css';
+import { OpsConfigPanel } from './ops/Config.tsx';
+import { OpsEvents } from './ops/Events.tsx';
+import { type InspectorState, OpsInspector } from './ops/Inspector.tsx';
+import { OpsRecon } from './ops/Recon.tsx';
+import { OpsSimulation } from './ops/Simulation.tsx';
+import { OpsStuck } from './ops/Stuck.tsx';
+import { OpsSummaryPanel } from './ops/Summary.tsx';
 
 const EventsSchema = z.array(OpsEventSchema);
-
-const SWITCHES: Array<keyof SimulationFlags> = [
-  'slow',
-  'collect.decline',
-  'transfer.timeout',
-  'transfer.timeoutLost',
-  'transfer.reorg',
-  'deposit.rejectBank',
-  'webhook.duplicate',
-  'webhook.outOfOrder',
-  'rate.move',
-  'crash.afterCommit',
-  'client.readsFail',
-];
 
 export function Ops() {
   const [opsOff, setOpsOff] = useState(false);
   const [summary, setSummary] = useState<OpsSummary | null>(null);
   const [flags, setFlags] = useState<SimulationFlags | null>(null);
   const [events, setEvents] = useState<OpsEvent[]>([]);
-  const [config, setConfig] = useState<z.infer<typeof OpsConfigSchema> | null>(null);
+  const [config, setConfig] = useState<OpsConfig | null>(null);
   const [kindFilter, setKindFilter] = useState('');
   const [payoutFilter, setPayoutFilter] = useState('');
-  const [recon, setRecon] = useState<string>('');
+  const [recon, setRecon] = useState('');
   const [inspectId, setInspectId] = useState('');
-  const [inspector, setInspector] = useState<{
-    payoutId: string;
-    flaggedAt: string | null;
-    legs: Array<{ leg: string; status: string; provider_ref: string | null }>;
-    actionMsg: string;
-  } | null>(null);
+  const [inspector, setInspector] = useState<InspectorState | null>(null);
 
   const load = useCallback(async () => {
     const sum = await request('/ops/summary', { method: 'GET', schema: OpsSummarySchema });
@@ -205,171 +190,36 @@ export function Ops() {
         {transport}
       </span>
 
-      <Card>
-        <SectionHead>Simulation</SectionHead>
-        <div className={styles.switches}>
-          {SWITCHES.map((key) => (
-            <label key={key} className={styles.switch}>
-              <input
-                type="checkbox"
-                name={key}
-                aria-label={key}
-                checked={Boolean(flags?.[key])}
-                disabled={!flags}
-                onChange={(e) => void toggle(key, e.target.checked)}
-              />
-              {key}
-            </label>
-          ))}
-        </div>
-        <div className="row" style={{ marginTop: 'var(--s3)' }}>
-          <fieldset className={styles.speed}>
-            <legend className="meta">Speed</legend>
-            {([1, 3, 10] as const).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={styles.speedBtn}
-                aria-pressed={flags?.speed === s}
-                onClick={() => void toggle('speed', s)}
-              >
-                {s}×
-              </button>
-            ))}
-          </fieldset>
-          <Button onClick={() => void reset()}>Reset</Button>
-        </div>
-      </Card>
-
-      <Card>
-        <SectionHead>Summary</SectionHead>
-        {summary ? (
-          <pre className={styles.log}>
-            {JSON.stringify(summary.payoutsByStatus, null, 2)}
-            replays {summary.idempotentReplays} · 409 {summary.conflicts409} · 410{' '}
-            {summary.expired410}
-            dupes {summary.webhooksIgnoredDuplicate} · stale {summary.webhooksIgnoredStale}
-            outbox {summary.outboxPending} · worker {summary.workerLastTickAt ?? '—'}
-          </pre>
-        ) : (
-          <p className="muted">Loading…</p>
-        )}
-      </Card>
-
-      <Card>
-        <SectionHead>Stuck</SectionHead>
-        {summary?.stuck.length ? (
-          <ul>
-            {summary.stuck.map((s) => (
-              <li key={`${s.payoutId}-${s.leg}`} className="mono meta">
-                <button
-                  type="button"
-                  className={styles.linkish}
-                  onClick={() => {
-                    setInspectId(s.payoutId);
-                    void loadInspector(s.payoutId);
-                  }}
-                >
-                  {s.payoutId}
-                </button>{' '}
-                · {s.leg} · {s.status} · {Math.round(s.ageMs / 1000)}s
-                {s.flagged ? (
-                  <span className={styles.badge} data-testid="flagged-badge">
-                    Flagged
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">None</p>
-        )}
-      </Card>
-
-      <Card>
-        <SectionHead>Payout inspector</SectionHead>
-        <div className="row">
-          <input
-            className={styles.input}
-            placeholder="payout id"
-            aria-label="Inspector payout id"
-            value={inspectId}
-            onChange={(e) => setInspectId(e.target.value)}
-          />
-          <Button onClick={() => void loadInspector(inspectId)}>Load</Button>
-        </div>
-        {inspector ? (
-          <div className="stack" style={{ marginTop: 'var(--s3)' }}>
-            <p className="meta mono">
-              {inspector.payoutId}
-              {inspector.flaggedAt ? (
-                <span className={styles.badge} data-testid="flagged-badge">
-                  Flagged {inspector.flaggedAt}
-                </span>
-              ) : null}
-            </p>
-            <ul>
-              {inspector.legs.map((leg) => (
-                <li key={leg.leg} className="mono meta row" style={{ gap: 'var(--s2)' }}>
-                  <span>
-                    {leg.leg} · {leg.status}
-                  </span>
-                  {leg.status === 'checking' ? (
-                    <Button
-                      onClick={() => void rerunStatusQuery(leg.leg)}
-                      data-testid={`rerun-${leg.leg}`}
-                    >
-                      Re-run status query
-                    </Button>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-            <Button onClick={() => void flagForReview()} data-testid="flag-for-review">
-              Flag for review
-            </Button>
-            {inspector.actionMsg ? (
-              <p className="meta" data-testid="inspector-action">
-                {inspector.actionMsg}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          <p className="muted">Enter a payout id to inspect.</p>
-        )}
-      </Card>
-
-      <Card>
-        <SectionHead>Server log</SectionHead>
-        <div className="row">
-          <input
-            className={styles.input}
-            placeholder="kind"
-            value={kindFilter}
-            onChange={(e) => setKindFilter(e.target.value)}
-          />
-          <input
-            className={styles.input}
-            placeholder="payout id"
-            value={payoutFilter}
-            onChange={(e) => setPayoutFilter(e.target.value)}
-          />
-        </div>
-        <pre className={styles.log}>
-          {events.map((e) => `${e.at} [${e.kind}] ${e.payoutId ?? '-'} ${e.message}`).join('\n') ||
-            'No events'}
-        </pre>
-      </Card>
-
-      <Card>
-        <SectionHead>Reconciliation</SectionHead>
-        <pre className={styles.log}>{recon || '—'}</pre>
-      </Card>
-
-      <Card>
-        <SectionHead>Config</SectionHead>
-        <pre className={styles.log}>{config ? JSON.stringify(config, null, 2) : '—'}</pre>
-      </Card>
+      <OpsSimulation
+        flags={flags}
+        onToggle={(key, value) => void toggle(key, value)}
+        onReset={() => void reset()}
+      />
+      <OpsSummaryPanel summary={summary} />
+      <OpsStuck
+        stuck={summary?.stuck ?? []}
+        onSelect={(payoutId) => {
+          setInspectId(payoutId);
+          void loadInspector(payoutId);
+        }}
+      />
+      <OpsInspector
+        inspectId={inspectId}
+        onInspectIdChange={setInspectId}
+        onLoad={() => void loadInspector(inspectId)}
+        inspector={inspector}
+        onRerunStatusQuery={(leg) => void rerunStatusQuery(leg)}
+        onFlagForReview={() => void flagForReview()}
+      />
+      <OpsEvents
+        events={events}
+        kindFilter={kindFilter}
+        payoutFilter={payoutFilter}
+        onKindFilterChange={setKindFilter}
+        onPayoutFilterChange={setPayoutFilter}
+      />
+      <OpsRecon recon={recon} />
+      <OpsConfigPanel config={config} />
     </div>
   );
 }
