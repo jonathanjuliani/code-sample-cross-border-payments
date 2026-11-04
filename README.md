@@ -10,7 +10,7 @@ Underneath, the money takes three hops, and the person at the screen never sees 
 
 Each hop's provider is simulated, and can be made to fail on purpose: slow, declined, timed out without an answer, or sending duplicate or out-of-order status updates.
 
-> Status: Phase 1 foundation is in. Workspace, money rules, `/health`, tokens and `docker compose up` work. Open [`docs/design/mockup/index.html`](docs/design/mockup/index.html) for the full UI; app screens start in Phase 5.
+> Status: Phase 2 is in — quotes, idempotent payouts, and the state machine. Open [`docs/design/mockup/index.html`](docs/design/mockup/index.html) for the full UI; app screens start in Phase 5.
 
 ## The rule everything serves
 

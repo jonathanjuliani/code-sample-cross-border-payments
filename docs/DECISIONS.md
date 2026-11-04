@@ -165,3 +165,26 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Commit a vendored `.node` file_ (rejected): platform-specific and brittle.
 
 **Consequences**: AGENTS.md matches this. If a platform has no prebuild, install will try node-gyp and may fail in slim images — revisit then.
+
+## D15. Idempotency body hash is canonical JSON (sorted keys)
+
+**Status**: Proposed
+
+**Decision**: `POST /payouts` hashes the validated body with SHA-256 over `JSON.stringify` of recursively key-sorted objects (`apps/api/src/util/canonical-json.ts`). Key order in the raw request must not change the hash.
+
+**Options considered**
+
+- _Sorted-key canonical JSON_ (chosen): stable across clients that reorder fields.
+- _Raw request bytes_ (rejected): same object, different whitespace or key order, would 409.
+
+## D16. Recipients expose `city`; column added to the schema
+
+**Status**: Proposed
+
+**Decision**: Phase 2's `GET /recipients` returns `city`. PLAN §6's recipients table omitted it; the seed cities (Monterrey, Guadalajara, Veracruz) are stored in a `city` column and returned in the shared `RecipientSchema`.
+
+## D17. Idempotent payout replay answers 200
+
+**Status**: Proposed
+
+**Decision**: The first successful `POST /payouts` stores `response_status = 201`. A later request with the same key and body hash returns **200** with that stored body (PLAN §7: "201 created; 200 replay"), not 201 again.

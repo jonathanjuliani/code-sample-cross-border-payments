@@ -82,3 +82,29 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 - `pnpm check:tokens` failed on a deliberate `color: #fff` in `app.module.css`, then passed after removal.
 - `docker compose up -d --build` → `curl -fsS localhost:8801/api/health` → `{"ok":true,"version":"0.1.0"}` → `docker compose down`.
 - Next: [Phase 2](phases/phase-2-quotes-payouts.md).
+
+## Phase 2: quotes and payouts
+
+**Built**
+
+- `ops/events.ts` writing `ops_events` inside the caller's transaction (trim last 5,000).
+- `GET /recipients` (with `city`), `POST /quotes` (pricing, limits, TTL), `expireDue` on confirm and a 5s timer.
+- Payout state machine (`machine.ts`) from PLAN §5; refuses illegal transitions and logs them.
+- `POST /payouts` with UUID idempotency, canonical-JSON body hash, quote consume + four legs + `collect.request` outbox in one transaction; payout stays `created` until Phase 3.
+- `GET /payouts`, `GET /payouts/:id`, `GET /payouts?idempotencyKey=`.
+
+**Found**
+
+- Replay must answer **200** while the stored create status is 201 (D17).
+- Recipients need a `city` column for the Phase 2 response shape (D16).
+- Body hash needs sorted-key canonical JSON so key order can't 409 (D15).
+
+**Dropped**
+
+- Nothing from the brief. Worker / ledger / webhooks still Phase 3.
+
+**Gate 2** (2026-11-03)
+
+- `pnpm verify` green. Totals: shared 17, api 22 (health 2, quotes 5, payouts.create 11, machine 4), web 4.
+- `grep -r "Date.now" apps/api/src` → none (clock only).
+- Next: [Phase 3](phases/phase-3-ledger-outbox-webhooks.md).

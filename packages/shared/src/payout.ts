@@ -94,6 +94,7 @@ export const RecipientSchema = z
   .object({
     id: z.string().min(1),
     label: z.string().min(1),
+    city: z.string().min(1),
     country: z.string().min(1),
     currency: z.literal('MXN'),
     bankAccountMasked: z.string().min(1),

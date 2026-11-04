@@ -5,6 +5,7 @@ import { buildApp } from './app.ts';
 import { createSystemClock } from './clock.ts';
 import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
+import { expireDue } from './quotes/expire.ts';
 
 const config = loadConfig();
 if (config.DB_PATH !== ':memory:') {
@@ -14,10 +15,20 @@ if (config.DB_PATH !== ':memory:') {
 const db = openDb(config.DB_PATH);
 seedIfEmpty(db);
 
+const clock = createSystemClock();
 const app = await buildApp({
   db,
-  clock: createSystemClock(),
+  clock,
   config,
 });
+
+const expireTimer = setInterval(() => {
+  try {
+    expireDue(db, clock, app.log);
+  } catch (err) {
+    app.log.error({ err }, 'expireDue failed');
+  }
+}, 5_000);
+expireTimer.unref?.();
 
 await app.listen({ port: config.PORT, host: '0.0.0.0' });

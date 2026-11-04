@@ -3,6 +3,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS recipients (
   id TEXT PRIMARY KEY,
   label TEXT NOT NULL,
+  city TEXT NOT NULL,
   country TEXT NOT NULL,
   currency TEXT NOT NULL CHECK (currency = 'MXN'),
   bank_account_masked TEXT NOT NULL,

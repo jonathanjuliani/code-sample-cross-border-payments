@@ -12,8 +12,8 @@ export function seedIfEmpty(db: Db): void {
   }
 
   const insertRecipient = db.prepare(`
-    INSERT INTO recipients (id, label, country, currency, bank_account_masked, bank_account_token)
-    VALUES (@id, @label, @country, @currency, @bank_account_masked, @bank_account_token)
+    INSERT INTO recipients (id, label, city, country, currency, bank_account_masked, bank_account_token)
+    VALUES (@id, @label, @city, @country, @currency, @bank_account_masked, @bank_account_token)
   `);
 
   const insertMeta = db.prepare(`
@@ -22,10 +22,12 @@ export function seedIfEmpty(db: Db): void {
 
   const tx = db.transaction(() => {
     insertMeta.run({ key: 'funding_account_masked', value: '••••2290' });
+    insertMeta.run({ key: 'next_payout_number', value: '1041' });
 
     insertRecipient.run({
       id: 'r1',
       label: 'Fabric supplier',
+      city: 'Monterrey',
       country: 'MX',
       currency: 'MXN',
       bank_account_masked: '••••4821',
@@ -34,6 +36,7 @@ export function seedIfEmpty(db: Db): void {
     insertRecipient.run({
       id: 'r2',
       label: 'Packaging supplier',
+      city: 'Guadalajara',
       country: 'MX',
       currency: 'MXN',
       bank_account_masked: '••••0937',
@@ -42,6 +45,7 @@ export function seedIfEmpty(db: Db): void {
     insertRecipient.run({
       id: 'r3',
       label: 'Freight agent',
+      city: 'Veracruz',
       country: 'MX',
       currency: 'MXN',
       bank_account_masked: '••••5510',

@@ -2,14 +2,23 @@ import Fastify from 'fastify';
 import type { Clock } from './clock.ts';
 import type { AppConfig } from './config.ts';
 import type { Db } from './db/open.ts';
+import type { ProviderSpy } from './payouts/create.ts';
+import { registerPayoutRoutes } from './payouts/routes.ts';
+import { registerQuoteRoutes } from './quotes/routes.ts';
+import { registerRecipientRoutes } from './recipients/routes.ts';
 
 export type BuildAppOptions = {
   db: Db;
   clock: Clock;
   config: AppConfig;
+  /** Test-only hooks for Phase 2 atomicity / provider spy proofs. */
+  testHooks?: {
+    providerSpy?: ProviderSpy;
+    abortAfterQuoteConsumed?: () => void;
+  };
 };
 
-export async function buildApp({ db: _db, clock: _clock, config }: BuildAppOptions) {
+export async function buildApp({ db, clock, config, testHooks }: BuildAppOptions) {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
@@ -36,6 +45,18 @@ export async function buildApp({ db: _db, clock: _clock, config }: BuildAppOptio
     ok: true as const,
     version: config.APP_VERSION,
   }));
+
+  registerRecipientRoutes(app, db);
+  registerQuoteRoutes(app, { db, clock, config });
+  registerPayoutRoutes(app, {
+    db,
+    clock,
+    config,
+    ...(testHooks?.providerSpy ? { providerSpy: testHooks.providerSpy } : {}),
+    ...(testHooks?.abortAfterQuoteConsumed
+      ? { abortAfterQuoteConsumed: testHooks.abortAfterQuoteConsumed }
+      : {}),
+  });
 
   return app;
 }
