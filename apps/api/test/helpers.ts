@@ -20,8 +20,8 @@ export async function createTestContext(
   env: Record<string, string> = {},
 ): Promise<TestContext> {
   const db = openDb(':memory:');
-  seedIfEmpty(db);
   const clock = createFakeClock(Date.parse('2026-11-03T15:00:00.000Z'));
+  seedIfEmpty(db, clock);
   const config = loadConfig({
     ACCOUNT_ID: 'acct_demo',
     APP_VERSION: '0.1.0-test',

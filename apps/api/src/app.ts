@@ -2,10 +2,12 @@ import Fastify from 'fastify';
 import type { Clock } from './clock.ts';
 import type { AppConfig } from './config.ts';
 import type { Db } from './db/open.ts';
+import { registerLedgerRoutes } from './ledger/routes.ts';
 import type { ProviderSpy } from './payouts/create.ts';
 import { registerPayoutRoutes } from './payouts/routes.ts';
 import { registerQuoteRoutes } from './quotes/routes.ts';
 import { registerRecipientRoutes } from './recipients/routes.ts';
+import { registerWebhookRoutes } from './webhooks/routes.ts';
 
 export type BuildAppOptions = {
   db: Db;
@@ -57,6 +59,8 @@ export async function buildApp({ db, clock, config, testHooks }: BuildAppOptions
       ? { abortAfterQuoteConsumed: testHooks.abortAfterQuoteConsumed }
       : {}),
   });
+  registerLedgerRoutes(app, db);
+  registerWebhookRoutes(app, { db, clock });
 
   return app;
 }

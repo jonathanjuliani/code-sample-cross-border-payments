@@ -108,3 +108,27 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 - `pnpm verify` green. Totals: shared 17, api 22 (health 2, quotes 5, payouts.create 11, machine 4), web 4.
 - `grep -r "Date.now" apps/api/src` → none (clock only).
 - Next: [Phase 3](phases/phase-3-ledger-outbox-webhooks.md).
+
+## Phase 3: ledger, outbox worker, webhooks
+
+**Built**
+
+- Ledger: `postJournal` / signed helper, PLAN §9 + §19 postings, balance and journal-sum queries, `GET /payouts/:id/ledger`, `assertBalanced`.
+- Provider seam (`Provider`, `ProviderTimeout`, instant/decline/timeout test doubles). Real simulator is Phase 4.
+- Outbox worker with `tickOnce` / `stop`, `due_at` scheduling, status-query backoff, same-`provider_ref` resend after the provider window, give-up after `CHECKING_GIVE_UP_MS`.
+- Webhook intake: inbox dedupe, stale `seq`, leg update + machine transition + journal + next-hop outbox in one transaction.
+- Seed history `PO-1039` / `PO-1040` with legs and journals via postings.
+
+**Found**
+
+- Accepting a `collect.request` must only transition `created → collecting` when the payout is still `created`, so a timeout-then-resend does not try `collecting → collecting` ([D18](DECISIONS.md#d18-outbox-due_at-and-resend-safe-collect-transition)).
+- Timeout test doubles wrap an underlying provider so the first attempt still records the `provider_ref` used on resend (T4).
+
+**Dropped**
+
+- Nothing from the brief. Simulator switches and `/ops/*` remain Phase 4.
+
+**Gate 3** (2026-11-03)
+
+- `pnpm verify` green. Totals: shared 17, api 38 (health 2, quotes 5, payouts.create 11, machine 4, ledger 5, worker 5, webhooks 6), web 4.
+- Next: [Phase 4](phases/phase-4-simulator-ops-api.md).

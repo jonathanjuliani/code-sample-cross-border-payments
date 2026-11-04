@@ -188,3 +188,15 @@ To add one: next number, same four headings. To change one: add a new entry that
 **Status**: Proposed
 
 **Decision**: The first successful `POST /payouts` stores `response_status = 201`. A later request with the same key and body hash returns **200** with that stored body (PLAN §7: "201 created; 200 replay"), not 201 again.
+
+## D18. Outbox `due_at` and resend-safe collect transition
+
+**Status**: Proposed
+
+**Decision**: Scheduled outbox work uses a nullable `due_at` column (`NULL` = due now). On `ProviderTimeout` the original request row is marked sent, the leg goes to `checking`, and a `status.query` row is inserted with `due_at = now + STATUS_BACKOFF_MS[0]`. Later queries walk the backoff list; after `PROVIDER_WINDOW_MS` with `not_found`, a new `*.request` is inserted with the same `provider_ref`. Accepting a `collect.request` transitions `created → collecting` only when the payout is still `created`, so a timeout-then-resend path does not attempt an illegal `collecting → collecting`.
+
+**Options considered**
+
+- _`due_at` on the outbox row_ (chosen): one poll query; no separate scheduler table.
+- _Always transition on accept_ (rejected): resend after a timeout would throw `IllegalTransition` and leave the hop stuck.
+- _In-memory timers only_ (rejected): a restart would lose the next query time (breaks H11 for checking legs).

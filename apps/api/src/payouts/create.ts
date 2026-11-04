@@ -4,6 +4,7 @@ import type { Clock } from '../clock.ts';
 import type { AppConfig } from '../config.ts';
 import type { Db } from '../db/open.ts';
 import { recordEvent } from '../ops/events.ts';
+import { insertOutbox } from '../outbox/write.ts';
 import { expireDue } from '../quotes/expire.ts';
 import { bodyHash } from '../util/canonical-json.ts';
 import { nextPayoutId, providerRef } from '../util/ids.ts';
@@ -253,18 +254,16 @@ export function createPayout(opts: CreatePayoutOptions): CreatePayoutResult {
       });
     }
 
-    db.prepare(
-      `INSERT INTO outbox (payout_id, kind, payload, created_at, sent_at, attempts)
-       VALUES (@payout_id, 'collect.request', @payload, @created_at, NULL, 0)`,
-    ).run({
-      payout_id: payoutId,
-      payload: JSON.stringify({
+    insertOutbox(db, {
+      payoutId,
+      kind: 'collect.request',
+      createdAt,
+      payload: {
         payoutId,
         leg: 'collect',
         providerRef: providerRef(payoutId, 'collect'),
         amountMinor: quote.send_minor,
-      }),
-      created_at: createdAt,
+      },
     });
 
     const payout = db

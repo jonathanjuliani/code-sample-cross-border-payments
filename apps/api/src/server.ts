@@ -5,6 +5,8 @@ import { buildApp } from './app.ts';
 import { createSystemClock } from './clock.ts';
 import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
+import { startWorker } from './outbox/worker.ts';
+import { createInstantProvider } from './providers/types.ts';
 import { expireDue } from './quotes/expire.ts';
 
 const config = loadConfig();
@@ -13,9 +15,9 @@ if (config.DB_PATH !== ':memory:') {
 }
 
 const db = openDb(config.DB_PATH);
-seedIfEmpty(db);
-
 const clock = createSystemClock();
+seedIfEmpty(db, clock);
+
 const app = await buildApp({
   db,
   clock,
@@ -30,5 +32,27 @@ const expireTimer = setInterval(() => {
   }
 }, 5_000);
 expireTimer.unref?.();
+
+// Phase 3: instant providers stand in until the Phase 4 simulator.
+// They accept submits; status events arrive via /webhooks in real runs / tests.
+const instant = createInstantProvider();
+const worker = startWorker({
+  db,
+  clock,
+  log: app.log,
+  config,
+  providers: {
+    collect: instant,
+    transfer: instant,
+    deposit: instant,
+    refund: instant,
+  },
+  intervalMs: config.WORKER_INTERVAL_MS,
+});
+
+app.addHook('onClose', async () => {
+  worker.stop();
+  clearInterval(expireTimer);
+});
 
 await app.listen({ port: config.PORT, host: '0.0.0.0' });

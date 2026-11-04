@@ -39,7 +39,9 @@ describe('POST /payouts', () => {
     expect(second.statusCode).toBe(200);
     expect(second.json()).toEqual(first.json());
 
-    const count = ctx.db.prepare(`SELECT COUNT(*) AS n FROM payouts`).get() as { n: number };
+    const count = ctx.db
+      .prepare(`SELECT COUNT(*) AS n FROM payouts WHERE id NOT IN ('PO-1039', 'PO-1040')`)
+      .get() as { n: number };
     expect(count.n).toBe(1);
   });
 
@@ -66,7 +68,9 @@ describe('POST /payouts', () => {
     expect(statuses).toEqual([200, 201]);
     expect(a.json().id).toBe(b.json().id);
 
-    const count = ctx.db.prepare(`SELECT COUNT(*) AS n FROM payouts`).get() as { n: number };
+    const count = ctx.db
+      .prepare(`SELECT COUNT(*) AS n FROM payouts WHERE id NOT IN ('PO-1039', 'PO-1040')`)
+      .get() as { n: number };
     expect(count.n).toBe(1);
   });
 
@@ -127,7 +131,9 @@ describe('POST /payouts', () => {
     expect(res.statusCode).toBe(410);
     expect(res.json().error).toBe('quote_expired');
 
-    const payouts = ctx.db.prepare(`SELECT COUNT(*) AS n FROM payouts`).get() as { n: number };
+    const payouts = ctx.db
+      .prepare(`SELECT COUNT(*) AS n FROM payouts WHERE id NOT IN ('PO-1039', 'PO-1040')`)
+      .get() as { n: number };
     const outbox = ctx.db.prepare(`SELECT COUNT(*) AS n FROM outbox`).get() as { n: number };
     const keysForQuote = ctx.db
       .prepare(
@@ -266,7 +272,9 @@ describe('POST /payouts', () => {
     expect(res.statusCode).toBe(500);
 
     // The throw aborted the SQLite transaction; nothing from create may remain.
-    const payouts = ctx.db.prepare(`SELECT COUNT(*) AS n FROM payouts`).get() as { n: number };
+    const payouts = ctx.db
+      .prepare(`SELECT COUNT(*) AS n FROM payouts WHERE id NOT IN ('PO-1039', 'PO-1040')`)
+      .get() as { n: number };
     const outbox = ctx.db.prepare(`SELECT COUNT(*) AS n FROM outbox`).get() as { n: number };
     const keys = ctx.db.prepare(`SELECT COUNT(*) AS n FROM idempotency_keys`).get() as {
       n: number;

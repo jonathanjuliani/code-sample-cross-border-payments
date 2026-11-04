@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS outbox (
   kind TEXT NOT NULL,
   payload TEXT NOT NULL,
   created_at TEXT NOT NULL,
+  due_at TEXT,
   sent_at TEXT,
   attempts INTEGER NOT NULL DEFAULT 0
 );
