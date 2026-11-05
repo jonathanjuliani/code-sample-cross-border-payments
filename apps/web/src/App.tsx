@@ -7,7 +7,7 @@ import { PayoutDetail } from './screens/PayoutDetail.tsx';
 import { PayoutList } from './screens/PayoutList.tsx';
 import { request } from './state/api.ts';
 import { useRoute } from './state/route.ts';
-import { SideNav } from './ui/SideNav.tsx';
+import { TopBar } from './ui/TopBar.tsx';
 
 const RecipientsSchema = z.array(RecipientSchema);
 
@@ -23,7 +23,7 @@ export function App() {
 
   return (
     <div className="layout">
-      <SideNav current={route} />
+      <TopBar current={route} />
       <main className="appMain">
         {route.name === 'list' ? <PayoutList recipients={recipients} /> : null}
         {route.name === 'new' ? <NewPayout recipients={recipients} /> : null}

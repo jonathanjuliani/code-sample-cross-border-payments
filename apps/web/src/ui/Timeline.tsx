@@ -19,13 +19,17 @@ export function Timeline({ steps }: { steps: TimelineStep[] }) {
           key={step.index + step.title}
           className={`${styles.step} ${styles[step.tone]} ${step.dashed ? styles.dashed : ''}`}
         >
-          <span className={styles.ring} aria-hidden />
-          <div className={styles.meta} data-testid="timeline-meta">
-            {step.index} · {step.word}
-            {step.at ? ` · ${step.at}` : ''}
+          <span className={styles.badge} aria-hidden>
+            {step.index}
+          </span>
+          <div className={styles.body}>
+            <div className={styles.title}>{step.title}</div>
+            <div className={styles.detail}>{step.detail}</div>
           </div>
-          <div className={styles.title}>{step.title}</div>
-          <div className={styles.detail}>{step.detail}</div>
+          <div className={styles.meta} data-testid="timeline-meta">
+            <span>{step.word}</span>
+            {step.at ? <span>{step.at}</span> : null}
+          </div>
         </li>
       ))}
     </ol>

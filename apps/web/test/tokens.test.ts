@@ -142,6 +142,11 @@ const textPairs: Array<[string, string]> = [
   ['--accent', '--surface'],
   ['--accent', '--accent-soft'],
   ['--on-accent', '--accent'],
+  ['--on-success', '--success'],
+  ['--on-caution', '--caution'],
+  ['--on-danger', '--danger'],
+  ['--text', '--accent-soft'],
+  ['--text-muted', '--caution-soft'],
   ['--success', '--success-soft'],
   ['--caution', '--caution-soft'],
   ['--danger', '--danger-soft'],
@@ -191,17 +196,6 @@ describe('design tokens', () => {
   });
 
   it('S6: every line pair meets 3:1 in dark', () => {
-    // DECISIONS quotes border-strong at 3.3:1 on surface for light only;
-    // dark border-strong is a low-contrast hairline by design.
-    assertPairs(
-      themes.dark,
-      [
-        ['--success-line', '--success-soft'],
-        ['--danger-line', '--danger-soft'],
-        ['--rule-heavy', '--surface'],
-      ],
-      3,
-      'dark-line',
-    );
+    assertPairs(themes.dark, linePairs, 3, 'dark-line');
   });
 });

@@ -1,9 +1,8 @@
 .root {
-  margin-top: var(--s3);
   display: inline-flex;
   gap: 2px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   padding: 2px;
   background: var(--surface);
   margin-inline: 0;
@@ -13,7 +12,7 @@
   border: 0;
   background: none;
   padding: 3px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   font-size: var(--fs-label);
   font-weight: var(--fw-semibold);
   color: var(--text-muted);

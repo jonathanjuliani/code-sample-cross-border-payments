@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payout Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================================
+   Primitives per direction. Each direction defines the same role names for
+   light and dark; components below use roles only.
+   ======================================================================== */
+
+/* --- Current (for comparison) ------------------------------------------- */
+:root[data-dir="current"] {
+  --bg:#F7F4EF; --surface:#FBF9F6; --sunken:#F0ECE5; --hover:#F0ECE5;
+  --border:#E6E1D9; --border-strong:#8D8A83;
+  --text:#141414; --text-muted:#4B4A46; --text-subtle:#6F6C66;
+  --accent:#0B0C9C; --accent-soft:#E9E9F6; --on-accent:#FFFFFF; --focus:#0B0C9C;
+  --success:#2A6E4C; --success-soft:#E6F1EA; --caution:#8A5A00; --caution-soft:#FBF1DC;
+  --danger:#A83B18; --danger-soft:#FBEBE3;
+  --header:#FBF9F6; --on-header:#141414; --on-header-muted:#4B4A46; --highlight:#0B0C9C; --on-highlight:#FFFFFF;
+  --font-sans:"Figtree", system-ui, sans-serif; --font-mono:"JetBrains Mono", ui-monospace, monospace;
+  --radius:8px; --radius-sm:6px;
+}
+:root[data-dir="current"][data-theme="dark"] {
+  --bg:#121211; --surface:#1A1A18; --sunken:#0E0E0D; --hover:#22221F;
+  --border:#2C2B28; --border-strong:#6F6C66;
+  --text:#F3EFE8; --text-muted:#C9C3B8; --text-subtle:#A39E95;
+  --accent:#A6A8F7; --accent-soft:#22234A; --on-accent:#0C0D33; --focus:#A6A8F7;
+  --success:#7CC79E; --success-soft:#16261D; --caution:#E5B657; --caution-soft:#2B2212;
+  --danger:#F09A7C; --danger-soft:#2E1A12;
+  --header:#1A1A18; --on-header:#F3EFE8; --on-header-muted:#C9C3B8; --highlight:#A6A8F7; --on-highlight:#0C0D33;
+}
+
+/* --- A · Harbor: cool slate, teal accent, top nav, square steps --------- */
+:root[data-dir="harbor"] {
+  --bg:#F4F6F8; --surface:#FFFFFF; --sunken:#EBEFF3; --hover:#EEF2F5;
+  --border:#D3DBE2; --border-strong:#7F8B97;
+  --text:#0F1A24; --text-muted:#4A5866; --text-subtle:#5F6C78;
+  --accent:#0A6B6B; --accent-soft:#DFF0EE; --on-accent:#FFFFFF; --focus:#0A6B6B;
+  --success:#1B6A39; --success-soft:#E2F1E6; --caution:#8A4F00; --caution-soft:#FBEFD9;
+  --danger:#B42318; --danger-soft:#FCE8E6;
+  --header:#FFFFFF; --on-header:#0F1A24; --on-header-muted:#4A5866; --highlight:#0A6B6B; --on-highlight:#FFFFFF;
+  --font-sans:"IBM Plex Sans", system-ui, sans-serif; --font-mono:"IBM Plex Mono", ui-monospace, monospace;
+  --radius:4px; --radius-sm:3px;
+}
+:root[data-dir="harbor"][data-theme="dark"] {
+  --bg:#0D1318; --surface:#141C23; --sunken:#0A0F13; --hover:#1A242C;
+  --border:#25313C; --border-strong:#5E6E7C;
+  --text:#E6ECF1; --text-muted:#A9B5BF; --text-subtle:#8B98A4;
+  --accent:#4FC1B6; --accent-soft:#10302D; --on-accent:#04201D; --focus:#4FC1B6;
+  --success:#62C98E; --success-soft:#11291B; --caution:#E7AE4A; --caution-soft:#2D2310;
+  --danger:#F28B80; --danger-soft:#34171A;
+  --header:#141C23; --on-header:#E6ECF1; --on-header-muted:#A9B5BF; --highlight:#4FC1B6; --on-highlight:#04201D;
+}
+
+/* --- B · Graphite: neutral grey, graphite band, marigold highlight ------ */
+:root[data-dir="graphite"] {
+  --bg:#F2F2F0; --surface:#FFFFFF; --sunken:#E8E8E5; --hover:#EDEDEA;
+  --border:#D8D8D3; --border-strong:#8E9096;
+  --text:#17191C; --text-muted:#4D5157; --text-subtle:#62666D;
+  --accent:#17191C; --accent-soft:#E8E8E5; --on-accent:#FFFFFF; --focus:#17191C;
+  --success:#1E7342; --success-soft:#E3F2E8; --caution:#9A4300; --caution-soft:#FCEBDD;
+  --danger:#B3261E; --danger-soft:#FBE7E5;
+  --header:#17191C; --on-header:#F2F2F0; --on-header-muted:#A8ACB2; --highlight:#F2B807; --on-highlight:#17191C;
+  --font-sans:"Public Sans", system-ui, sans-serif; --font-mono:"DM Mono", ui-monospace, monospace;
+  --radius:12px; --radius-sm:8px;
+}
+:root[data-dir="graphite"][data-theme="dark"] {
+  --bg:#101113; --surface:#191B1E; --sunken:#0B0C0D; --hover:#202327;
+  --border:#2A2D31; --border-strong:#63676E;
+  --text:#EEEEEB; --text-muted:#AEB1B6; --text-subtle:#8D9096;
+  --accent:#EEEEEB; --accent-soft:#24272B; --on-accent:#17191C; --focus:#F5C232;
+  --success:#6BCB8F; --success-soft:#13281B; --caution:#F0A15C; --caution-soft:#2E1D10;
+  --danger:#F2897F; --danger-soft:#33171A;
+  --header:#000000; --on-header:#EEEEEB; --on-header-muted:#A0A3A8; --highlight:#F5C232; --on-highlight:#17191C;
+}
+
+/* ===========================================================================
+   Shared base
+   ======================================================================== */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 16px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); font-size: 13px; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* The review bar sits above every direction and is not part of any design. */
+.review { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 10px 16px; background: #FFFFFF; color: #111111; border-bottom: 1px solid #CCCCCC; font: 14px/1.4 system-ui, sans-serif; }
+.review b { font-weight: 600; }
+.review .group { display: flex; gap: 4px; flex-wrap: wrap; }
+.review button { border: 1px solid #BBBBBB; background: #FFFFFF; color: #111111; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+.review button[aria-pressed="true"] { background: #111111; color: #FFFFFF; border-color: #111111; }
+.notes { max-width: 1240px; margin: 20px auto 0; padding: 0 16px; }
+.notes .box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; color: var(--text-muted); font-size: 14px; }
+.notes h2 { margin: 0 0 6px; font-size: 16px; color: var(--text); }
+.notes ul { margin: 6px 0 0; padding-left: 18px; }
+.notes li { margin: 2px 0; }
+
+.frame { max-width: 1240px; margin: 16px auto 48px; padding: 0 16px; }
+.app { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+
+/* Pills: dot + word, never colour alone */
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--success); background: var(--success-soft); }
+.pill.info { color: var(--accent); background: var(--accent-soft); }
+.pill.caution { color: var(--caution); background: var(--caution-soft); }
+.pill.danger { color: var(--danger); background: var(--danger-soft); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: var(--radius-sm); border: 1px solid transparent; font-weight: 600; cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--on-accent); }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 600; color: var(--text-subtle); font-size: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+td { padding: 12px; border-bottom: 1px solid var(--border); }
+td.r, th.r { text-align: right; }
+tr:last-child td { border-bottom: 0; }
+
+/* ===========================================================================
+   Current: sticky side nav, editorial head with glow, ring-dot timeline
+   ======================================================================== */
+[data-dir="current"] .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 640px; }
+[data-dir="current"] .side { padding: 24px 16px; border-right: 1px solid var(--border); background: var(--surface); }
+[data-dir="current"] .brand { font-weight: 700; display: flex; gap: 8px; align-items: center; margin-bottom: 24px; }
+[data-dir="current"] .mark { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-size: 13px; }
+[data-dir="current"] .side a { display: block; padding: 8px 10px; border-radius: 6px; color: var(--text-muted); text-decoration: none; font-weight: 500; border-left: 3px solid transparent; }
+[data-dir="current"] .side a.on { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); }
+[data-dir="current"] main { padding: 32px; }
+[data-dir="current"] .head { position: relative; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+[data-dir="current"] .head::before { content: ""; position: absolute; z-index: 0; inset: -60px -80px -20px -80px; background: radial-gradient(40% 60% at 20% 30%, rgba(240,190,170,.35), transparent 70%), radial-gradient(40% 60% at 70% 20%, rgba(180,178,220,.35), transparent 70%); pointer-events: none; }
+[data-dir="current"] .head > * { position: relative; }
+[data-dir="current"] .eyebrow { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-subtle); }
+[data-dir="current"] h1 { font-size: 32px; font-weight: 500; letter-spacing: -.02em; margin: 6px 0 4px; }
+[data-dir="current"] .lede { color: var(--text-muted); font-size: 18px; margin: 0; }
+[data-dir="current"] .grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+[data-dir="current"] .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+[data-dir="current"] .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 20px; }
+[data-dir="current"] .callout .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+[data-dir="current"] .steps { border-left: 2px solid var(--border); margin-left: 8px; }
+[data-dir="current"] .step { position: relative; padding: 2px 0 22px 24px; }
+[data-dir="current"] .step::before { content: ""; position: absolute; left: -9px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border-strong); }
+[data-dir="current"] .step.done::before { border-color: var(--success); background: var(--success); }
+[data-dir="current"] .step.now::before { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+[data-dir="current"] .step .meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-subtle); }
+[data-dir="current"] .step .t { font-weight: 600; }
+[data-dir="current"] .step .d { color: var(--text-muted); font-size: 14px; }
+
+/* ===========================================================================
+   A · Harbor: top bar with tabs, plain head + meta row, square numbered steps,
+   summary column on the right, boxed callouts with a glyph
+   ======================================================================== */
+[data-dir="harbor"] .topbar { display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; background: var(--header); border-bottom: 1px solid var(--border); }
+[data-dir="harbor"] .brand { font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; color: var(--on-header); }
+[data-dir="harbor"] .mark { width: 20px; height: 20px; border: 2px solid var(--accent); border-radius: 3px; position: relative; }
+[data-dir="harbor"] .mark::after { content: ""; position: absolute; inset: 4px; background: var(--accent); border-radius: 1px; }
+[data-dir="harbor"] .tabs { display: flex; gap: 4px; height: 100%; }
+[data-dir="harbor"] .tabs a { display: flex; align-items: center; padding: 0 12px; color: var(--on-header-muted); text-decoration: none; font-weight: 500; font-size: 15px; border-bottom: 2px solid transparent; }
+[data-dir="harbor"] .tabs a.on { color: var(--on-header); border-bottom-color: var(--accent); }
+[data-dir="harbor"] .topbar .spacer { flex: 1; }
+[data-dir="harbor"] main { padding: 24px; }
+[data-dir="harbor"] .crumb { font-size: 13px; color: var(--text-subtle); }
+[data-dir="harbor"] .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 4px 0 20px; }
+[data-dir="harbor"] h1 { font-size: 26px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+[data-dir="harbor"] .head .lede { width: 100%; margin: 0; color: var(--text-muted); font-size: 15px; }
+[data-dir="harbor"] .grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+[data-dir="harbor"] .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+[data-dir="harbor"] .card > .ch { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+[data-dir="harbor"] .card > .cb { padding: 16px; }
+[data-dir="harbor"] .callout { display: grid; grid-template-columns: 24px 1fr; gap: 10px; border: 1px solid var(--border); background: var(--accent-soft); padding: 12px 14px; border-radius: var(--radius); margin-bottom: 16px; }
+[data-dir="harbor"] .callout .glyph { width: 24px; height: 24px; border-radius: 3px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+[data-dir="harbor"] .callout .k { display: none; }
+[data-dir="harbor"] .steps { counter-reset: s; }
+[data-dir="harbor"] .step { position: relative; display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; padding: 12px 0; }
+[data-dir="harbor"] .step + .step { border-top: 1px solid var(--border); }
+[data-dir="harbor"] .step .n { width: 28px; height: 28px; border-radius: 3px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--border-strong); color: var(--text-muted); background: var(--surface); }
+[data-dir="harbor"] .step.done .n { background: var(--success); border-color: var(--success); color: var(--surface); }
+[data-dir="harbor"] .step.now .n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+[data-dir="harbor"] .step .t { font-weight: 600; }
+[data-dir="harbor"] .step .d { color: var(--text-muted); font-size: 14px; }
+[data-dir="harbor"] .step .meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-subtle); text-align: right; white-space: nowrap; }
+[data-dir="harbor"] .bar { height: 4px; background: var(--sunken); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+[data-dir="harbor"] .bar > i { display: block; height: 100%; width: 66%; background: var(--accent); }
+
+/* ===========================================================================
+   B · Graphite: dark band header carrying the page title and the hop stepper,
+   content cards below, activity list instead of a vertical timeline
+   ======================================================================== */
+[data-dir="graphite"] .band { background: var(--header); color: var(--on-header); padding: 0 28px 28px; }
+[data-dir="graphite"] .nav { display: flex; align-items: center; gap: 22px; height: 60px; }
+[data-dir="graphite"] .brand { font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+[data-dir="graphite"] .mark { width: 22px; height: 22px; border-radius: 50%; background: var(--highlight); }
+[data-dir="graphite"] .nav a { color: var(--on-header-muted); text-decoration: none; font-weight: 600; font-size: 14px; padding: 6px 12px; border-radius: 999px; }
+[data-dir="graphite"] .nav a.on { color: var(--on-highlight); background: var(--highlight); }
+[data-dir="graphite"] .nav .spacer { flex: 1; }
+[data-dir="graphite"] .crumb { color: var(--on-header-muted); font-size: 13px; margin-top: 12px; }
+[data-dir="graphite"] h1 { font-size: 34px; font-weight: 800; letter-spacing: -.03em; margin: 2px 0 4px; }
+[data-dir="graphite"] .lede { color: var(--on-header-muted); margin: 0; }
+[data-dir="graphite"] .stepper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 24px; }
+[data-dir="graphite"] .hop { border-top: 4px solid var(--on-header-muted); padding-top: 10px; opacity: .75; }
+[data-dir="graphite"] .hop.done { border-top-color: var(--success); opacity: 1; }
+[data-dir="graphite"] .hop.now { border-top-color: var(--highlight); opacity: 1; }
+[data-dir="graphite"] .hop .k { font-family: var(--font-mono); font-size: 12px; color: var(--on-header-muted); }
+[data-dir="graphite"] .hop .t { font-weight: 700; }
+[data-dir="graphite"] main { padding: 24px 28px 32px; }
+[data-dir="graphite"] .grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+[data-dir="graphite"] .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: 0 1px 0 var(--border), 0 0 0 1px var(--border); }
+[data-dir="graphite"] .card h2 { font-size: 15px; margin: 0 0 12px; font-weight: 700; }
+[data-dir="graphite"] .callout { display: flex; gap: 12px; align-items: flex-start; background: var(--sunken); color: var(--text); padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 16px; }
+[data-dir="graphite"] .callout .glyph { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--highlight); color: var(--on-highlight); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+[data-dir="graphite"] .callout .k { display: none; }
+[data-dir="graphite"] .activity { list-style: none; margin: 0; padding: 0; }
+[data-dir="graphite"] .activity li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+[data-dir="graphite"] .activity li:first-child { border-top: 0; }
+[data-dir="graphite"] .activity .at { font-family: var(--font-mono); color: var(--text-subtle); font-size: 12px; padding-top: 2px; }
+[data-dir="graphite"] .bar { height: 6px; background: var(--sunken); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+[data-dir="graphite"] .bar > i { display: block; height: 100%; width: 66%; background: var(--highlight); }
+
+/* Shared summary blocks */
+.amount-big { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+[data-dir="graphite"] .amount-big { font-weight: 800; }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; margin: 12px 0 0; }
+.kv dt { color: var(--text-muted); } .kv dd { margin: 0; text-align: right; }
+.label { font-size: 12px; font-weight: 600; color: var(--text-subtle); text-transform: uppercase; letter-spacing: .05em; }
+.section { margin-top: 20px; }
+.hold { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-top: 14px; }
+.stack > * + * { margin-top: 20px; }
+
+@media (max-width: 900px) {
+  [data-dir] .grid { grid-template-columns: 1fr; }
+  [data-dir="current"] .shell { grid-template-columns: 1fr; }
+  [data-dir="current"] .side { border-right: 0; border-bottom: 1px solid var(--border); }
+  [data-dir="harbor"] .tabs a { padding: 0 8px; font-size: 14px; }
+  [data-dir="graphite"] .stepper { grid-template-columns: 1fr; }
+  [data-dir="harbor"] .step { grid-template-columns: 28px 1fr; }
+  [data-dir="harbor"] .step .meta { grid-column: 2; text-align: left; }
+  .hide-sm { display: none; }
+  main { padding: 16px !important; }
+}
+</style>
+</head>
+<body>
+<div class="review" role="toolbar" aria-label="Compare directions">
+  <b>Direction</b>
+  <div class="group" id="dirs">
+    <button data-v="current">Current</button>
+    <button data-v="harbor">A · Harbor</button>
+    <button data-v="graphite">B · Graphite</button>
+  </div>
+  <b>Theme</b>
+  <div class="group" id="themes">
+    <button data-v="light">Light</button>
+    <button data-v="dark">Dark</button>
+  </div>
+  <b>Screen</b>
+  <div class="group" id="screens">
+    <button data-v="detail">Payout</button>
+    <button data-v="new">New payout</button>
+    <button data-v="list">Payouts</button>
+  </div>
+</div>
+
+<div class="notes"><div class="box" id="notes"></div></div>
+<div class="frame"><div class="app" id="app"></div></div>
+
+<script>
+// Same data on every direction so only the design changes.
+const D = {
+  id: 'PO-1043', who: 'Fabric supplier', where: 'Monterrey, MX', acct: '••••4821',
+  receive: '42,800.00 MXN', send: '$2,493.63', fee: '$12.47', convert: '$2,481.16', rate: '17.2500 MXN per USD',
+  steps: [
+    { st: 'done', n: '01', word: 'Done', at: '4:42:31 PM', t: 'Dollars collected from your account', d: 'Collected $2,493.63 from ••••2290' },
+    { st: 'now', n: '02', word: 'In progress', at: '4:43:10 PM', t: 'Funds moving to Mexico', d: 'Confirming (2 of 3)' },
+    { st: 'next', n: '03', word: 'Next', at: '—', t: 'Pesos deposited to ••••4821', d: 'Starts when the funds arrive' },
+  ],
+  rows: [
+    ['PO-1043', 'Fabric supplier', '42,800.00 MXN', '$2,493.63', ['info', 'Moving']],
+    ['PO-1042', 'Freight agent', '9,150.00 MXN', '$533.53', ['danger', 'Refunded']],
+    ['PO-1041', 'Packaging supplier', '18,400.00 MXN', '$1,069.47', ['ok', 'Delivered']],
+    ['PO-1040', 'Fabric supplier', '310,000.00 MXN', '$18,061.09', ['ok', 'Delivered']],
+    ['PO-1039', 'Packaging supplier', '48,200.00 MXN', '$2,809.34', ['ok', 'Delivered']],
+  ],
+};
+
+const NOTES = {
+  current: `<h2>Current</h2>Warm paper neutrals, one deep indigo accent, Figtree, a sticky side nav, an editorial page head with a soft glow, left-border callouts and a ring-dot vertical timeline. Shown for comparison only.`,
+  harbor: `<h2>A · Harbor</h2>Cool and precise, like an operations console.
+    <ul>
+      <li><b>Colour</b>: cool slate neutrals instead of warm paper, a teal accent instead of indigo, and a brighter red for errors. Every text pair is 4.5:1 or better in light and dark.</li>
+      <li><b>Type</b>: IBM Plex Sans and Plex Mono instead of Figtree and JetBrains Mono. Semibold headings, no light editorial titles.</li>
+      <li><b>Layout</b>: a top bar with tabs instead of the sticky side nav. A plain title and status on one line, with a breadcrumb and no glow.</li>
+      <li><b>Patterns</b>: cards with a header strip. Timeline steps are square numbered badges in a ruled list, with the time on the right. Callouts are tinted boxes with a status glyph instead of a left border. Corners are 4px.</li>
+      <li><b>Cost</b>: tokens plus the SideNav→TopBar, PageHead, Timeline, Callout and Card styles. Screen logic is unchanged.</li>
+    </ul>`,
+  graphite: `<h2>B · Graphite</h2>Monochrome with one bright highlight. Bolder and more of a product feel.
+    <ul>
+      <li><b>Colour</b>: neutral greys, black primary buttons, and a marigold highlight for the current step, active nav and hold bar. State colours are separate (green, orange, red). Every text pair is 4.5:1 or better in light and dark.</li>
+      <li><b>Type</b>: Public Sans at extra-bold weight for titles and amounts, with DM Mono for references and times.</li>
+      <li><b>Layout</b>: a dark header band carries the nav, the title and a horizontal three-step progress bar. The details below are cards, and the vertical timeline becomes a timestamped activity list.</li>
+      <li><b>Patterns</b>: pill nav, rounded 12px cards with hairline borders, and callouts as filled rows with a round glyph.</li>
+      <li><b>Cost</b>: larger. Same token swap, plus a new header band and stepper component, and the Timeline is reworked into an activity list. Copy and the state → tone map stay.</li>
+    </ul>`,
+};
+
+let state = { dir: 'harbor', theme: 'light', screen: 'detail' };
+try { const m = matchMedia('(prefers-color-scheme: dark)'); if (m.matches) state.theme = 'dark'; } catch (e) {}
+
+const nav = (on) => [['list', 'Payouts'], ['new', 'New payout']].map(([k, l]) => `<a href="#" data-go="${k}" class="${on === k || (on === 'detail' && k === 'list') ? 'on' : ''}">${l}</a>`).join('');
+const pill = ([k, l]) => `<span class="pill ${k}">${l}</span>`;
+const kv = (pairs) => `<dl class="kv num">${pairs.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
+
+function summary(title) {
+  return `<div class="label">${title}</div><div class="amount-big num">${D.receive}</div>
+    ${kv([['They receive', D.receive], ['You send', D.send], ['Our fee', D.fee], ['Converted', D.convert], ['Rate', D.rate]])}`;
+}
+function quote() {
+  return `<div class="label">Summary</div><div class="amount-big num">${D.receive}</div>
+    ${kv([['You send', D.send], ['Includes our fee', D.fee], ['Rate', D.rate]])}
+    <div class="hold"><span>Rate held</span><span class="num">0:41 left</span></div><div class="bar"><i></i></div>
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary">Confirm and send ${D.send}</button></div>
+    <p style="font-size:13px;color:var(--text-muted);margin:12px 0 0">Debited from ••••2290. Usually arrives in about 15 minutes. If it can't be delivered, you get all of ${D.send} back, fee included.</p>`;
+}
+function form() {
+  const r = [['Fabric supplier', 'Monterrey, MX · ••••4821', true], ['Packaging supplier', 'Guadalajara, MX · ••••0937'], ['Freight agent', 'Veracruz, MX · ••••5510']];
+  return `<div class="label">Recipient</div>
+    <div style="display:grid;gap:8px;margin:8px 0 20px">${r.map(([a, b, on]) => `<label style="display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid ${on ? 'var(--accent)' : 'var(--border)'};background:${on ? 'var(--accent-soft)' : 'var(--surface)'};border-radius:var(--radius-sm)"><input type="radio" name="r" ${on ? 'checked' : ''}><span><b style="font-weight:600">${a}</b><br><span style="font-size:13px;color:var(--text-muted)">${b}</span></span></label>`).join('')}</div>
+    <div class="label">Amount</div>
+    <div style="display:inline-flex;margin:8px 0 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);overflow:hidden"><button style="border:0;padding:8px 14px;background:var(--accent);color:var(--on-accent);font-weight:600">They receive</button><button style="border:0;padding:8px 14px;background:var(--surface);color:var(--text)">You send</button></div>
+    <div style="display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--surface);padding:0 14px;height:52px"><input class="num" value="42,800.00" style="border:0;background:transparent;color:var(--text);font:600 20px var(--font-sans);flex:1;min-width:0" aria-label="Amount in MXN"><span style="color:var(--text-muted)">MXN</span></div>
+    <p style="font-size:13px;color:var(--text-subtle);margin:8px 0 0">$10.00 to $50,000.00 per payout.</p>`;
+}
+function list() {
+  return `<table><thead><tr><th>Payout</th><th>Recipient</th><th class="r">They receive</th><th class="r hide-sm">You sent</th><th>Status</th></tr></thead><tbody>
+    ${D.rows.map((r) => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td class="r num">${r[2]}</td><td class="r num hide-sm">${r[3]}</td><td>${pill(r[4])}</td></tr>`).join('')}</tbody></table>`;
+}
+const calloutText = { t: 'Funds are moving to Mexico.', d: 'The transfer has 2 of 3 confirmations. The supplier\'s bank gets the pesos next.' };
+
+/* ---- Current ---------------------------------------------------------- */
+function renderCurrent(s) {
+  const head = {
+    detail: ['Payout · ' + D.id, D.who, `${D.where} · ${D.acct}`],
+    new: ['New payout', 'Pay a supplier', 'Pick who, enter an amount, and see the rate before anything moves.'],
+    list: ['Payouts', 'Payouts', 'Everything you have sent, newest first.'],
+  }[s];
+  let body = '';
+  if (s === 'detail') body = `<div class="grid"><div><div class="callout" role="status"><div class="k">In progress</div><b>${calloutText.t}</b><div>${calloutText.d}</div></div>
+      <div class="card"><div class="steps">${D.steps.map((x) => `<div class="step ${x.st}"><div class="meta">${x.n} · ${x.word} · ${x.at}</div><div class="t">${x.t}</div><div class="d">${x.d}</div></div>`).join('')}</div></div></div>
+      <div class="card">${summary('They receive')}</div></div>`;
+  if (s === 'new') body = `<div class="grid"><div class="card">${form()}</div><div class="card">${quote()}</div></div>`;
+  if (s === 'list') body = `<div class="card" style="padding:0">${list()}</div>`;
+  return `<div class="shell"><aside class="side"><div class="brand"><span class="mark">↗</span>Payouts</div>${nav(s)}</aside>
+    <main><div class="head"><div class="eyebrow">${head[0]}</div><h1>${head[1]}</h1><p class="lede">${head[2]}</p></div>${body}</main></div>`;
+}
+
+/* ---- A · Harbor ------------------------------------------------------- */
+function renderHarbor(s) {
+  const top = `<div class="topbar"><div class="brand"><span class="mark" aria-hidden="true"></span>Payouts</div><nav class="tabs">${nav(s)}</nav><span class="spacer"></span><button class="btn ghost hide-sm" style="min-height:34px;padding:0 12px;font-size:14px">New payout</button></div>`;
+  let main = '';
+  if (s === 'detail') main = `<div class="crumb">Payouts / <span class="mono">${D.id}</span></div>
+    <div class="head"><h1>${D.who}</h1>${pill(['info', 'Moving'])}<p class="lede">${D.where} · ${D.acct} · Confirmed 4:42 PM</p></div>
+    <div class="grid"><div class="stack">
+      <div class="callout" role="status"><span class="glyph" aria-hidden="true">→</span><div><b>${calloutText.t}</b><div style="color:var(--text-muted);font-size:14px">${calloutText.d}</div></div></div>
+      <section class="card"><div class="ch">Progress <span class="mono" style="color:var(--text-subtle);font-weight:400">${D.id}</span></div><div class="cb steps">
+        ${D.steps.map((x) => `<div class="step ${x.st}"><span class="n">${x.n}</span><div><div class="t">${x.t}</div><div class="d">${x.d}</div>${x.st === 'now' ? '<div class="bar"><i></i></div>' : ''}</div><div class="meta">${x.word}<br>${x.at}</div></div>`).join('')}
+      </div></section></div>
+      <aside class="card"><div class="ch">Amounts</div><div class="cb">${summary('They receive')}</div></aside></div>`;
+  if (s === 'new') main = `<div class="crumb">Payouts / New</div><div class="head"><h1>New payout</h1><p class="lede">Pick who, enter an amount, and see the rate before anything moves.</p></div>
+    <div class="grid"><section class="card"><div class="ch">Details</div><div class="cb">${form()}</div></section><aside class="card"><div class="ch">Quote</div><div class="cb">${quote()}</div></aside></div>`;
+  if (s === 'list') main = `<div class="head"><h1>Payouts</h1><p class="lede">Everything you have sent, newest first.</p></div><section class="card">${list()}</section>`;
+  return top + `<main>${main}</main>`;
+}
+
+/* ---- B · Graphite ----------------------------------------------------- */
+function renderGraphite(s) {
+  const navbar = `<div class="nav"><div class="brand"><span class="mark" aria-hidden="true"></span>Payouts</div>${nav(s)}<span class="spacer"></span></div>`;
+  if (s === 'detail') {
+    return `<header class="band">${navbar}<div class="crumb">Payouts / <span class="mono">${D.id}</span></div>
+      <h1>${D.receive} to ${D.who}</h1><p class="lede">${D.where} · ${D.acct} · Confirmed 4:42 PM</p>
+      <div class="stepper">${D.steps.map((x, i) => `<div class="hop ${x.st}"><div class="k">Step ${i + 1} · ${x.word}</div><div class="t">${x.t}</div></div>`).join('')}</div></header>
+      <main><div class="grid"><div class="stack">
+        <div class="callout" role="status"><span class="glyph" aria-hidden="true">…</span><div><b>${calloutText.t}</b><div style="color:var(--text-muted);font-size:14px">${calloutText.d}</div><div class="bar" style="max-width:280px"><i></i></div></div></div>
+        <section class="card"><h2>Activity</h2><ul class="activity">
+          <li><span class="at">4:43:58 PM</span><span>Transfer has 2 of 3 confirmations</span></li>
+          <li><span class="at">4:43:10 PM</span><span>Funds sent toward Mexico</span></li>
+          <li><span class="at">4:42:31 PM</span><span>Collected ${D.send} from ••••2290</span></li>
+          <li><span class="at">4:42:30 PM</span><span>Payout confirmed at ${D.rate}</span></li>
+        </ul></section></div>
+        <aside class="card">${summary('They receive')}</aside></div></main>`;
+  }
+  const head = s === 'new' ? ['New payout', 'Pick who, enter an amount, and see the rate before anything moves.'] : ['Payouts', 'Everything you have sent, newest first.'];
+  const body = s === 'new' ? `<div class="grid"><section class="card">${form()}</section><aside class="card">${quote()}</aside></div>` : `<section class="card" style="padding:8px 8px">${list()}</section>`;
+  return `<header class="band">${navbar}<h1 style="margin-top:12px">${head[0]}</h1><p class="lede">${head[1]}</p></header><main>${body}</main>`;
+}
+
+function render() {
+  const root = document.documentElement;
+  root.dataset.dir = state.dir; root.dataset.theme = state.theme;
+  document.getElementById('notes').innerHTML = NOTES[state.dir];
+  const fn = { current: renderCurrent, harbor: renderHarbor, graphite: renderGraphite }[state.dir];
+  document.getElementById('app').innerHTML = fn(state.screen);
+  for (const [id, key] of [['dirs', 'dir'], ['themes', 'theme'], ['screens', 'screen']])
+    document.querySelectorAll(`#${id} button`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
+  document.querySelectorAll('[data-go]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); state.screen = a.dataset.go; render(); }));
+}
+for (const [id, key] of [['dirs', 'dir'], ['themes', 'theme'], ['screens', 'screen']])
+  document.getElementById(id).addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { state[key] = b.dataset.v; render(); } });
+render();
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 # Design decisions
 
+> **Colour, type and shell superseded.** The app now uses the Harbor direction ([D30](../../DECISIONS.md#d30-harbor-visual-direction), [directions/](../directions/index.html)). Screens, states, copy and the timeline wording below still hold; the palette, fonts, side nav, glow and ring-dot timeline do not.
+
 The mockup in [`index.html`](index.html) implements everything below. Open it in a browser; the simulation rail beside the app forces each provider behaviour, speeds up the timers, and shows the server log and the ledger for the open payout.
 
 ## Direction

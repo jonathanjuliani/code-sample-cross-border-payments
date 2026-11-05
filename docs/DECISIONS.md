@@ -335,3 +335,17 @@ To add one: next number, same four headings. To change one: add a new entry that
 - _Reinstall Corepack in the image, then `corepack prepare`_ (rejected): an extra global package for the same result as installing pnpm directly.
 
 **Consequences**: Node 26 no longer ships Corepack, so any `corepack enable` step fails. Native addons need an ABI-147 prebuild; `better-sqlite3` still installs via `allowBuilds` ([D14](DECISIONS.md#d14-pnpm-allowbuilds-for-better-sqlite3-and-esbuild)).
+
+## D30. Harbor visual direction
+
+**Status**: Accepted
+
+**Decision**: The web app moves from the first mockup's look to the Harbor direction in [`design/directions/`](design/directions/index.html). Cool slate neutrals and one teal accent replace warm paper and indigo. IBM Plex Sans and Plex Mono replace Figtree and JetBrains Mono. A sticky top bar with tabs replaces the side nav. Page heads lose the glow. Callouts become tinted boxes with a status glyph. The timeline becomes numbered square steps in ruled rows. Corners are 4px, and the payout screen shows the amounts in a right-hand column. Role names, the state → tone map, copy and screen logic are unchanged.
+
+**Options considered**
+
+- _A · Harbor_ (chosen): a cool, precise operations-console feel. The change is mostly tokens plus five components (TopBar, PageHead, Callout, Timeline, SectionHead).
+- _B · Graphite_ (rejected): a dark header band, a horizontal step progress bar and an activity list. Larger rework of the timeline and shell.
+- _Keep the first look_ (rejected): its warm, editorial style suits a reading page more than an operations tool someone checks between other work.
+
+**Consequences**: every role text pair is 4.5:1 or better, and `--border-strong` is 3:1 in both themes, so the dark-theme line exception in `tokens.test.ts` is gone. The screenshot baselines (N7) must be regenerated. The first mockup stays as the reference for structure, states and copy only.

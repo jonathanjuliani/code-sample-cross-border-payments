@@ -1,6 +1,6 @@
 .bar {
   height: 6px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface-hover);
   overflow: hidden;
 }

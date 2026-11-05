@@ -1,46 +1,49 @@
 .root {
   list-style: none;
   padding: 0;
-  margin: var(--s2) 0 0 var(--s2);
-  border-left: 2px solid var(--border);
+  margin: 0;
 }
 .step {
-  position: relative;
-  padding: 0 0 var(--s5) var(--s5);
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: var(--s3);
+  padding: var(--s3) 0;
 }
-.step:last-child {
-  padding-bottom: 0;
+.step + .step {
+  border-top: 1px solid var(--border);
 }
-.ring {
-  position: absolute;
-  left: -7px;
-  top: 4px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
+.badge {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  border: 1px solid var(--accent);
   background: var(--surface);
+  color: var(--accent);
 }
-.success .ring {
-  border-color: var(--success-line);
-  background: var(--success-line);
+.success .badge {
+  border-color: var(--success);
+  background: var(--success);
+  color: var(--on-success);
 }
-.caution .ring {
+.caution .badge {
   border-color: var(--caution);
+  background: var(--caution);
+  color: var(--on-caution);
 }
-.danger .ring {
-  border-color: var(--danger-line);
+.danger .badge {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--on-danger);
 }
-.dashed .ring {
+.dashed .badge {
   border-style: dashed;
   border-color: var(--border-strong);
   background: var(--surface);
-}
-.meta {
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  color: var(--text-subtle);
-  margin-bottom: 2px;
+  color: var(--text-muted);
 }
 .title {
   font-weight: var(--fw-semibold);
@@ -49,4 +52,24 @@
   color: var(--text-muted);
   font-size: var(--fs-meta);
   margin-top: 2px;
+}
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .step {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+  .meta {
+    grid-column: 2;
+    flex-direction: row;
+    gap: var(--s2);
+    align-items: baseline;
+  }
 }

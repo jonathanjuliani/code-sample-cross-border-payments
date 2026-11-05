@@ -2,7 +2,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: var(--s4) var(--s5);
 }
 .root + .root {
   margin-top: var(--s4);

@@ -31,7 +31,7 @@
   align-items: center;
   gap: 2px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   padding: 2px var(--s2) 2px 2px;
   margin: 0;
   min-inline-size: 0;
@@ -47,7 +47,7 @@
   background: transparent;
   color: var(--text-muted);
   padding: 6px 14px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);
   cursor: pointer;

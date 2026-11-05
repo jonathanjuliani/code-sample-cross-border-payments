@@ -18,7 +18,7 @@
 
 ### 2. `ui/` components
 
-Build each with a CSS Module, role tokens only, and a small test where it has logic. The list and props are in PLAN §14: `Button`, `Pill`, `Callout`, `Card`, `SectionHead`, `PageHead`, `SideNav`, `Timeline`, `KeyValue`, `Table`, `Segmented`, `AmountField`, `HoldBar`, `Money`, `Spinner`, `ThemeSwitch`. Match the mockup's markup and spacing; copy its CSS rules into the modules, swapping nothing but selectors.
+Build each with a CSS Module, role tokens only, and a small test where it has logic. The list and props are in PLAN §14: `Button`, `Pill`, `Callout`, `Card`, `SectionHead`, `PageHead`, `TopBar`, `Timeline`, `KeyValue`, `Table`, `Segmented`, `AmountField`, `HoldBar`, `Money`, `Spinner`, `ThemeSwitch`. Match the mockup's markup and spacing; copy its CSS rules into the modules, swapping nothing but selectors. Since [D30](../DECISIONS.md#d30-harbor-visual-direction), `TopBar`, `PageHead`, `Callout`, `Timeline` and `SectionHead` follow the Harbor direction instead.
 
 - `Money` uses `formatMinor` from `packages/shared`. Never formats with floats.
 - `AmountField` takes and emits minor units; it parses the typed string with integer maths.
@@ -40,7 +40,7 @@ Copy, layout and states come from the mockup; don't reword.
   - 422 / 400 → inline field error with the limits.
 - **`PayoutDetail`** (`/payouts/:id`): page head with the status, the banner callout for the current state, the `Timeline` built from legs exactly as the mockup's timeline copy, the amounts block (with the "Not delivered. Quoted amount" label on `refunded` and "Not sent. Quoted amount" on `failed`), and a collapsed "Support details" with provider refs and the network reference. The words "stablecoin", "DUSD", "chain" and "wallet" appear only inside support details (T9). An offline strip with "Last confirmed …" when polling fails (S2). "Taking longer than usual. Nothing is wrong yet." when the API marks a hop slow (S1).
 - **`Ops`** (`/ops`): `PageHead` with eyebrow "Ops · not part of the product". Panels from PLAN §13 in this order: Simulation, Summary, Stuck, Server log (filter by kind and payout id, newest first, monospace lines), Reconciliation, Config. Any payout id on the page opens the inspector as a drawer or a section below. Polls every 2 s. Shows a clear empty state when `OPS_ENABLED` is off (the API answers 404).
-- **`SideNav`**: Payouts, New payout, the theme switch; in dev builds (`import.meta.env.DEV`) a small "Ops" link in the footer.
+- **`TopBar`** (was `SideNav` until [D30](../DECISIONS.md#d30-harbor-visual-direction)): Payouts, New payout, the funding account and the theme switch; in dev builds (`import.meta.env.DEV`) an "Ops" tab.
 
 ### 4. Browser tests (`e2e/`)
 

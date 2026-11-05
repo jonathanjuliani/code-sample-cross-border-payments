@@ -7,7 +7,7 @@ A small app that pays a supplier abroad: dollars collected, moved as a dollar st
 1. [README.md](README.md): the invariant and the H1 to H12 list.
 2. [docs/PLAN.md](docs/PLAN.md): the spec. States, tables, endpoints, money rules, ledger postings, simulator switches, fixed values (§19).
 3. [docs/phases/](docs/phases/README.md): one brief per phase. Work one phase at a time, in order.
-4. [docs/design/mockup/index.html](docs/design/mockup/index.html), opened in a browser, and its [DECISIONS.md](docs/design/mockup/DECISIONS.md): what every screen looks like and says, and the token values.
+4. [docs/design/mockup/index.html](docs/design/mockup/index.html), opened in a browser, and its [DECISIONS.md](docs/design/mockup/DECISIONS.md): what every screen shows and says. Colour, type and the app shell follow the Harbor direction ([D30](docs/DECISIONS.md#d30-harbor-visual-direction), [docs/design/directions/](docs/design/directions/index.html)); the token values live in `apps/web/src/styles/tokens/`.
 5. [docs/DECISIONS.md](docs/DECISIONS.md): choices already made. Don't reopen one without writing a new entry that supersedes it.
 
 When two documents disagree, PLAN wins over the mockup, and a phase brief wins over PLAN only where it says so explicitly. If something is still ambiguous, pick the reading that keeps the invariant, record it as a "Proposed" entry in `docs/DECISIONS.md`, and carry on.

@@ -1,8 +1,21 @@
 .root {
-  border-left: 3px solid var(--accent);
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: var(--s3);
+  border: 1px solid var(--border);
   background: var(--surface);
-  padding: 14px 18px;
-  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--radius);
+}
+.glyph {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  font-weight: var(--fw-bold);
+  font-size: 14px;
+  line-height: 1;
 }
 .label {
   font-size: var(--fs-label);
@@ -16,32 +29,49 @@
 }
 .body {
   margin: 2px 0 0;
-  color: var(--text);
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
 }
 .info {
-  border-left-color: var(--accent);
+  border-color: var(--accent);
   background: var(--accent-soft);
+}
+.info .glyph {
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .info .label {
   color: var(--accent);
 }
 .success {
-  border-left-color: var(--success-line);
+  border-color: var(--success-line);
   background: var(--success-soft);
+}
+.success .glyph {
+  background: var(--success);
+  color: var(--on-success);
 }
 .success .label {
   color: var(--success);
 }
 .caution {
-  border-left-color: var(--caution);
+  border-color: var(--caution);
   background: var(--caution-soft);
+}
+.caution .glyph {
+  background: var(--caution);
+  color: var(--on-caution);
 }
 .caution .label {
   color: var(--caution);
 }
 .danger {
-  border-left-color: var(--danger-line);
+  border-color: var(--danger-line);
   background: var(--danger-soft);
+}
+.danger .glyph {
+  background: var(--danger);
+  color: var(--on-danger);
 }
 .danger .label {
   color: var(--danger);
