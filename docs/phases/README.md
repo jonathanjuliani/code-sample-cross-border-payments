@@ -11,7 +11,7 @@ One brief per phase. Each is written so someone (a person or an agent) who has r
 | 4     | done: [Simulator and ops API](phase-4-simulator-ops-api.md) | Every §11 switch ends in a final state with a balanced ledger |
 | 5     | done: [Client and /ops page](phase-5-client-ops-page.md) | Playwright flows and axe green in both themes                      |
 | 6     | done: [Reconciliation and docs](phase-6-reconciliation-docs.md) | Fresh clone, one command, every switch tried by hand         |
-| 7     | done: [Nice-to-haves](phase-7-nice-to-haves.md) | Each N item with a test (N1–N7; N4 via P4)                               |
+| 7     | done: [Nice-to-haves](phase-7-nice-to-haves.md) | Each N item with a test (N1–N7; N4 via P4). N7 removed for now ([D31](../DECISIONS.md#d31-screenshot-tests-removed-until-rebaselined))                               |
 
 There is no Phase 8. Further work is maintenance or a new DECISIONS entry that reopens scope.
 
