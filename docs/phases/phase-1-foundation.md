@@ -10,14 +10,14 @@
 
 ### 1. Workspace
 
-- `package.json` at the root: `"type": "module"`, `packageManager` (pnpm 11), `engines.node` `^24.0.0`, scripts:
+- `package.json` at the root: `"type": "module"`, `packageManager` (pnpm 11), `engines.node` `^26.0.0`, scripts:
   - `dev`, `build`, `start` (parallel over `./apps/*`)
   - `test` (`pnpm -r test`), `typecheck` (`pnpm -r typecheck`), `lint` (`biome check .`), `format` (`biome check --write .`)
   - `check:tokens` (`node scripts/check-tokens.mjs`)
   - `verify`: `pnpm lint && pnpm check:tokens && pnpm typecheck && pnpm test`
   - `test:e2e` (`playwright test`), `prepare` (sets `core.hooksPath` to `.githooks`)
 - `pnpm-workspace.yaml`: `apps/*`, `packages/*`, and `allowBuilds: { better-sqlite3: true, esbuild: true }` (see [D14](../DECISIONS.md#d14-pnpm-allowbuilds-for-better-sqlite3-and-esbuild); `false` skips the install script and leaves no native binding under pnpm 11).
-- `.nvmrc` (`24`), `tsconfig.base.json` (strict, `erasableSyntaxOnly`, `verbatimModuleSyntax`, `allowImportingTsExtensions`, `noEmit`), `biome.json`, `.gitignore` (`node_modules`, `dist`, `data`, `test-results`, `playwright-report`).
+- `.nvmrc` (`26`), `tsconfig.base.json` (strict, `erasableSyntaxOnly`, `verbatimModuleSyntax`, `allowImportingTsExtensions`, `noEmit`), `biome.json`, `.gitignore` (`node_modules`, `dist`, `data`, `test-results`, `playwright-report`).
 - `.githooks/pre-commit`: `pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true`.
 - `.github/workflows/ci.yml`: job `verify` (install with `--frozen-lockfile`, `pnpm verify`) and job `e2e` (installs Playwright Chromium, `pnpm test:e2e`). The e2e job may be a placeholder that passes with zero tests until Phase 5.
 
@@ -40,7 +40,7 @@
 - Logger: pino with `redact: ['*.bankAccountToken', 'req.headers["idempotency-key"]']`.
 - `seed/seed.ts`: recipients and the funding account from §19 Seed data. The two delivered history payouts are added in Phase 3, once the ledger exists. Leave a `TODO(phase-3)` comment.
 - `test/health.test.ts` using `app.inject`.
-- `Dockerfile` (node:24-slim, `pnpm install --frozen-lockfile --prod=false`, runs `node apps/api/src/server.ts`).
+- `Dockerfile` (node:26-slim, `npm install -g pnpm@11.1.2`, `pnpm install --frozen-lockfile --prod=false`, runs `node apps/api/src/server.ts`). See [D29](../DECISIONS.md#d29-node-26).
 
 ### 4. `apps/web` skeleton
 

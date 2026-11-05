@@ -1,8 +1,9 @@
-FROM node:24-slim AS build
+FROM node:26-slim AS build
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
+# Node 26 no longer ships Corepack; install pnpm directly.
+RUN npm install -g pnpm@11.1.2
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY scripts scripts

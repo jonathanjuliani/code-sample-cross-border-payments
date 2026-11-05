@@ -31,7 +31,7 @@ Override the host port with `WEB_PORT=9000 docker compose up --build` if 8801 is
 
 ## Develop
 
-Needs Node 24 (see `.nvmrc`) and pnpm 11.
+Needs Node 26 (see `.nvmrc`) and pnpm 11.
 
 ```bash
 pnpm install
