@@ -36,7 +36,7 @@ Same shape as a small production service, nothing more:
 
 | Part              | Choice                                     | Why                                                                                     |
 | ----------------- | ------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Workspace         | pnpm workspace, Node 24                    | One install, shared contracts, Node runs the API's TypeScript directly.                 |
+| Workspace         | pnpm workspace, Node 26                    | One install, shared contracts, Node runs the API's TypeScript directly.                 |
 | `apps/api`        | Fastify + `better-sqlite3`                 | SQLite gives real transactions and unique indexes in one file. No server to run.        |
 | `apps/web`        | Vite + React                               | Three screens, `/ops` and a reducer. Path routes on the History API, no router library ([D13](DECISIONS.md#d13-path-routing-with-no-router-library)). |
 | Styling           | CSS custom properties + CSS Modules        | The token system is already CSS variables. Vite supports CSS Modules with no extra dependency. No CSS framework. |
@@ -416,7 +416,7 @@ Every number and name the code needs, so nobody invents one. Each one lives in e
 
 | Name                  | Default                  | Notes                                                                            |
 | --------------------- | ------------------------ | -------------------------------------------------------------------------------- |
-| Node                  | 24 (`.nvmrc`)            | `engines` `^24.0.0`. pnpm via `packageManager`.                                  |
+| Node                  | 26 (`.nvmrc`)            | `engines` `^26.0.0`. pnpm via `packageManager` (Docker installs pnpm with npm; Corepack is not shipped in Node 26). |
 | `PORT`                | `3000`                   | API, inside the container only.                                                  |
 | `WEB_PORT`            | `8801`                   | Host port for the web container (nginx). nginx proxies `/api/*` to `api:3000/*`. |
 | Vite dev              | `5173`                   | `vite.config.ts` proxies `/api` to `localhost:3000`, stripping the prefix.       |

@@ -321,3 +321,17 @@ To add one: next number, same four headings. To change one: add a new entry that
 
 - _Mask dynamic regions_ (chosen): e2e keeps a real system clock; no second fake-clock path in `server.ts`.
 - _Fake clock in the e2e API process_ (rejected): larger surface for a sample that already masks those pixels.
+
+## D29. Node 26
+
+**Status**: Accepted
+
+**Decision**: Runtime is Node 26 (`.nvmrc`, `engines` `^26.0.0`, `node:26-slim` images, `@types/node` ^26). Dockerfiles install pnpm with `npm install -g pnpm@11.1.2` instead of Corepack. CI keeps reading `.nvmrc` via `actions/setup-node`.
+
+**Options considered**
+
+- _Node 26 LTS_ (chosen): current LTS line; type-stripping and the existing stack stay valid.
+- _Stay on Node 24_ (rejected): still in maintenance, but the sample tracks current LTS.
+- _Reinstall Corepack in the image, then `corepack prepare`_ (rejected): an extra global package for the same result as installing pnpm directly.
+
+**Consequences**: Node 26 no longer ships Corepack, so any `corepack enable` step fails. Native addons need an ABI-147 prebuild; `better-sqlite3` still installs via `allowBuilds` ([D14](DECISIONS.md#d14-pnpm-allowbuilds-for-better-sqlite3-and-esbuild)).
