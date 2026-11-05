@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const targetName = 'figtree-latin-wght-normal.woff2';
+const targetName = 'ibm-plex-sans-latin-400-normal.woff2';
 
 /** @param {string} dir */
 function findFile(dir) {
@@ -26,7 +26,7 @@ function findFile(dir) {
       if (entry === '.git' || entry === 'dist') continue;
       const found = findFile(full);
       if (found) return found;
-    } else if (entry === targetName && full.includes(`${join('figtree', 'files')}`)) {
+    } else if (entry === targetName && full.includes(`${join('ibm-plex-sans', 'files')}`)) {
       return full;
     }
   }
@@ -35,7 +35,7 @@ function findFile(dir) {
 
 const src = findFile(join(root, 'node_modules'));
 if (!src) {
-  console.warn('copy-fonts: Figtree woff2 not found (install dependencies first)');
+  console.warn('copy-fonts: IBM Plex Sans woff2 not found (install dependencies first)');
   process.exit(0);
 }
 const destDir = join(root, 'apps/web/public/fonts');

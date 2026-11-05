@@ -81,60 +81,62 @@ export function PayoutDetail({ id, recipients }: { id: string; recipients: Recip
         {transport}
       </span>
 
-      <div className="stack">
-        <Card>
-          <p className="label">{receiveLabel}</p>
-          <Money minor={payout.receiveMinor} currency="MXN" size="hero" />
-        </Card>
+      <div className="detailGrid">
+        <div className="stack">
+          <Callout tone={banner.tone} label={banner.label} title={banner.title} live>
+            {banner.body}
+          </Callout>
 
-        <Callout tone={banner.tone} label={banner.label} title={banner.title} live>
-          {banner.body}
-        </Callout>
+          <Card>
+            <SectionHead>Status</SectionHead>
+            <Timeline steps={steps} />
+          </Card>
 
-        <Card>
-          <SectionHead>Status</SectionHead>
-          <Timeline steps={steps} />
-        </Card>
-
-        <Card>
-          <SectionHead>Amounts</SectionHead>
-          <KeyValue
-            items={[
-              { key: 'You send', value: <Money minor={payout.sendMinor} currency="USD" /> },
-              { key: 'Fee', value: <Money minor={payout.feeMinor} currency="USD" /> },
-              {
-                key: receiveLabel,
-                value: <Money minor={payout.receiveMinor} currency="MXN" />,
-                big: true,
-              },
-            ]}
-          />
-        </Card>
-
-        <Card>
-          <Button variant="link" onClick={() => setSupportOpen((v) => !v)}>
-            {supportOpen ? '▼' : '▶'} Details for support
-          </Button>
-          {supportOpen ? (
-            <div className="stack" style={{ marginTop: 'var(--s3)' }}>
-              {payout.legs.map((leg) => (
-                <p key={leg.leg} className="meta mono">
-                  {leg.leg}: {leg.providerRef ?? '—'}
-                  {leg.txHash ? ` · ${leg.txHash}` : ''}
-                </p>
-              ))}
-              {networkRef ? (
-                <div data-testid="network-ref">
-                  <p className="label">Network reference</p>
-                  <p className="meta mono">hash · {networkRef.hash}</p>
-                  <p className="meta mono">block · {networkRef.blockNumber ?? '—'}</p>
-                  <p className="meta mono">from · {networkRef.from ?? '—'}</p>
-                  <p className="meta mono">to · {networkRef.to ?? '—'}</p>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-        </Card>
+          <Card>
+            <Button variant="link" onClick={() => setSupportOpen((v) => !v)}>
+              {supportOpen ? '▼' : '▶'} Details for support
+            </Button>
+            {supportOpen ? (
+              <div className="stack" style={{ marginTop: 'var(--s3)' }}>
+                {payout.legs.map((leg) => (
+                  <p key={leg.leg} className="meta mono">
+                    {leg.leg}: {leg.providerRef ?? '—'}
+                    {leg.txHash ? ` · ${leg.txHash}` : ''}
+                  </p>
+                ))}
+                {networkRef ? (
+                  <div data-testid="network-ref">
+                    <p className="label">Network reference</p>
+                    <p className="meta mono">hash · {networkRef.hash}</p>
+                    <p className="meta mono">block · {networkRef.blockNumber ?? '—'}</p>
+                    <p className="meta mono">from · {networkRef.from ?? '—'}</p>
+                    <p className="meta mono">to · {networkRef.to ?? '—'}</p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </Card>
+        </div>
+        <aside className="stack" aria-label="Amounts">
+          <Card>
+            <p className="label">{receiveLabel}</p>
+            <Money minor={payout.receiveMinor} currency="MXN" size="hero" />
+          </Card>
+          <Card>
+            <SectionHead>Amounts</SectionHead>
+            <KeyValue
+              items={[
+                { key: 'You send', value: <Money minor={payout.sendMinor} currency="USD" /> },
+                { key: 'Fee', value: <Money minor={payout.feeMinor} currency="USD" /> },
+                {
+                  key: receiveLabel,
+                  value: <Money minor={payout.receiveMinor} currency="MXN" />,
+                  big: true,
+                },
+              ]}
+            />
+          </Card>
+        </aside>
       </div>
     </div>
   );

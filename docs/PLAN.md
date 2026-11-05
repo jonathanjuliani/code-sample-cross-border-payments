@@ -1,6 +1,6 @@
 # Plan
 
-The handoff for building this app. Someone with this file, the [README](../README.md) and the [mockup](design/mockup/index.html) should be able to build it with nothing else. The design decisions behind the screens, and the token system the app uses, are in [design/mockup/DECISIONS.md](design/mockup/DECISIONS.md). Choices already made are in [DECISIONS.md](DECISIONS.md).
+The handoff for building this app. Someone with this file, the [README](../README.md) and the [mockup](design/mockup/index.html) should be able to build it with nothing else. The design decisions behind the screens are in [design/mockup/DECISIONS.md](design/mockup/DECISIONS.md); the current look (colour, type, shell) is §14 and [D30](DECISIONS.md#d30-harbor-visual-direction). Choices already made are in [DECISIONS.md](DECISIONS.md).
 
 To build it, work through [phases/](phases/README.md): one brief per phase, each with the files to create, the tests to write and the gate to pass. Rules that hold for every change are in [AGENTS.md](../AGENTS.md). Every number and name the code needs is in [§19](#19-fixed-values).
 
@@ -40,7 +40,7 @@ Same shape as a small production service, nothing more:
 | `apps/api`        | Fastify + `better-sqlite3`                 | SQLite gives real transactions and unique indexes in one file. No server to run.        |
 | `apps/web`        | Vite + React                               | Three screens, `/ops` and a reducer. Path routes on the History API, no router library ([D13](DECISIONS.md#d13-path-routing-with-no-router-library)). |
 | Styling           | CSS custom properties + CSS Modules        | The token system is already CSS variables. Vite supports CSS Modules with no extra dependency. No CSS framework. |
-| Fonts             | `@fontsource-variable/figtree`, `@fontsource/jetbrains-mono` | Self-hosted from the bundle: no runtime request to a font CDN, works offline in the container. |
+| Fonts             | `@fontsource/ibm-plex-sans`, `@fontsource/ibm-plex-mono` | Self-hosted from the bundle: no runtime request to a font CDN, works offline in the container. |
 | `packages/shared` | Zod schemas, types inferred                | The client and the API validate against the same contract.                              |
 | Tests             | Vitest (unit + HTTP via `inject`), Playwright | Failure paths at the HTTP seam; a few browser tests for double click, expiry, reload. |
 | Run               | `docker compose up`                        | API, web and the simulator in one command. SQLite file on a volume.                     |
@@ -59,7 +59,7 @@ apps/api/src
 apps/web/src
   styles/tokens/  primitives.css, roles.css (light + dark), the only place a colour literal may live
   styles/         base.css (reset, type, focus), fonts.ts
-  ui/             Button, Pill, Callout, Card, SectionHead, PageHead, SideNav, Timeline, KeyValue,
+  ui/             Button, Pill, Callout, Card, SectionHead, PageHead, TopBar, Timeline, KeyValue,
                   Table, Segmented, AmountField, HoldBar, Money, Spinner, ThemeSwitch
   screens/        PayoutList, NewPayout (QuoteCard), PayoutDetail, Ops
   state/          reducer, api client, tone.ts (payout state → tone)
@@ -237,7 +237,7 @@ The fakes post signed-shaped events to `/webhooks/:provider`, keep their own rec
 
 A separate route, `/ops`, for whoever runs or demos the app. It shows everything that happens on the server side, and it is the only place that can change the simulator. It never presses buttons on the sender's screen: open the app in one tab and `/ops` in another. Same idea as a counter page next to a self-service screen.
 
-It is not linked from the sender's side nav. Dev builds show a small "Ops" link in the nav footer; otherwise it is reached by URL. It uses the same tokens and components, with an "Ops · not part of the product" eyebrow on its page head.
+It is not linked from the sender's top bar. Dev builds show a small "Ops" tab in it; otherwise it is reached by URL. It uses the same tokens and components, with an "Ops · not part of the product" eyebrow on its page head.
 
 ### What it shows
 
@@ -267,25 +267,25 @@ The page polls every 2 seconds; server-sent events are N1. Every number and log 
 
 ## 14. Design system
 
-The look is fixed by the mockup: warm paper backgrounds, near-black ink, one deep indigo accent, Figtree with medium-weight headings, JetBrains Mono for references, left-border callouts, a ring-dot timeline and a sticky side nav. Values, contrast numbers and the patterns to keep are in [DECISIONS § Tokens](design/mockup/DECISIONS.md#tokens). This section is how the app sets it up so it stays that way.
+The look is the Harbor direction ([D30](DECISIONS.md#d30-harbor-visual-direction), shown in [design/directions/](design/directions/index.html)): cool slate neutrals, near-black ink, one teal accent, IBM Plex Sans with semibold headings, IBM Plex Mono for references, a sticky top bar with tabs, tinted callouts with a status glyph, a numbered square-step timeline and 4px corners. Screen structure, copy and states still come from the [mockup](design/mockup/DECISIONS.md); its colour and type values are superseded by the token files. This section is how the app sets it up so it stays that way.
 
 ### Where the tokens live
 
-- `apps/web/src/styles/tokens/primitives.css` holds the raw values (`--p-paper-1`, `--p-indigo-700`). Copied from the mockup, not retyped.
+- `apps/web/src/styles/tokens/primitives.css` holds the raw values (`--p-slate-50`, `--p-teal-700`). Copied from the directions file, not retyped.
 - `apps/web/src/styles/tokens/roles.css` maps them to roles for light (`:root`) and for dark (`@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }` and `:root[data-theme="dark"]`). Both themes are defined in the same change, never one derived from the other later.
 - Only `apps/web` consumes the tokens, so they live there and not in a package. If a second consumer shows up (a separate ops app, email templates), they move to `packages/tokens` with no renames.
 - Components use roles only. A component that needs its own decision gets a component token pointing at a role (`--hold-bar-fill: var(--accent)`), never a primitive and never a literal.
 
 ### Fonts
 
-- `@fontsource-variable/figtree` (one variable file covers 400 to 700) and `@fontsource/jetbrains-mono` 400 and 500, Latin subset, imported once in `styles/fonts.ts`.
-- `font-display: swap`, and a `<link rel="preload">` for the Figtree file so the first paint of amounts doesn't reflow.
+- `@fontsource/ibm-plex-sans` 400, 500, 600 and 700 and `@fontsource/ibm-plex-mono` 400 and 500, Latin subset, imported once in `styles/fonts.ts`.
+- `font-display: swap`, and a `<link rel="preload">` for the Plex Sans 400 file so the first paint of amounts doesn't reflow.
 - Fallback stacks stay as in the mockup (`system-ui` for sans, `ui-monospace` for mono).
-- Amounts use Figtree with `font-variant-numeric: tabular-nums`; a browser test renders "0000" and "1111" and asserts equal width, so a font swap can't silently break column alignment.
+- Amounts use Plex Sans with `font-variant-numeric: tabular-nums`; a browser test renders "0000" and "1111" and asserts equal width, so a font swap can't silently break column alignment.
 
 ### Theme
 
-- Default follows the system. The side nav's System / Light / Dark switch sets `data-theme` on `<html>` and stores the choice in `localStorage` (read and write wrapped in `try`, so a blocked storage still works for the visit).
+- Default follows the system. The top bar's System / Light / Dark switch sets `data-theme` on `<html>` and stores the choice in `localStorage` (read and write wrapped in `try`, so a blocked storage still works for the visit).
 - A four-line inline script in `index.html` applies the stored choice before first paint, so there is no flash of the wrong theme.
 
 ### Components
@@ -294,12 +294,12 @@ Each one lives in `ui/` with a CSS Module and takes a small typed prop surface. 
 
 | Component     | Props worth naming                                    | Pattern it carries                            |
 | ------------- | ----------------------------------------------------- | --------------------------------------------- |
-| `PageHead`    | `eyebrow`, `title`, `lede`, `action`                  | Eyebrow, medium title, glow, rule             |
-| `Callout`     | `tone`, `label`, `title`, `children`, `role`          | 3px left border, soft fill, uppercase key     |
+| `PageHead`    | `eyebrow`, `title`, `lede`, `action`                  | Small muted crumb, semibold title, no glow    |
+| `Callout`     | `tone`, `label`, `title`, `children`, `role`          | Tinted box, 1px tone border, square glyph     |
 | `Pill`        | `tone`, `children`                                    | Dot plus word                                 |
-| `Timeline`    | `steps: { tone, index, word, at?, title, detail }[]`  | Ring dots, mono "01 · Done · time" line       |
+| `Timeline`    | `steps: { tone, index, word, at?, title, detail }[]`  | Numbered square badges, ruled rows, word and time on the right |
 | `Money`       | `minor`, `currency`, `size`                           | Sans, tabular figures, never mono             |
-| `SideNav`     | `current`                                             | Active link tint and left border              |
+| `TopBar`      | `current`                                             | Tabs with a 2px accent underline              |
 
 ### Guardrails in `pnpm verify`
 

@@ -1,10 +1,10 @@
 .root {
-  border-bottom: 2px solid var(--rule-heavy);
+  border-bottom: 1px solid var(--border);
   padding-bottom: var(--s3);
-  margin-bottom: var(--s4);
+  margin-bottom: var(--s3);
 }
 .root h2 {
   margin: 0;
-  font-size: var(--fs-title);
-  font-weight: var(--fw-medium);
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
 }

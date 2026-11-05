@@ -1,7 +1,7 @@
 .root {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   padding: 3px;
   background: var(--surface-sunken);
   gap: 3px;
@@ -9,7 +9,7 @@
 }
 .root label {
   padding: 6px 14px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius);
   cursor: pointer;
   font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);

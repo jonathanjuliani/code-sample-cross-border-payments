@@ -75,7 +75,7 @@ apps/api         Fastify + SQLite: quotes, payouts, ledger, outbox worker, webho
 apps/web         Vite + React: list, new payout, timeline, /ops (simulation, summary, stuck, log, recon, config)
 packages/shared  Zod contracts and money rules both sides import
 e2e/             Playwright: confirm, timeline, ops, a11y, stream, screenshots
-docs/            plan, phase briefs, decisions, process, coverage, design mockup
+docs/            plan, phase briefs, decisions, process, coverage, design mockup + visual directions
 ```
 
 Agent rules: [AGENTS.md](AGENTS.md). Phases: [docs/phases/](docs/phases/README.md).

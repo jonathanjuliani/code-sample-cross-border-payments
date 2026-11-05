@@ -309,3 +309,19 @@ How this goes from an empty folder to a working app, one entry per phase, writte
 Phases 0–7 are finished. PLAN §18 checklist is ticked. Every H, S, P, T and N row in [COVERAGE.md](COVERAGE.md) is Handled (skipped PLAN §16 items stay under [D21](DECISIONS.md#d21-what-plan-16-skipped-and-why-it-stays-skipped)). There is no Phase 8; anything new needs a DECISIONS entry that reopens scope.
 
 Last green run on this close-out: `pnpm verify` (api 86, shared 17, web 7) and `pnpm test:e2e` (22) from the N7 gate.
+
+## After close-out: Node 26 and the Harbor look
+
+**Changed**
+
+- Runtime moved to Node 26 ([D29](DECISIONS.md#d29-node-26)).
+- The web app moved off the first mockup's look to the Harbor direction ([D30](DECISIONS.md#d30-harbor-visual-direction)): new primitives behind the same role names, IBM Plex, `TopBar` in place of `SideNav`, tinted callouts with a glyph, a numbered square-step timeline, and the payout amounts in a right-hand column. The options compared are in [design/directions/](design/directions/index.html).
+
+**Found**
+
+- The first palette needed a dark-theme exception for `--border-strong`; Harbor's reaches 3:1 in both themes, so the exception is gone and `tokens.test.ts` now also checks the `on-*` text on status fills.
+
+**Gate** (2026-11-05)
+
+- `pnpm verify` green on Node `v26.9.0`: shared 17, web 7, api 87.
+- `pnpm test:e2e` not re-run. The N7 baselines predate D30 and must be regenerated with `pnpm test:e2e --update-snapshots` and reviewed before N7 is Handled again.

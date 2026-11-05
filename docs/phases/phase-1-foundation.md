@@ -45,12 +45,12 @@
 ### 4. `apps/web` skeleton
 
 - Vite + React + TypeScript. `vite.config.ts` with the `/api` proxy from §19.
-- `src/styles/tokens/primitives.css` and `roles.css`: copy the primitive and role blocks from the mockup's `<style>`, light and both dark selectors, unchanged values.
+- `src/styles/tokens/primitives.css` and `roles.css`: copy the primitive and role blocks from the mockup's `<style>`, light and both dark selectors, unchanged values. Since [D30](../DECISIONS.md#d30-harbor-visual-direction) the values come from the Harbor direction in `docs/design/directions/`; role names are unchanged.
 - `src/styles/base.css`: reset, body type, focus ring, `tabular-nums` on `.money`.
-- `src/styles/fonts.ts`: imports `@fontsource-variable/figtree` and `@fontsource/jetbrains-mono/400.css` and `500.css`.
-- `index.html`: the inline theme script from PLAN §14 (reads `localStorage` in `try`, sets `data-theme`), a `preload` link for the Figtree file.
+- `src/styles/fonts.ts`: imports `@fontsource/ibm-plex-sans` (400 to 700) and `@fontsource/ibm-plex-mono` (400, 500). Figtree and JetBrains Mono until [D30](../DECISIONS.md#d30-harbor-visual-direction).
+- `index.html`: the inline theme script from PLAN §14 (reads `localStorage` in `try`, sets `data-theme`), a `preload` link for the Plex Sans 400 file.
 - `src/main.tsx` renders a placeholder page head ("Payouts") using role tokens, so the font and theme load are visible.
-- `test/tokens.test.ts`: parses both CSS files, resolves every role in light and in dark, and asserts the text pairs at ≥ 4.5:1 and the line pairs at ≥ 3:1, using the pair list in mockup DECISIONS § Colour roles. Write a small `contrast(hexA, hexB)` helper; no dependency.
+- `test/tokens.test.ts`: parses both CSS files, resolves every role in light and in dark, and asserts the text pairs at ≥ 4.5:1 and the line pairs at ≥ 3:1, using the pair list in mockup DECISIONS § Colour roles (D30 adds the `on-*` / status fill pairs and drops the dark line exception). Write a small `contrast(hexA, hexB)` helper; no dependency.
 - `Dockerfile` (build with Vite, serve `dist` with nginx) and `nginx.conf` (`/api/` proxied to `http://api:3000/`, `try_files $uri /index.html`).
 
 ### 5. Token check
