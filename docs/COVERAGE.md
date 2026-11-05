@@ -7,7 +7,7 @@ pnpm verify
 pnpm test:e2e
 ```
 
-Since then the runtime moved to Node 26 ([D29](DECISIONS.md#d29-node-26)) and the look to Harbor ([D30](DECISIONS.md#d30-harbor-visual-direction)). `pnpm verify` was re-run on 2026-11-05 on Node `v26.9.0` (shared 17, web 7, api 87). `pnpm test:e2e` has not been re-run since, so N7 is Unverified until its baselines are regenerated.
+Since then the runtime moved to Node 26 ([D29](DECISIONS.md#d29-node-26)) and the look to Harbor ([D30](DECISIONS.md#d30-harbor-visual-direction)). `pnpm verify` was re-run on 2026-11-05 on Node `v26.9.0` (shared 17, web 7, api 87). `pnpm test:e2e` has not been re-run since. The N7 screenshot tests were removed until they are rebaselined for the new look ([D31](DECISIONS.md#d31-screenshot-tests-removed-until-rebaselined)).
 
 Every row below was checked against those runs (or the named test file), not by reading production code alone. `How to see it` is the `/ops` switch or the UI steps a person can follow.
 
@@ -78,4 +78,4 @@ Status values: **Handled**, **Partial**, **Not handled: by choice**, **Not handl
 | N4 | Reorg simulation | Handled | Same as P4 via `transfer.reorg` | `apps/api/test/scenarios.test.ts` › `P4: reorg…` | `/ops` → `transfer.reorg` |
 | N5 | Read a real testnet transfer | Handled | `GET /payouts/:id/network-ref` via public JSON-RPC; off by default; recorded fixture in CI | `apps/api/test/network-lookup.test.ts` | Enable `TESTNET_LOOKUP_ENABLED`; open support details |
 | N6 | Second chain behind `Provider` | Handled | `CHAIN_PROVIDER=sim\|alt`; `createAltChainProvider`; scenarios run for both | `apps/api/test/scenarios.test.ts` › chain=sim and chain=alt | Set `CHAIN_PROVIDER=alt` |
-| N7 | Screenshot tests both themes | Unverified | Playwright `toHaveScreenshot` for new/list/payout/ops in light+dark; times/ids masked. Baselines predate D30 and must be regenerated | `e2e/screenshots.spec.ts` (+ darwin/linux baselines) | `pnpm test:e2e` |
+| N7 | Screenshot tests both themes | Not handled: later | Removed with the Harbor look ([D31](DECISIONS.md#d31-screenshot-tests-removed-until-rebaselined)); the old baselines showed the previous palette | (none) | (none) |
